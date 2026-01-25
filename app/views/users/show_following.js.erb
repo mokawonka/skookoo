@@ -1,0 +1,22 @@
+$('#followbodymodal').empty();
+
+<% if @following.count > 0 %>
+
+
+$('#followbodymodal').prepend("<h5 class='gray text-center'> Following </h5>");
+
+<% @following.each do |u| %>
+    $('#followbodymodal').append("<%= escape_javascript render('shared/followitem',  user: u) %>");
+<% end %>
+
+$('#followmodal').modal('show');
+
+
+$('.followbutton').on('click', function(){
+
+    var txt = $(this).text();
+    if( txt == 'Follow') $(this).text('Unfollow');    
+    else if (txt == 'Unfollow') $(this).text('Follow');
+});
+
+<% end %>

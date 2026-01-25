@@ -1,0 +1,158 @@
+<h3 class=pt-4> <%=image_tag('/assets/settings.svg', class: "header-icon")%>
+My settings 
+</h3>
+
+<div id='allsettings'>
+
+    <div class="row">
+
+      <div class="offset-md-1 col-md-3">
+        <div class="list-group" id="list-updaters" role="tablist">
+
+          <a class="list-group-item list-group-item-action active" id="list-account-list" data-bs-toggle="list" href="#list-account" role="tab" aria-controls="list-account">
+            My Account
+          </a>
+
+          <a class="list-group-item list-group-item-action" id="list-notifications-list" data-bs-toggle="list" href="#list-notifications" role="tab" aria-controls="list-notifications">
+            Notifications
+          </a>
+
+          <a class="list-group-item list-group-item-action" id="list-typography-list" data-bs-toggle="list" href="#list-typography" role="tab" aria-controls="list-typography">
+            Typography
+          </a>
+
+        </div>
+      </div>
+
+
+      <div class="col-md-8">
+        <div class="tab-content" id="updaters">
+
+          <div class="tab-pane fade show active" id="list-account" role="tabpanel" aria-labelledby="list-account-list">
+
+            <p class='updater-title'>Change my username</p>
+            <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
+                <div class="field">
+                    <%= form.text_field :username, required: true, class: 'smallinput' %>
+                </div>
+                <div class="actions">
+                    <%= form.submit "save", class: 'smallinput'%>
+                </div>
+            <% end %>
+
+            <hr>
+
+            <p class='updater-title'>Change my password</p>
+            <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
+                <div class="field">
+                    <%= form.password_field :password, placeholder: "password", required: true, class: 'smallinput' %>
+                </div>
+                <div class="field">
+                    <%= form.password_field :password_confirmation, placeholder: "password confirmation", required: true, class: 'smallinput' %>
+                </div>
+                <div class="actions">
+                    <%= form.submit "save", class: 'smallinput'%>
+                </div>
+            <% end %>
+
+            <hr>
+            
+            <p class='updater-title'>Change my email address</p>
+            <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
+                <div class="field">
+                    <%= form.email_field :email, required: true, class: 'smallinput' %>
+                </div>
+                <div class="actions">
+                    <%= form.submit "save", class: 'smallinput'%>
+                </div>
+            <% end %>
+
+            <hr>
+
+            <%= button_to 'Delete account', @user, method: :delete, class: "btn btn-sm btn-danger", data: {confirm: "Are you sure ? This cannot be undone."} %>
+
+          </div>
+
+
+
+
+
+
+
+          <div class="tab-pane fade" id="list-notifications" role="tabpanel" aria-labelledby="list-notifications-list">
+            
+            <p class='updater-title'>Real-time notifications</p>
+
+            <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
+              <%= form.check_box :allownotifications , onclick: "$('#submitallownotifs').click();" %>
+              <%= form.label 'Enabled', style: 'margin-left: 1em' %>
+              <%= form.submit "", id: "submitallownotifs", class: 'd-none'%>
+            <% end %>
+
+          </div>
+
+
+
+
+
+
+
+          <div class="tab-pane fade" id="list-typography" role="tabpanel" aria-labelledby="list-typography-list">
+         
+            <p class='updater-title'>Customize website font</p>
+
+            <button type="button" class="btn dropdown-toggle gray" data-bs-toggle="dropdown" aria-expanded="false">
+              Using 
+              <% if current_user.font == 'League Spartan Bold'%>
+                default
+              <% else %>
+                <%=current_user.font%>
+              <% end %>
+            </button>
+
+            <ul id=fontlist class="dropdown-menu  dropdown-menu-start">
+                <li><%= link_to 'Default', '#', value: 'League Spartan Bold', class: "dropdown-item font-choice", style: 'font-family: League Spartan Bold' %></li>
+
+                <li><%= link_to 'Crimson Pro', '#', value: 'Crimson Pro', class: "dropdown-item font-choice", style: 'font-family: Crimson Pro' %></li>
+                <li><%= link_to 'Crimson Pro Bold', '#', value: 'Crimson Pro Bold', class: "dropdown-item font-choice", style: 'font-family: Crimson Pro Bold' %></li>
+                <li><%= link_to 'Fira Sans', '#', value: 'Fira Sans', class: "dropdown-item font-choice", style: 'font-family: Fira Sans' %></li>
+                <li><%= link_to 'Fira Sans Bold', '#', value: 'Fira Sans Bold', class: "dropdown-item font-choice", style: 'font-family: Fira Sans Bold' %></li>
+                <li><%= link_to 'Fira Mono', '#', value: 'Fira Mono', class: "dropdown-item font-choice", style: 'font-family: Fira Mono' %></li>
+                <li><%= link_to 'Fira Mono Bold', '#', value: 'Fira Mono Bold', class: "dropdown-item font-choice", style: 'font-family: Fira Mono Bold' %></li>
+                <li><%= link_to 'Fredoka One', '#', value: 'FredokaOne', class: "dropdown-item font-choice", style: 'font-family: FredokaOne' %></li>
+                <li><%= link_to 'Chalkduster', '#', value: 'Chalkduster', class: "dropdown-item font-choice", style: 'font-family: Chalkduster' %></li>
+                <li><%= link_to 'Times New Roman', '#', value: 'Times New Roman', class: "dropdown-item font-choice", style: 'font-family: Times New Roman' %></li>
+                <li><%= link_to 'Times New Roman Bold', '#', value: 'Times New Roman Bold', class: "dropdown-item font-choice", style: 'font-family: Times New Roman Bold' %></li>
+                <li><%= link_to 'Arimo Regular', '#', value: 'Arimo Regular', class: "dropdown-item font-choice", style: 'font-family: Arimo Regular' %></li>
+                <li><%= link_to 'Clear Sans Regular', '#', value: 'Clear Sans Regular', class: "dropdown-item font-choice", style: 'font-family: Clear Sans Regular' %></li>
+                <li><%= link_to 'Cousine Regular', '#', value: 'Cousine Regular', class: "dropdown-item font-choice", style: 'font-family: Cousine Regular' %></li>
+                <li><%= link_to 'Droid Sans', '#', value: 'Droid Sans', class: "dropdown-item font-choice", style: 'font-family: Droid Sans' %></li>
+                <li><%= link_to 'Noto Sans Regular', '#', value: 'Noto Sans Regular', class: "dropdown-item font-choice", style: 'font-family: Noto Sans Regular' %></li>
+                <li><%= link_to 'Open Sans Regular', '#', value: 'Open Sans Regular', class: "dropdown-item font-choice", style: 'font-family: Open Sans Regular' %></li>
+                <li><%= link_to 'Permanent Marker', '#', value: 'Permanent Marker', class: "dropdown-item font-choice", style: 'font-family: Permanent Marker' %></li>
+                <li><%= link_to 'Roboto Bold', '#', value: 'Roboto Bold', class: "dropdown-item font-choice", style: 'font-family: Roboto Bold' %></li>
+                <li><%= link_to 'Roboto Regular', '#', value: 'Roboto Regular', class: "dropdown-item font-choice", style: 'font-family: Roboto Regular' %></li>
+                <li><%= link_to 'Roboto Slab Regular', '#', value: 'Roboto Slab Regular', class: "dropdown-item font-choice", style: 'font-family: Roboto Slab Regular' %></li>
+                <li><%= link_to 'Roboto Thin', '#', value: 'Roboto Thin', class: "dropdown-item font-choice", style: 'font-family: Roboto Thin' %></li>
+                <li><%= link_to 'Special Elite', '#', value: 'Special Elite', class: "dropdown-item font-choice", style: 'font-family: Special Elite' %></li>
+                <li><%= link_to 'Source Han Sans Regular', '#', value: 'Source Han Sans Regular', class: "dropdown-item font-choice", style: 'font-family: Source Han Sans Regular' %></li>
+                <li><%= link_to 'Tinos Regular', '#', value: 'Tinos Regular', class: "dropdown-item font-choice", style: 'font-family: Tinos Regular' %></li>
+            </ul>
+
+          </div>
+
+        </div>
+      </div>
+
+</div>
+
+<script>
+
+$('.font-choice').on('click', function(e) {
+  e.preventDefault(); 
+  var t = $(this).attr('value'); 
+  var actionurl = "/users/" + '<%=current_user.id%>' + "/update_font?font=" + t + "&authenticity_token=" + "<%=form_authenticity_token%>";
+  $.post(actionurl);
+});
+
+</script>

@@ -1,0 +1,137 @@
+
+#mydocuments{
+  padding-bottom: 100px;
+}
+
+
+//////////////////////////////////////
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  text-align: center; 
+}
+
+.flex-form {
+  display: flex;
+  text-align: left;
+  justify-content: center; 
+}
+
+.flex-form > div {
+  margin: 20px;
+}
+
+.flex-form > div > button {
+  margin-top: 31px; }
+
+.flex-title {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  text-align: center; }
+
+.flex-title > div#page-title {
+  width: 50%; }
+
+.flex-title > div#navbar {
+  width: 50%;
+  justify-content: flex-end; }
+
+
+@media only screen and (max-width: 320px) 
+{
+  .flex-title {
+    width: 100%;
+    justify-content: center;
+    text-align: center; }
+  .title {
+    width: 100%;
+    float: right;
+    text-align: center; }
+  .flex-title > div#navbar {
+    width: 100%;
+    justify-content: center; }
+  .flex-title > div#navbar > a {
+    width: 100%;
+    text-align: center; }
+  header {
+    display: none; }
+  .flex-form {
+    display: block;
+    justify-content: center;
+    text-align: center;
+    width: 100%; }
+  .flex-form > div {
+    margin-right: auto;
+    margin-left: auto;
+    justify-content: center;
+    width: 50%; }
+  .flex-form > div > button {
+    margin-top: 0px; }
+  .flex-container > div {
+    width: 100%;
+    margin: 10px;
+    justify-content: center;
+    text-align: center;
+    line-height: 75px;
+    font-size: 30px; }
+  footer {
+    margin-right: auto;
+    margin-left: auto; }
+  footer > h1 {
+    text-align: center; }
+}
+
+
+//////////////////////////////////////////// EPUB ///////////////////////////////////////////////
+//                                                                                             //
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+.epub-container{
+  overflow-x: hidden !important;
+}
+
+#prev {
+  left: 7px;
+}
+
+#next {
+  right: 7px;
+}
+
+@media (min-width: 1000px) {
+
+  #prev {
+    left: 20px;
+  }
+
+  #next {
+    right: 20px;
+  }
+
+}
+
+.arrow {
+  position: fixed;
+  top: 50%;
+  margin-top: -32px;
+  font-size: 50px;
+  color: #0951a9;
+  font-family: 'fredokaone';
+  font-weight: bold;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  text-decoration: none;
+}
+
+.arrow:hover{
+  color: rgb(0, 98, 255);
+}
+
+.arrow:active {
+  color: #000;
+}

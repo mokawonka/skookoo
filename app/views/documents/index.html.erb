@@ -1,0 +1,69 @@
+<h3 class="pt-4">
+<%=image_tag('/assets/tree.svg', class: "header-icon")%>
+My Documents
+</h3>
+
+<div class="text-center pt-3 pb-3">
+  <%= link_to '+ Add Documents', new_epub_path, class: "btn btn-warning border-3 border-dark" %>
+</div>
+
+<div id=mydocuments>
+
+<% if @records.count > 0 %>
+      
+      <% @records.order('updated_at DESC').each do |document| %>
+            
+        <% @affiliated_epub = Epub.find(document.epubid)%>
+
+        <br>
+        <div class="container-fluid docu">
+
+          <%= button_to '', document, method: :delete, class: "btn-close float-end", data: {confirm: "Are you sure?"} %>
+
+          <div class=row>
+
+            <div class="col-sm-4">
+
+              <% if @affiliated_epub.cover_pic.attached? %>
+
+                  <% if @affiliated_epub.cover_pic.variable? %>
+                    <%= link_to image_tag(@affiliated_epub.cover_pic.variant(resize_to_limit:[300, 300]), class: "coverpic"), document  %>
+                  <% else %>
+                    <%= link_to image_tag('/assets/default_epub_cover.png', size: '150x200', class: "coverpic"), document  %>
+                  <% end %>
+
+              <% else %>
+                  <%= link_to image_tag('/assets/default_epub_cover.png', size: '150x200', class: "coverpic"), document  %>                
+              <% end %>
+
+            </div>
+
+
+            <div class="col-sm-8">
+
+              <div class=docudate> Added on <%= document.created_at.to_date.to_fs(:long_ordinal) %></div>
+              <div class="pt-4 pb-4"><span class=docutitle><%= document.title.upcase %></span></div>
+              <div class="pb-5"> <span class=docuauthor><%= document.authors.upcase %></span></div>
+              <%= link_to 'Open', document, class: "btn btn-primary border-3 border-white" %>
+
+              <span class=black><%= (document.progress*100).ceil().to_s + "% read" %></span>
+            </div>
+
+          </div>
+
+        </div>
+      
+      <% end %>
+
+<% else %>
+
+    <div class="centered text-center dimmed">
+        <%= image_tag '/assets/sad_bee.png', size: '100x100'%>
+        <p> You don't have any documents </p>
+    </div>
+
+<% end %>
+
+</div>
+
+<%== pagy_bootstrap_nav(@pagy) if @pagy.pages > 1 %>

@@ -1,0 +1,151 @@
+
+<% eid = entity.id.to_s %>
+
+<% if fromuser != nil && touser != nil %>
+
+    <% myvote = fromuser.getvote(eid) %>
+
+    <%= form_with(model: fromuser, url: [fromuser, :update_votes], local: false,  class: "d-none") do |form| %>
+        <div class="field">
+            <%= form.text_field eid, { :id => 'vote-' + eid } %>
+        </div>
+        <div class="actions">
+            <%= form.submit "submit", id: 'submitvote-' + eid %>
+        </div>
+    <% end %>
+
+    <%= form_with(model: entity, url: [entity, :update_score], local: false,  class: "d-none") do |form| %>
+        <div class="field">
+            <%= form.text_field eid, { :id => 'increment-' + eid } %>
+        </div>
+        <div class="actions">
+            <%= form.submit "submit", id: 'submitscore-' + eid %>
+        </div>
+    <% end %>
+
+
+<% else %>
+    <% myvote = 0 %>
+<% end %>
+
+<% if type == "major" %>
+
+<div class="hrating">
+    <% if myvote == 1 %>
+        <%=link_to image_tag("upvote-arrow-active.svg", size:"21x21"), login_path, class:"active", id: "upvote-" + eid %>
+    <% else %>
+        <%=link_to image_tag("upvote-arrow.svg", size:"21x21"), login_path, id: "upvote-" + eid %>
+    <% end %>
+
+
+    <% if myvote == 1 %>
+        <p class=oscore id="score-<%=eid%>"><%=entity.score%></p>
+    <% elsif myvote == -1 %>
+        <p class=bscore id="score-<%=eid%>"><%=entity.score%></p>
+    <% else %>
+        <p class=hscore id="score-<%=eid%>"><%=entity.score%></p>
+    <% end %>
+
+
+    <% if myvote == -1 %>
+        <%=link_to image_tag("downvote-arrow-active.svg", size:"21x21"), login_path, class:"active", id: "downvote-" + eid %>
+    <% else %>
+        <%=link_to image_tag("downvote-arrow.svg", size:"21x21") , login_path, id: "downvote-" + eid %>
+    <% end %>
+</div>
+
+<% elsif type == "minor" %>
+
+    <% if myvote == 1 %>
+        <%=link_to image_tag("upvote-arrow-active.svg", size:"15x15"), login_path, class:"active", id: "upvote-" + eid %>
+    <% else %>
+        <%=link_to image_tag("upvote-arrow.svg", size:"15x15"), login_path, id: "upvote-" + eid %>
+    <% end %>
+
+    
+    <% if myvote == 1 %>
+        <b class=moscore id="score-<%=eid%>"><%=entity.score%></b>
+    <% elsif myvote == -1 %>
+        <b class=mbscore id="score-<%=eid%>"><%=entity.score%></b>
+    <% else %>
+        <b class=mhscore id="score-<%=eid%>"><%=entity.score%></b>
+    <% end %>
+
+
+    <% if myvote == -1 %>
+        <%=link_to image_tag("downvote-arrow-active.svg", size:"15x15"), login_path, class:"active", id: "downvote-" + eid %>
+    <% else %>
+        <%=link_to image_tag("downvote-arrow.svg", size:"15x15") , login_path, id: "downvote-" + eid %>
+    <% end %>
+
+<% end %>
+
+
+<% if fromuser != nil && touser != nil %>
+
+<script>
+
+    $("#upvote-<%=eid%>").on('click', function(e){
+        e.preventDefault();
+        
+        var incval = 0;
+        var actionurl;
+
+        if($(this).hasClass('active')){ 
+            incval = -1; 
+            actionurl = "/users/" + "<%=touser.id%>" + "/minusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
+        }
+        else if($("#downvote-<%=eid%>").hasClass('active')){ 
+            incval = 2; 
+            actionurl = "/users/" + "<%=touser.id%>" + "/plustwomana?authenticity_token=" + "<%=form_authenticity_token%>";
+        }
+        else { 
+            incval = 1;
+            actionurl = "/users/" + "<%=touser.id%>" + "/plusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
+        }
+
+        // updating entity score in DB
+        $("#increment-<%=eid%>").val(incval);
+        $("#submitscore-<%=eid%>").click();
+
+        // updating fromuser votes in DB
+        $("#vote-<%=eid%>").val(1);
+        $("#submitvote-<%=eid%>").click();
+
+        // updating touser mana in DB
+        $.post(actionurl);
+    });
+
+    $("#downvote-<%=eid%>").on('click', function(e){
+        e.preventDefault();
+
+        var incval = 0;
+        var actionurl;
+
+        if($(this).hasClass('active')) { 
+            incval = 1; 
+            actionurl = "/users/" + "<%=touser.id%>" + "/plusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
+        }
+        else if($("#upvote-<%=eid%>").hasClass('active')) {
+             incval = -2;
+            actionurl = "/users/" + "<%=touser.id%>" + "/minustwomana?authenticity_token=" + "<%=form_authenticity_token%>";
+        }
+        else { 
+            incval = -1;
+            actionurl = "/users/" + "<%=touser.id%>" + "/minusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
+        }
+
+        // updating entity score in DB
+        $("#increment-<%=eid%>").val(incval);
+        $("#submitscore-<%=eid%>").click();
+
+        // updating fromuser votes in DB
+        $("#vote-<%=eid%>").val(-1);
+        $("#submitvote-<%=eid%>").click();
+
+        // updating touser mana in DB
+        $.post(actionurl);
+    });
+</script>
+
+<% end %>

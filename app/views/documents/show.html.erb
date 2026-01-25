@@ -1,0 +1,388 @@
+<% @affiliated_epub = Epub.find(@document.epubid) %>
+
+<!-- Saving book.locations to DB for the first opening -->
+<% if @document.opened == 0 %>
+  
+
+    <div id="firstloading" class=centered>
+        <h5 class=text-center> Preparing document for first read. </h5><br>
+        <h5 class=text-center> Please wait. </h5>
+        <br>
+    </div>
+
+      <!-- we only update the locations for the document owner-->
+      <%= form_with(model: @document, url: [@document, :update_locations], local: false,  class: "d-none") do |form| %>
+
+          <div class="field">
+              <%= form.text_area :locations, { :id => 'document-locations' } %>
+          </div>
+          <div class="actions">
+              <%= form.submit "submit", id: 'submitlocations'%>
+          </div>
+
+      <% end %>
+
+
+    <script>
+
+      async function displaybook(){
+
+          $('#firstloading').html('<div class=text-center><%= image_tag "/assets/ready.png" %></div>');
+          await new Promise(r => setTimeout(r, 2000));
+          $('#firstloading').hide();
+
+          window.location.reload();
+      }
+
+      // display loading message
+      $('#firstloading').append('<div class=text-center><span id="loadspinner" class="spinner-border text-dark"></span></div>');
+      $('#firstloading').show();
+
+      // loading document
+      var book = ePub("<%=rails_blob_path(@affiliated_epub.epub_file)%>");
+    
+      this.book.ready.then((book) => {
+
+          // generating locations
+          return this.book.locations.generate(600);
+      
+      }).then(function(locations){
+
+          // saving locations to DB
+          $('#document-locations').text(locations);
+          $('#submitlocations').click();
+
+          // reloading page to display book
+          displaybook();
+      });
+
+    </script>
+
+<% else %>
+
+      <!-- we only update the progress for the document owner-->
+      <% if current_user.id == @document.userid %> 
+
+        <%= form_with(model: @document, url: [@document, :update_progress], local: false,  class: "d-none") do |form| %>
+
+            <div class="field">
+                <%= form.text_field :progress, { :id => 'reading-progress' } %>
+            </div>
+            <div class="actions">
+                <%= form.submit "submit", id: 'submitprogress'%>
+            </div>
+
+        <% end %>
+
+        <script>
+            function updateProgressinDB() {
+                if (!rendition || !book || !book.locations) return; // extra safety
+
+                try {
+                    const location = rendition.currentLocation();
+                    if (!location?.start?.cfi) return;
+
+                    const cfi = location.start.cfi;
+                    const p = book.locations.percentageFromCfi(cfi);
+
+                    if (typeof p === 'number' && !isNaN(p)) {
+                        $('#reading-progress').val(p);
+                        $('#submitprogress').click();
+                    }
+                } catch (err) {
+                    console.warn("Progress update failed (view may have changed):", err);
+                } finally {
+                    timeoutHandle = null; // clean up
+                }
+            }
+        </script>
+
+      <% end %>
+
+
+
+      <div id=allcontent class="row">
+
+          <div id=content class="pt-3 mb-5 mr-3 ml-3">
+          
+            <div id="viewer" class="scrolled"></div>
+
+            <a id="prev" href="#prev" class="arrow">‹</a>
+            <a id="next" href="#next" class="arrow">›</a>
+          </div>
+          <div id=read_progressbar class=row></div>
+
+
+          <div class="modal fade" id="highlightmodal" tabindex="-1" role="dialog" aria-labelledby="highlightLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                  <div class="modal-body">
+
+                    <%= render "shared/createhighlight" %>
+
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="conversationmodal" tabindex="-1" role="dialog" aria-labelledby="conversationLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+              <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="conversationmodalcontent">
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="resultmodal" tabindex="-1" role="dialog" aria-labelledby="resultLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                  <div class="modal-body" id="resultmodalcontent">
+              
+                  </div>
+                </div>
+            </div>
+          </div>
+
+      </div>
+
+
+      <script>
+
+        var book = ePub("<%=rails_blob_path(@affiliated_epub.epub_file)%>");
+
+        var rendition = book.renderTo("viewer", { method: "continuous", flow: "scrolled",  width: "100%" , iframe: false});
+
+
+        book.ready.then(function() {
+
+            var stored ='<%= @document.locations %>';
+            var sstored = stored.split(',epubcfi');
+
+            for(var i = 1; i < sstored.length; i++){
+              sstored[i] = 'epubcfi' + sstored[i];
+            }
+
+            return book.locations.load(sstored);
+
+        }).then(function(locations){
+
+          var url = window.location.href;
+
+          <% if current_user.id == @document.userid %>
+
+            if (url.indexOf('cfi') == -1)
+            {
+              var saved_percentage = '<%= @document.progress %>';
+              var cfi = book.locations.cfiFromPercentage(saved_percentage);
+              rendition.display(cfi);
+
+              var sp = '<%= (@document.progress*100).ceil().to_s %>' + '%';
+              $('#read_progressbar').css('width', sp);
+           }
+           else 
+           {
+              var highlightCfi = url.substr(url.lastIndexOf("cfi=")+4);
+              rendition.display(highlightCfi);
+              
+              rendition.annotations.highlight(
+                highlightCfi,
+                {},
+                null,
+                "highlight",
+                { fill: "yellow", "fill-opacity": "0.3" }
+              );
+
+           }
+          <% else %>
+
+            if (url.indexOf('cfi') == -1){
+              rendition.display();
+            }
+            else {
+              var highlightCfi = url.substr(url.lastIndexOf("cfi=")+4);
+              rendition.display(highlightCfi);
+            }
+          
+          <% end %>
+
+        });
+
+        <% if current_user.darkmode %>
+
+            rendition.themes.register("dark",
+            {
+              "img": { "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)" }
+            });
+            rendition.themes.select("dark");
+        <% end %>
+
+
+        function updateProgressbar()
+        {
+          var location = rendition.currentLocation();
+          var cfi  = location.start.cfi;
+          var p = book.locations.percentageFromCfi(cfi);
+
+          if(p != null)
+          {
+            var sp = Math.ceil(p * 100) + '%';
+            $('#read_progressbar').css('width', sp);
+          }
+        }
+
+        var next = document.getElementById("next");
+        next.addEventListener("click", function(e){
+          e.preventDefault();
+          var n = rendition.next();
+        }, false);
+
+        var prev = document.getElementById("prev");
+        prev.addEventListener("click", function(e){
+          e.preventDefault();
+          var pr = rendition.prev();
+        }, false);
+
+        var keyListener = function(e){
+          // Left Key
+          if ((e.keyCode || e.which) == 37) {
+            var pr = rendition.prev();
+          }
+
+          // Right Key
+          if ((e.keyCode || e.which) == 39) {
+            var n = rendition.next();
+            // n.then(function(){updateprogress();});
+          }
+
+        };
+        rendition.on("keyup", keyListener);
+        document.addEventListener("keyup", keyListener, false);
+
+        var timeoutHandle;
+		    rendition.on('relocated', function(location){
+          updateProgressbar();
+          <% if current_user.id == @document.userid %>
+            // wait 7 seconds before updating progress
+            window.clearTimeout(timeoutHandle);
+            timeoutHandle = window.setTimeout(function(){updateProgressinDB();}, 7000);
+          <% end %>
+				});
+
+
+        // loading highlights (berries) / public
+        <% @highlights.each do |berry| %>          
+          rendition.annotations.add("highlight", "<%=berry.cfi%>", 
+                                    {}, 
+                                    (e) => {
+                                        var content = "<div>" + 
+                                                      "<%=escape_javascript render 'shared/onehighlight' , highlight: berry, document: @document, from: 'document' %> <br>" +
+                                                      "<%=escape_javascript render 'shared/createreply', reply: Reply.new, highlight_id: berry.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
+                                                      "<div id=allreplies>" + "<%=escape_javascript render 'shared/highlightreplies', replies: Reply.where(:highlightid => berry.id).where(:deleted => false).where(:recipientid => nil), highlight: berry, type: "parent" %>" + "</div></div>";
+
+                                        $('#conversationmodalcontent').html(content);
+                                        $('#conversationmodal').modal('show');
+
+                                        // var bbox = contents.range(cfiRange).getBoundingClientRect();
+                                    }, 
+                                    "hl", {"fill": "#0951a9", "fill-opacity": "0.2", "mix-blend-mode": "multiply", "pointer-events": "all",
+                                           "style": "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;", "onmouseenter": "this.style.fillOpacity='0.4'", "onmouseleave": "this.style.fillOpacity='0.2'"})
+        <% end %>
+
+
+        <% if current_user.id == @document.userid %> // if user is owner of the document
+
+
+          // ability to add highlights
+
+          rendition.on("rendered", (section, view) => {
+
+            // Now attach the mouseup listener (only once per section if possible)
+            const doc = view.document;
+            const win = view.window;
+
+            // Optional: remove previous listener if you attached it before
+            doc.removeEventListener("mouseup", handleMouseUp);
+            doc.removeEventListener("touchend", handleMouseUp);
+
+            doc.addEventListener("mouseup", handleMouseUp);
+            doc.addEventListener("touchend", handleMouseUp);
+
+
+            function handleMouseUp() {
+              const selection = win.getSelection();
+              if (selection.rangeCount === 0 || selection.isCollapsed) return;
+
+              const range = selection.getRangeAt(0);
+              const text = selection.toString().trim();
+              if (text.length === 0) return;
+
+              try {
+                const fullRangeCfi = section.cfiFromRange(range);
+                console.log("Generated range CFI:", fullRangeCfi);
+
+                // Your UI code
+                  // clearing old results if any
+                  $('#emojiresults').empty();
+                  $('#emojiresults').hide();
+                  $('#gifresults').empty();
+                  $('#gifresults').hide();
+                  $('#gifsearch').val('');
+
+                  $('#cfi').text(fullRangeCfi);
+                  $('#highlight').find('blockquote').text(text);
+                  $('#authors').text('<%=@document.authors%>');
+                  $('#title').text('<%=@document.title%>');
+
+                  $('#highlight').append('<br>');
+                  $('#gifform').hide();
+                  $('#commentform').hide();
+                  $('#highlightmodal').modal('show');
+
+                  //copy/translate gui reset
+                  $("#copytext").text("Copy");
+
+                  view.window.getSelection().removeAllRanges();
+              } catch (err) {
+                console.error("CFI generation crashed:", err);
+              }
+            }
+          });
+
+
+          // loading vocabulary / private
+          <% @vocabs.each do |vocab| %>
+
+            rendition.annotations.add("highlight", "<%=vocab.cfi%>", 
+                                      {}, 
+                                      (e) => {
+                                      
+                                      } , 
+                                      "hl", {"fill": "green", "fill-opacity": "0.3", "mix-blend-mode": "multiply"})
+
+          <% end %>
+
+
+          // loading ideas / private
+          <% @ideas.each do |idea| %>
+
+            rendition.annotations.add("highlight", "<%=idea.cfi%>", 
+                                      {}, 
+                                      (e) => {
+                                        
+                                      } , 
+                                      "hl", {"fill": "red", "fill-opacity": "0.3", "mix-blend-mode": "multiply"})
+
+          <% end %>
+
+
+        <% end %> // if user is owner
+
+
+      </script>
+
+<% end %>

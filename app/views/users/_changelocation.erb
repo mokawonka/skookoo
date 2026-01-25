@@ -1,0 +1,9 @@
+
+<%= form_with(model: user, url: [user, :update_profile], local: false) do |form| %>
+    <div class="field">
+        <%= form.text_field :location, placeholder: "Hometown", spellcheck: false, id: 'locationinput' %>
+    </div>
+    <div class="actions">
+        <%= form.submit "save", class: 'd-none', id: 'changelocation' %>
+    </div>
+<% end %>

@@ -1,0 +1,96 @@
+
+<div id=socialshares>
+    <%=link_to image_tag("copy.png", size:"32x32", class:'mb-1 pr-3') , "", id: "copysharing" %>
+    <%=link_to image_tag("mail.svg", size:"32x32", class:'mb-1 pr-3') , "", id: "mailsharing" %>
+    <%=link_to image_tag("reddit.svg", size:"32x32", class:'mb-1 pr-3') , "", id: "redditsharing" %>
+    <%=link_to image_tag("twitter.png", size:"32x32", class:'mb-1 mr-3') , "", id: "twittersharing" %>
+    <%=link_to image_tag("linkedin.svg", size:"32x32", class:'mb-1 mr-3') , "", id: "linsharing" %>
+    <%=link_to image_tag("vk.svg", size:"32x32", class:'mb-1 mr-3') , "", id: "vksharing" %>
+</div>
+
+<script>
+
+    var copy = document.getElementById('copysharing');
+    var mail = document.getElementById('mailsharing');
+    var reddit = document.getElementById('redditsharing');
+    var twitter = document.getElementById('twittersharing');
+    var linkedin = document.getElementById('linsharing');
+    var vk = document.getElementById('vksharing');
+
+    $('body').on('click', '#mailsharing', function () {
+
+        this.href = "mailto:?subject=Check out this quote from " + "<%= highlight.fromauthors%>";
+        this.href += '&body=' + '<%=escape_javascript highlight.quote %>' + "%0D%0A %0D%0A";
+        this.href += "Read more here: " + "<%= highlight_url(highlight) %>";
+    });
+
+
+    $('body').on('click', '#redditsharing', function () {
+
+        this.href = "http://www.reddit.com/submit?title=";
+        this.href += 'Quote by ' + '<%= highlight.fromauthors%>';
+        this.href += '&url=';
+        this.href += '<%= highlight_url(highlight) %>';
+    });
+
+
+    $('body').on('click', '#twittersharing', function () {
+
+        this.href = "https://twitter.com/intent/tweet?text=";
+        this.href += 'Check out this quote from ' + '<%= highlight.fromauthors%>' + ': ' + '<%= highlight_url(highlight) %>';
+    });
+
+
+    $('body').on('click', '#linsharing', function () {
+        // ex: https://www.linkedin.com/shareArticle?mini=true
+        //      &url=http://developer.linkedin.com&title=LinkedIn%20Developer%20Network
+        //      &summary=My%20favorite%20developer%20program&source=LinkedIn
+
+        this.href = "https://www.linkedin.com/shareArticle?mini=true&url=";
+        this.href += '<%= highlight_url(highlight) %>';
+        
+    });
+
+    $('body').on('click', '#vksharing', function () {
+
+        this.href = 'http://vk.com/share.php?';
+        this.href += 'url=' + '<%= highlight_url(highlight) %>';
+    });
+
+    
+
+
+    // copy highlighted text to clipboard
+    function copytoclip (content) {
+
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.body);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const listener = (e) => {
+            e.clipboardData.setData("text/html", content);
+            e.clipboardData.setData("text/plain", content);
+            e.preventDefault();
+        }
+        document.addEventListener("copy", listener);
+        document.execCommand("copy");
+        document.removeEventListener("copy", listener);
+        selection.removeAllRanges();
+    }
+
+
+    $('body').on('click', '#copysharing', function (e) {
+        e.preventDefault();
+        copytoclip('<%= highlight_url(highlight) %>');
+        $(this).parent().html("<p class=m-0>Link copied</p>");
+    });
+
+</script>
+
+
+<style>
+    #socialshares{
+        text-align: center;
+    }
+</style>

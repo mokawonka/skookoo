@@ -1,0 +1,27 @@
+function displayinfobubble(message){
+    var wrapper = document.createElement("div");
+    wrapper.innerHTML = '<div id=infobubble class="alert alert-info alert-dismissible fade show" role=alert>' + message + 
+                        '<button type=button class=btn-close data-bs-dismiss=alert aria-label=Close></button></div>';
+    document.body.appendChild(wrapper);
+}
+
+
+if($('#infobubble').length == 0) 
+{
+    displayinfobubble('Please retry in 2 seconds');
+
+    $('#infobubble').css('z-index', '10000');
+    $('#infobubble').css('text-align', 'center');
+    $('#infobubble').css('max-width', '300px');
+    $('#infobubble').css('border', '3px solid');
+    $('#infobubble').css('position', 'fixed');
+    $('#infobubble').css('border-radius', '21px');
+    $('#infobubble').css('font-family', '<%=current_user.font%>');
+    $('#infobubble').addClass('centered');
+
+
+    $('#infobubble').fadeTo(2000, 500).slideUp(500, function(){
+    $('#infobubble').slideUp(500);
+    $('#infobubble').alert('close');
+});
+}

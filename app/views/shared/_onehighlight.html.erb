@@ -1,0 +1,162 @@
+
+  <div>
+
+    <%= render 'shared/voting_system', entity: highlight, fromuser: current_user,
+                                                          touser: User.find(highlight.userid),
+                                                          type: "major" %>
+    <% if logged_in? %>
+    <%= render 'shared/userhook', hid: highlight.id, user: current_user %>
+    <% end %>
+
+    <div class="hmeta">
+      <% owner = User.find_by_id(highlight.userid).username %>
+      <strong class=green>Posted by <%=link_to owner, user_path(owner), class: "postedby"%> <%=time_ago_in_words(highlight.created_at)%> ago</strong>  
+      
+      <div class="highlightactions">
+        <span><a class="hshare">share</a></span>
+
+        <% if logged_in? %>
+
+          <% if Document.find_by_id(highlight.docid) != nil %>
+              <span class=gray style='padding-right: 1em'>
+                <%= link_to 'view in book', document_path(highlight.docid) + '?cfi=' + highlight.cfi %>
+              </span>
+          <% end %>
+
+
+          <% if current_user.hooked == highlight.id %>
+              <span class=gray style='padding-right: 1em'>already hooked</span>
+          <% else %>
+              <span><a class="hhook" id="hook-<%=highlight.id%>">hook to profile</a></span>
+          <% end %>
+          
+
+          <% if current_user.username == owner %>
+
+            <% if from == "highlight" %>
+              
+              <span><%= link_to 'delete', highlight_path(highlight, from: "highlight"), data: { 
+                                                                            turbo_method: :delete, 
+                                                                            turbo_confirm: "Are you sure you want to delete this highlight?" 
+                                                                          }  %></span>
+            
+            <% elsif from == "document" %> 
+            
+              <span><%= link_to 'delete', highlight_path(highlight, from: "document"), data: { 
+                                                            turbo_method: :delete, 
+                                                            turbo_confirm: "Are you sure you want to delete this highlight?" 
+                                                          }  %></span>
+
+            <% end %>
+
+          <% end %>
+
+        <% end %>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="berryquote">
+    <blockquote>
+        <%= highlight.quote %>
+    </blockquote>
+  </div>
+
+  <br><br>
+
+  <div class="container hsource">
+        From  <span id="fromtitle-<%=highlight.id%>" class="todecode title_highlight"><%= highlight.fromtitle %></span>
+         by <span id="fromauthors-<%=highlight.id%>" class="todecode authors_highlight"><%= highlight.fromauthors %></span>
+  </div>
+  <script>
+      $('#fromauthors-<%=highlight.id%>').on('click', function(){
+          $('#mainsearchinput').val($(this).text());
+          $('#searchform').submit();
+      });
+
+      $('#fromtitle-<%=highlight.id%>').on('click', function(){
+          $('#mainsearchinput').val($(this).text());
+          $('#searchform').submit();
+      });
+  </script>
+
+
+
+  <% if !highlight.comment.nil? %>
+    <div class=container>
+      <span class="gray">Comment</span>
+      <span class=berrycolor><%=highlight.comment%></span>
+    </div>
+  <%end%>
+
+  <% if highlight.liked %>
+      <%=image_tag("like.png", class:"icon", size:"100x100")%>
+  <%end%>
+
+  <% if highlight.emojiid %>
+      <% pathtoemoji = "/assets/emojis/" + highlight.emojiid%>
+      <%=image_tag(pathtoemoji, class:"icon", size:"100x100")%>
+  <%end%>
+
+  <% if highlight.gifid %>
+
+      <% linktogif = 'https://i.giphy.com/media/' + highlight.gifid + '/giphy.gif' %>
+      <div class="text-center">
+        <img id="gif-<%=highlight.id%>" class=thegif src="/assets/gif.svg" data-src="<%=linktogif%>">
+      </div>
+
+      <script>
+        $('#gif-<%=highlight.id%>').click(function(){
+          
+          $(this).attr('src', '');
+          $(this).attr('src', $(this).attr('data-src'));
+
+          $(this).css('max-width', '100%');
+          $(this).css('max-height', '100%');
+        });
+      </script>
+
+  <%end%>
+
+
+  <% replies = Reply.where(:highlightid => highlight.id).where(:deleted => false).where(:recipientid => nil)%>
+  <% if replies.length > 0 %>
+    <div class="text-center black pt-3">
+      <h5> <%= replies.length.to_s %> <% if replies.length > 1%> replies <% else %> reply <% end %> </h5>
+    </div>
+  <% end %>
+
+
+
+
+
+  <div id="socialmedias" class=d-none>
+      <%= render 'shared/socialmedia', highlight: highlight %>
+  </div>
+
+  <script>
+  
+  $('.hshare').attr("data-bs-toggle","popover");
+  $('.hshare').attr("data-bs-placement","right");
+  $('.hshare').attr("data-bs-trigger","click");
+  $('.hshare').attr("data-bs-html", "true");
+  $('.hshare').attr("data-bs-content", $("#socialmedias").html());
+
+  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+  });
+
+  // hiding popup window when clicking away on document
+  $("body").on('click','[data-bs-toggle="popover"]', function(e) { e.stopPropagation();});
+  $("body").on('click','.popover' , function(e) { e.stopPropagation();});
+  $("body").on('click', function(e) {
+                                      $('[data-bs-toggle="popover"]').popover('hide');
+                                      $('.popover-body').html($("#socialmedias").html());
+                                    });
+
+  </script>

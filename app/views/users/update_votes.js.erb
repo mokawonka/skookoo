@@ -1,0 +1,72 @@
+var score = $("#score-<%=@thekey%>");
+var uparrow = $("#upvote-<%=@thekey%>");
+var downarrow = $("#downvote-<%=@thekey%>");
+
+function updateScore(incrementalvalue)
+{
+    var scoreval = parseInt(score.text());
+    var newscore = scoreval + incrementalvalue;
+    score.text(newscore);
+}
+
+
+<% if @thevalue == "1" %>
+    
+    // updating arrow
+    if(uparrow.hasClass("active")) 
+    {
+        score.css("color", "#808080");
+        uparrow.removeClass("active");
+        uparrow.find('img').attr("src", "/assets/upvote-arrow.svg");
+
+        updateScore(-1);
+    }
+    else 
+    {
+        score.css("color", "#ff8080");
+
+        if(downarrow.hasClass("active"))
+        {
+            downarrow.removeClass("active");
+            downarrow.find('img').attr("src", "/assets/downvote-arrow.svg");
+
+            updateScore(1);
+        }
+
+        uparrow.addClass("active");
+        uparrow.find('img').attr("src", "/assets/upvote-arrow-active.svg");
+
+        updateScore(1);
+    }
+
+
+<% elsif @thevalue == "-1" %>    
+
+    // updating arrow
+    if(downarrow.hasClass("active")) 
+    {
+        score.css("color", "#808080");
+
+        downarrow.removeClass("active");
+        downarrow.find('img').attr("src", "/assets/downvote-arrow.svg");
+
+        updateScore(1);
+    }
+    else 
+    {
+        score.css("color", "#0951a9");
+
+        if(uparrow.hasClass("active")){
+            uparrow.removeClass("active");
+            uparrow.find('img').attr("src", "/assets/upvote-arrow.svg");
+        
+            updateScore(-1);
+        }
+
+        downarrow.addClass("active");
+        downarrow.find('img').attr("src", "/assets/downvote-arrow-active.svg");
+    
+        updateScore(-1);
+    }
+
+<% end %>

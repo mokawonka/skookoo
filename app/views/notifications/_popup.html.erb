@@ -1,0 +1,42 @@
+<!-- app/views/notifications/_notification.html.erb -->
+
+<%
+  item_id = "notification-#{SecureRandom.uuid}"   # unique ID per item
+%>
+
+<li id="<%= item_id %>" class="notification-item animate-in slide-in-from-bottom-5 fade-in duration-300">
+
+  <% message_text = notification.event.message %>
+  <% url_path    = notification.event.url %>
+  <% avatar = notification.event.avatar %>
+
+  <%= link_to url_path, class: "notification-link" do %>
+    <div class="notification-content">
+      <%= image_tag avatar,
+            size: "32x32",
+            class: "avatar" %>
+
+      <div class="notification-text">
+        <div class="notiftext"><%= message_text %></div>
+        <small class="notif-time"><%= time_ago_in_words(notification.created_at) %> ago</small>
+      </div>
+
+    </div>
+  <% end %>
+
+  <button type="button"
+          onclick="document.getElementById('<%= item_id %>').remove();"
+          class="close-btn">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+
+  <!-- Auto-remove after 10 seconds (optional) -->
+  <script>
+    setTimeout(() => {
+      const el = document.getElementById('<%= item_id %>');
+      if (el) el.remove();
+    }, 10000);
+  </script>
+</li>

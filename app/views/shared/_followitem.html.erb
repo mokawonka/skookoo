@@ -1,0 +1,21 @@
+<% user = User.find_by_id(user) %>
+
+<% if user != nil %>
+
+    <% pathtoavatar = user.avatar.attached? ? user.avatar.variant(resize_to_limit:[200, 200]) : '/assets/default-avatar.svg' %>
+
+    <div class=followitem>
+        <%= link_to image_tag(pathtoavatar, size: '50x50', class: 'followpic') , user_path(user.username) %>
+        <span><%=link_to user.username , user_path(user.username), class: 'followusername' %></span>
+
+        <% if current_user.id != user.id %>
+            <% if current_user.following.include? user.id %>
+                <%= link_to 'Unfollow', user_unfollow_path(user), remote:true, class: 'btn btn-sm followbutton' %>
+            <% else %>
+                <%= link_to 'Follow', user_follow_path(user), remote:true, class: 'btn btn-sm followbutton' %>
+            <% end %>
+        <% end %>
+
+    </div>
+
+<% end %>

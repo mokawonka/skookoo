@@ -1,0 +1,375 @@
+<!-- list of emojis -->
+<% 
+    target_folder_path = File.join(Rails.root, "/app/assets/images/emojis/")
+    files = Dir.children(target_folder_path)
+%>
+
+
+<div class="text-center">
+
+    <h5 class=pb-1> <%=image_tag('/assets/berry_icon.png', class: 'panel-icon')%> Highlight with</h5>
+
+    <button id="emojibutton" class="btn btn-sm btn-danger border-2 border-dark text-white m-1">
+    <%=image_tag('/assets/emoji.svg', class: 'panel-icon')%><span class=panel-icon-text>Emojis</span>
+    </button>
+    <button id="likebutton" class="btn btn-sm btn-primary border-2 border-dark text-white m-1">
+    <%=image_tag('/assets/like.png', class: 'panel-icon')%><span class=panel-icon-text>Like</span>
+    </button>
+    <button id="commentbutton" class="btn btn-sm btn-info border-2 border-dark text-white m-1" >
+    <%=image_tag('/assets/comment.svg', class: 'panel-icon')%><span class=panel-icon-text>Comment</span>
+    </button>
+    <button id="addgifbutton" class="btn btn-sm btn-warning border-2 border-dark text-white m-1">
+    <%=image_tag('/assets/gif.svg', class: 'panel-icon')%><span class=panel-icon-text>Gif</span>
+    </button>
+
+    <br><br>
+
+    <%= form_with(scope: :highlight, url: richcomment_path, local: false, html: {id: "commentform"}) do |f| %>
+        <div class="field">
+            <%= f.text_area :quote, { :id => 'cquote', :class => "d-none"} %>
+        </div>
+        <div class="field d-none">
+            <%= f.text_area :cfi, { :id => 'ccfi' } %>
+        </div>
+        <div class="field">
+            <%= f.hidden_field :docid, { :id => 'cdocid' } %>
+        </div>
+        <div class="field">
+            <%= f.hidden_field :fromauthors, { :id => 'cfromauthors' } %>
+        </div>
+        <div class="field">
+            <%= f.hidden_field :fromtitle, { :id => 'cfromtitle' } %>
+        </div>
+        <div class="field">
+            <%= f.rich_text_area :comment, required: true, class: "form-control" %>
+        </div>
+        <br>
+        <div class="actions">
+            <%= f.submit "Submit",  id: 'submitcomment', class: "btn btn-primary" %>
+        </div>
+    <% end %>
+
+    <form id="gifform" method="post" class="flex-form text-center" role="form">
+        <input id="gifsearch" type="search" autocomplete="off" placeholder="Search GIF" aria-label="Search">
+        <button id="gifbutton" type=submit class="btn btn-sm btn-primary">Ok</button>
+    </form>
+
+    <form hidden action="/highlights" method="post" data-remote="true" role="form">
+        <textarea id=equote name="highlight[quote]"></textarea>
+        <textarea id=ecfi name="highlight[cfi]"></textarea>
+        <input id=edocid name="highlight[docid]">
+        <input id=efromauthors name="highlight[fromauthors]">
+        <input id=efromtitle name="highlight[fromtitle]">
+        <input id=emojiid name="highlight[emojiid]">
+        <button id="railsemojibutton" type=submit>Ok</button>
+    </form>
+
+    <form hidden action="/highlights" method="post" data-remote="true" role="form">
+        <textarea id=gquote name="highlight[quote]"></textarea>
+        <textarea id=gcfi name="highlight[cfi]"></textarea>
+        <input id=gdocid name="highlight[docid]">
+        <input id=gfromauthors name="highlight[fromauthors]">
+        <input id=gfromtitle name="highlight[fromtitle]">
+        <input id=gifid name="highlight[gifid]">
+        <button id="railsgifbutton"  type=submit>Ok</button>
+    </form>
+
+    <form hidden action="/highlights" method="post" data-remote="true" role="form">
+        <textarea id=lquote name="highlight[quote]"></textarea>
+        <textarea id=lcfi name="highlight[cfi]"></textarea>
+        <input id=ldocid name="highlight[docid]">
+        <input id=lfromauthors name="highlight[fromauthors]">
+        <input id=lfromtitle name="highlight[fromtitle]">
+        <input id=llike  name="highlight[liked]">
+        <button id="railslikebutton" type=submit>Ok</button>
+    </form>
+
+    <div id="gifresults" class="flex-container"></div>
+    <div id="emojiresults" class="flex-container"></div>
+
+
+
+    <button id="ideabutton" class="btn btn-sm btn-outline-danger border-2 m-1">
+        <%=image_tag('/assets/apple.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to ideas</span>
+    </button>
+    <button id="vocabbutton" class="btn btn-sm btn-outline-success border-2 m-1">
+        <%=image_tag('/assets/lemon.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to vocabulary</span>
+    </button>
+
+
+
+    <form hidden action="/expressions" method="post" data-remote="true" role="form">
+        <textarea id=vcontent name="expression[content]"></textarea>
+        <textarea id=vcfi name="expression[cfi]"></textarea>
+        <input id=vdocid name="expression[docid]">
+        <button id="railsvocabbutton" type=submit>Ok</button>
+    </form>
+
+    <form hidden action="/ideas" method="post" data-remote="true" role="form">
+        <textarea id=icontent name="idea[content]"></textarea>
+        <textarea id=icfi name="idea[cfi]"></textarea>
+        <input id=idocid name="idea[docid]">
+        <button id="railsideabutton" type=submit>Ok</button>
+    </form>
+
+
+    <div class=text-center>
+        <!-- All these field are filled beforehand in document/show on rendition/selected -->
+        <div id="cfi" class=d-none></div>
+        <div id="authors" class=d-none></div>
+        <div id="title" class=d-none></div>
+
+        <div id="highlight">
+            <blockquote></blockquote>
+        </div>
+    </div>
+
+
+    <button id="copytext" class="btn btn-sm btn-secondary">Copy</button>
+
+
+</div>
+
+<script>
+
+    // look for emojis
+    $('#emojibutton').on('click', function(){
+
+        if($('#emojiresults').empty())
+        {
+            $('#gifform').hide();
+            $('#gifresults').hide();
+            $('#commentform').hide();
+
+            <% files.each do |image| %>
+                <% if File.extname(image) == ".svg"%>
+                    var imgtag = '<%=image_tag "/assets/emojis/" + image , size:"64x64" %>';
+                    var imgstr = '<div class="container oneemoji">' + imgtag + '</div>';
+                    $("#emojiresults").append(imgstr);
+                <% end %>
+            <% end %>
+            
+            $('#emojiresults').show();
+        }
+
+    });
+
+    // adding comments
+    $('#commentbutton').click(function(){
+        $('#gifform').hide();
+        $('#gifresults').hide();
+        $('#emojiresults').hide();
+
+        $('#commentform').show();
+    });
+
+    // look for gifs
+    $('#addgifbutton').click(function(){
+       $('#commentform').hide();
+        $('#emojiresults').hide();
+
+       $('#gifresults').show();
+       $('#gifform').show();
+    });
+
+    $('#gifform').on('submit', function(e){
+      e.preventDefault();
+
+      var API_KEY = "Vsa6RyTveLS9mFOQVsTPmE8vndGnKc6G";
+      var results_limit = 20;
+      var query = $('#gifsearch').val();
+      query.replace(/\s\s+/g, ' '); // several spaces to single space
+      if(query.charAt(query.length - 1) == ' ') query = query.slice(0, -1);
+      query = query.replace(/\s/g, '+'); // single space to +
+
+      var gcommand = "http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=" + API_KEY + "&limit=" + results_limit;
+
+      var runcommand = $.get(gcommand, function(data){
+          $('#gifresults').empty();
+
+          for (var i = 0; i < data.data.length; i++) {
+              var imgstr = '<div class="container onegif"><img src = "' + data.data[i].images.original.url + '"  alt = "loading" id="o3" /></div>'
+              $("#gifresults").append(imgstr);
+          }
+      });
+
+      runcommand.done(function(data){
+        // console.log("success got data", data);
+      });
+
+    });
+
+    $("#highlightmodal").click(function(e){
+          // if  click target is on Gif img
+          if($(e.target.parentNode).hasClass('onegif'))
+          {
+            // unstyling all previously styled selected gif
+            var gifsid = e.target.parentNode.parentNode;
+            var gifs= gifsid.getElementsByTagName("img");
+
+            for(var g = 0; g < gifs.length; g++)
+            {
+              if(gifs[g] != e.target) 
+              {
+                gifs[g].style.border = '3px solid';
+                gifs[g].style.borderColor = 'black';
+
+
+                if(gifs[g].parentNode.getElementsByTagName('button').length)
+                  $(gifs[g]).parent().find('button').remove();
+              }
+              else
+              {
+                var gifsrc = e.target.src;
+                const pathname = new URL(gifsrc).pathname;
+                const parts = pathname.split('/');
+                var gifid = parts[parts.length - 2];
+
+                        // filling hidden input field form
+                        $('#gifid').val(gifid);
+
+                // styling selected gif border
+                e.target.style.border = "5px solid";
+                e.target.style.borderColor = "#FFCE00";
+                // adding the submit button
+                var submit_button = $('<button id="gifaddbutton" class="btn">').text('Add');
+                $(e.target).parent().append(submit_button);
+              }
+            }
+          }
+          else if($(e.target.parentNode).hasClass('oneemoji'))
+          {
+            // unstyling all previously styled selected emoji
+            var emojisid = e.target.parentNode.parentNode;
+            var emojis= emojisid.getElementsByTagName("img");
+
+            for(var g = 0; g < emojis.length; g++)
+            {
+              if(emojis[g] != e.target) 
+              {
+                emojis[g].style.border = 'none';
+
+                if(emojis[g].parentNode.getElementsByTagName('button').length)
+                  $(emojis[g]).parent().find('button').remove();
+              }
+              else
+              {
+                // getting file.svg
+                var emojiid = e.target.src.substring(e.target.src.lastIndexOf('/')+1);
+
+                    // filling hidden input field form
+                    $('#emojiid').val(emojiid);
+
+                // styling selected gif border
+                e.target.style.border = "7px solid";
+                e.target.style.borderColor = "#FFCE00";
+
+                // adding the submit button
+                var submit_button = $('<button id="emojiaddbutton" class="btn">').text('Add');
+                if(!$(e.target).parent().find('button').length) $(e.target).parent().prepend(submit_button);
+              }
+            }
+          }
+    });
+
+    // JS / Rails form fillings / submissions
+    // --------------------------------------
+    var url = window.location.href;
+    var documentid = url.substr(url.lastIndexOf("documents/")+10, 36);
+
+    $("#commentbutton").click(function(){
+        $('#ccfi').text($('#cfi').text());
+        $('#cquote').text($('#highlight').text());
+        $('#cdocid').val(documentid);
+        $('#cfromauthors').val($('#authors').text());
+        $('#cfromtitle').val($('#title').text());
+        // form submission is made wysiwygly by the user
+    });
+
+
+    $('#highlightmodal').on("click", '#gifaddbutton' , function(){
+
+        $('#gcfi').text($('#cfi').text());
+        $('#gquote').text($('#highlight').text());
+        $('#gdocid').val(documentid);
+        $('#gfromauthors').val($('#authors').text());
+        $('#gfromtitle').val($('#title').text());
+        // because form is hidden
+        $('#railsgifbutton').click();  
+    });
+
+
+    $("#likebutton").click(function(){
+
+        $('#lcfi').text($('#cfi').text());
+        $('#lquote').text($('#highlight').text());
+        $('#ldocid').val(documentid);
+        $('#llike').val(1); // set it to true
+        $('#lfromauthors').val($('#authors').text());
+        $('#lfromtitle').val($('#title').text());
+        // because form is hidden
+        $('#railslikebutton').click();
+
+    });
+
+
+    $('#highlightmodal').on("click", '#emojiaddbutton' , function(){
+
+        $('#ecfi').text($('#cfi').text());
+        $('#equote').text($('#highlight').text());
+        $('#edocid').val(documentid);
+        $('#efromauthors').val($('#authors').text());
+        $('#efromtitle').val($('#title').text());
+        // emoji id is already filling hidden input field
+
+        // because form is hidden
+        $('#railsemojibutton').click();
+    });
+
+
+    $("#vocabbutton").click(function(){
+
+        $('#vcontent').text($('#highlight').text());
+        $('#vcfi').text($('#cfi').text());
+        $('#vdocid').val(documentid);
+
+        // because form is hidden
+        $('#railsvocabbutton').click();
+    });
+
+
+    $("#ideabutton").click(function(){
+
+        $('#icontent').text($('#highlight').text());
+        $('#icfi').text($('#cfi').text());
+        $('#idocid').val(documentid);
+
+        // because form is hidden
+        $('#railsideabutton').click();
+    });
+
+    // copy highlighted text to clipboard
+    function copytoclip (content) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(document.body);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        const listener = (e) => {
+            e.clipboardData.setData("text/html", content);
+            e.clipboardData.setData("text/plain", content);
+            e.preventDefault();
+        }
+        document.addEventListener("copy", listener);
+        document.execCommand("copy");
+        document.removeEventListener("copy", listener);
+        selection.removeAllRanges();
+    }
+
+    // copying text to clipboard
+    $('#highlightmodal').on('click', '#copytext', function(){
+        copytoclip($('#highlight blockquote').text());
+        $(this).text("Copied");
+    });
+
+</script>

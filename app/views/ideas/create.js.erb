@@ -1,0 +1,15 @@
+<% if flash.any? %>
+    <% flash.each do |type, msg| %>
+        $('#highlightmodal').modal('hide');
+
+        rendition.annotations.add("highlight", '<%= @idea.cfi %>', {}, (e) => {
+
+            // display modal with option to delete it.
+
+        },
+        "hl", {"fill": "red", "fill-opacity": "0.3", "mix-blend-mode": "multiply"});
+
+        $('#resultmodalcontent').html("<div class=text-center><%= msg %></div>");
+        $('#resultmodal').modal('show');
+    <% end %>
+<% end %>

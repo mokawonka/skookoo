@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Skookoo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= favicon_link_tag asset_path('favicon.ico') %>
+
+    <script>
+      window.notificationSoundUrl = "<%= asset_path('windchimesound.mp3') %>";
+    </script>
+
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <%= stylesheet_link_tag asset_path('font-awesome.min.css') %>
+  <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
+  <%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
+  <%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
+  <%= javascript_include_tag asset_path('jszip.min.js') %>
+  <%= javascript_include_tag asset_path('epub.js') %>
+  <%= javascript_include_tag asset_path('he.js') %>
+  <%= javascript_include_tag asset_path('sha3.min.js') %>
+
+
+
+  <body>
+    <nav id="headbar" class="navbar-expand-lg navbar-light bg-light border-bottom box-shadow">
+
+        <%=link_to image_tag("skookoo_logo_100.png", size:"32x32") , root_path, class: "navbar-brand" %>
+        
+        <%= form_with url: "/search", method: :get, class: "form-group has-search", :html=> {:id => 'searchform'} do |form|%>
+          <div class="fa fa-search form-control-feedback"></div>
+          <%= form.text_field :query, required: true,  placeholder: "Search", autocomplete: "off", spellcheck: false, id: "mainsearchinput", class: "form-control ds-input" %>
+        <% end %>
+
+
+        <span class=float-end>
+          <% if logged_in?%>
+
+              <% if current_user.allownotifications %>
+
+                <div data-controller="audio-unlocker"
+                     data-turbo-permanent 
+                     style="display:none"></div>
+
+                <div data-controller="notification-sound"
+                    data-notification-sound-url-value="<%= asset_path('windchimesound.mp3') %>"
+                    data-turbo-permanent
+                    style="display:none">
+                </div>
+                
+                <div id="notifications-container">
+                  <%= turbo_stream_from current_user %>
+                  <ul id="notifications-popup">
+                  </ul>
+                </div>
+              <% end %>
+      
+              <button id="notificationbutton" type="button" class="btn p-0" data-bs-toggle="dropdown" aria-expanded="false">
+                <%= image_tag('/assets/wind_chime.svg', class: 'mini-avatar') %>
+                <% count = current_user.notifications.unread.count %>
+                  <span id="notification-count">
+                    <%= render "notifications/notification_count", count: count %>
+                  </span>
+              </button>
+
+              <ul class="dropdown-menu dropdown-menu-end shadow">
+                <% @notifications = current_user.notifications %>
+                <li class=text-center style="color:#0951a9"><h2>Notifications</h2></li>
+                <li><hr class="dropdown-divider"></li>
+                <div id="notifications-dropdown" class="notification-list">
+                  <% @notifications.newest_first.limit(7).each do |notification| %>
+                    <%= render "notifications/notification", notification: notification %>
+                  <% end %>
+                </div>
+                <% if @notifications.unread.any? %>
+                  <li><hr class="dropdown-divider"></li>
+                  <li class="text-center">
+                    <%= link_to "Mark all as read", mark_all_read_notifications_path, data: { turbo_method: :patch }, class: "small text-muted", style: "text-decoration:none" %>
+                  </li>
+                <% end %>
+              </ul>
+            
+
+            <button type="button" class="btn p-0" data-bs-toggle="dropdown" aria-expanded="false">
+              <% if current_user.avatar.attached? %>
+                <%=image_tag(current_user.avatar.variant(resize_to_limit:[64, 64]), class: 'mini-avatar') %>
+              <% else %>
+                <%=image_tag('/assets/default-avatar.svg', class: 'mini-avatar') %>
+              <% end %>
+            </button>
+
+            <ul class="dropdown-menu">
+
+              <li class="text-center gray"><span>Hi <%= current_user.username %> !</span></li>
+
+              <li><hr class="dropdown-divider"></li>
+
+              <li><%= link_to image_tag('/assets/bee.svg', class: 'menu-icon') + 'My Profile', user_path(current_user.username), class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('/assets/tree.svg', class: 'menu-icon') + 'My Documents', documents_path, class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('/assets/apple.svg', class: 'menu-icon') + 'My Ideas', myideas_path, class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('/assets/lemon.svg', class: 'menu-icon') + 'My Vocabulary', myvocab_path, class: "dropdown-item" %></li>
+              
+              <li><hr class="dropdown-divider"></li>
+
+              <li>
+                <% if current_user.darkmode %>
+                    <%= link_to image_tag('/assets/light-mode.svg', class: 'menu-icon') + 'Light mode', [current_user, :switch_mode], method: :patch, remote: "true", class: "dropdown-item" %>
+                <% else %>
+                    <%= link_to image_tag('/assets/dark-mode.svg', class: 'menu-icon') + 'Dark mode', [current_user, :switch_mode], method: :patch, remote: "true", class: "dropdown-item" %>
+                <% end %>
+              </li>
+
+              <li><%= link_to image_tag('/assets/settings.svg', class: 'menu-icon') + 'Settings', mysettings_path, class: "dropdown-item" %></li>
+
+              <li><hr class="dropdown-divider"></li>
+              <li>
+              <%= form_with(scope: :session, url: logout_path) do |f| %>
+                  <div class="form-group text-center">
+                      <%=f.submit "Log out", class: "dropdown-item" %>
+                  </div>
+              <% end %>
+              </li>
+
+            </ul>
+
+          <% else %>
+              <%=link_to "Log in", login_path, class: "btn btn-success" %>
+          <% end %>
+
+        </span>
+
+    </nav>
+
+
+    <div id=all class="container-fluid">
+
+      <% if flash.any? %>
+        <div class="container text-center mt-3">
+          <% flash.each do |type, message| %>
+            <% color = case type
+              when 'notice'  then 'success'
+              when 'alert'   then 'danger'
+              when 'error'   then 'danger'
+              when 'warning' then 'warning'
+              when 'info'    then 'info'
+              else 'secondary'
+              end %>
+
+            <div class="alert alert-<%= color %> alert-dismissible fade show" role="alert">
+              <%= message %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+
+      <%= yield %>
+    </div>
+
+  </body>
+
+
+  <% unless controller.controller_name == "documents" && controller.action_name == "show" #not showing footer when on document %> 
+      <footer id="footer" class="text-center border-top text-muted fixed-bottom">
+          <span id="copyright"></span> - <%= link_to 'About', about_path %>
+      </footer>
+  
+
+      <script>
+
+      (function() {
+
+        const para = ` <small> &copy; Skookoo ${new Date().getFullYear()} </small> `;
+        document.getElementById('copyright').innerHTML = para;
+
+      })();
+
+      </script>
+
+  <% end %>
+
+  <script>
+
+    $("nav .pagination").addClass("justify-content-center");
+
+    // dark mode on entire html
+    <% if logged_in? %>
+      <% if current_user.darkmode %>
+
+          $('html').css({"-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
+          $('img').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
+          $('#gifresults').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
+          $('#emojiresults').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
+          $('#followbodymodal').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
+
+      <% end %>
+    <% end %>
+
+  </script>
+
+
+  <style type="text/css">  
+
+  <% if controller.action_name == "about" %>
+
+      #headbar {font-family: 'League Spartan Bold';}
+      #footer {font-family: 'League Spartan Bold';}
+      .container-fluid {font-family: 'League Spartan Bold';} 
+      .popover {font-family: 'League Spartan Bold' !important;}
+
+  <% else %>
+
+    <% if logged_in? %>
+      .container-fluid {font-family: '<%=current_user.font%>';} 
+      #headbar {font-family: '<%=current_user.font%>';}
+      #footer {font-family: '<%=current_user.font%>';}
+      .popover {font-family: '<%=current_user.font%>' !important;}
+    <% else %>
+      #headbar {font-family: 'League Spartan Bold';}
+      #footer {font-family: 'League Spartan Bold';}
+      .container-fluid {font-family: 'League Spartan Bold';} 
+      .popover {font-family: 'League Spartan Bold' !important;}
+    <% end %>
+
+  <% end %>
+
+  </style> 
+
+</html>
+
+

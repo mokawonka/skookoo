@@ -1,0 +1,9 @@
+
+$('#biography').html('<%=@user.bio%>');
+$('#nameprofile').html('<%=@user.name%>');
+$('#location').html("Lives in <%=@user.location%>");
+
+
+<% if @user.avatar.attached? %>
+    $('#avatar').attr('src', '<%=rails_blob_path(@user.avatar)%>')
+<% end %>

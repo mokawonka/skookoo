@@ -1,0 +1,24 @@
+<!-- app/views/notifications/_notification.html.erb -->
+
+<li class="dropdown-item p-0 <%= 'bg-light' if notification.read_at.present? %>">
+  <% message_text = notification.event.message %>
+  <% url_path    = notification.event.url %>
+
+  <%= link_to url_path, class: "d-block text-decoration-none text-reset px-3 py-2" do %>
+    <div class="d-flex align-items-start gap-2">
+      <%= image_tag notification.event.avatar,
+            size: "32x32",
+            class: "rounded-circle flex-shrink-0" %>
+
+      <div class="flex-grow-1">
+        <div class="notiftext">
+          <%= message_text %>
+        </div>
+
+        <small class="text-muted d-block">
+          <%= time_ago_in_words(notification.created_at) %> ago
+        </small>
+      </div>
+    </div>
+  <% end %>
+</li>

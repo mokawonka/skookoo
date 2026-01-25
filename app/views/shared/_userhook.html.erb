@@ -1,0 +1,30 @@
+<%= form_with(model: user, url: [user, :hook], local: false,  class: "d-none") do |form| %>
+    <div class="field">
+        <%= form.text_field :hooked, { :id => 'hooked-highlight' } %>
+    </div>
+    <div class="actions">
+        <%= form.submit "submit", id: "submithook"%>
+    </div>
+<% end %>
+
+<script>
+
+    var elem = '';
+
+    if('<%=hid%>' == 'none') // unhooking
+    {
+        elem = '#unhook';
+        $(elem).mouseover(function(){ $(this).text('Unhook'); });
+        $(elem).mouseout(function(){ $(this).text('Hooked'); });
+    }
+    else // hooking a highlight
+    {
+        elem = "#hook-<%=hid%>";
+    }
+
+    $(elem).on('click', function(){
+        $('#hooked-highlight').val("<%=hid%>");
+        $('#submithook').click();
+    });
+
+</script>

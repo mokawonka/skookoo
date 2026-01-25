@@ -1,0 +1,15 @@
+<%= turbo_frame_tag "highlights-page-#{@pagy.page}" , target: "_top"  do %>
+
+
+    <% @hrecords.order('created_at DESC').each do |highlight| %>
+        <% if @user.hooked != highlight.id %>
+
+            <%= render 'shared/post', highlight: highlight %>
+            <hr>
+
+        <% end %>
+    <% end %>
+
+    <%= render 'highlights/next_page' if @pagy.next != nil %>
+
+<% end %>

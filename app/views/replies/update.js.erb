@@ -1,0 +1,10 @@
+var toupdate = document.getElementById("<%=@reply.id%>");
+
+var ischild = $(toupdate).find('.child-onereply').length != 0
+
+if(ischild){
+    $(toupdate).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'child') %>");
+}
+else{
+    $(toupdate).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'parent') %>");
+}

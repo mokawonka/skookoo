@@ -1,0 +1,33 @@
+<h3 class="pb-4 pt-4">
+<%=image_tag('/assets/ladder.png', size: "33x33")%>
+Search
+</h3>
+
+<div id=myresults>
+
+    <% if @highlights.count > 0 %>
+
+        <h5 class=pb-5> <%=@highlights.count%> results found for "<%=@query%>" </h5>
+
+        <% @highlights.order('score DESC').each do |res| %>
+            <div class=oneres>
+                <%= render 'shared/post', highlight: res %>
+            </div>
+            <hr>     
+        <%  end %>
+
+    <% else %>
+
+        <div class="centered text-center dimmed">
+            <%= image_tag '/assets/empty_basket.png', size: '100x100'%>
+            <p> No results found for "<%=@query%>" </p>
+        </div>
+
+    <% end %>
+
+</div>
+
+<%== pagy_bootstrap_nav(@pagy) if @pagy.pages > 1 %>
+
+<%= javascript_include_tag asset_path('posts_postprocessing.js') %>
+<%= stylesheet_link_tag asset_path('posts_postprocessing.css') %>

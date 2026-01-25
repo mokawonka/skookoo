@@ -1,0 +1,9 @@
+
+<%= form_with(model: user, url: [user, :update_profile], local: false) do |form| %>
+    <div class="field">
+        <%= form.text_area :bio, placeholder: "Add your bio ...", spellcheck: false, id: 'bioinput' %>
+    </div>
+    <div class="actions">
+        <%= form.submit "save", class: 'd-none', id: 'changebio' %>
+    </div>
+<% end %>

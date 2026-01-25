@@ -1,0 +1,24 @@
+<% if @reply.errors.any? %>
+
+<% else %>
+    var attrid = '#' + '<%= @reply.id%>';
+
+    $(attrid).find('.replytobox').html(" <%=escape_javascript render('shared/createreply', reply: Reply.new, highlight_id: @reply.highlightid, recipient_id: @reply.id, formwhatfor: 'replying') %>");
+    $(attrid).find('.replytobox').find('.actions').append("<button class='btn btn-sm btn-secondary cancelreply'>cancel</button>");
+    $(attrid).find('.replytobox').removeClass('d-none');
+
+    $(attrid).on('click', '.cancelreply' ,function(){
+
+        $(attrid).find('#replying').text('');
+        $(attrid).find('.replytobox').addClass('d-none');
+        var ischild = $(attrid).find('.child-onereply').length != 0
+
+        if(ischild){
+            $(attrid).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'child') %>");
+        }
+        else{
+            $(attrid).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'parent') %>");
+        }
+    });
+
+<% end %>

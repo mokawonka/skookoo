@@ -1,2 +1,1 @@
-# skookoo
-Making Reading Fun
+# Skookoo web app

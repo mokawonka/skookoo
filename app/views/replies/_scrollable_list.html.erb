@@ -1,0 +1,28 @@
+<%= turbo_frame_tag "replies-page-#{@pagy.page}", target: "_top" do %>
+
+    <% @rrecords.order('created_at DESC').each do |rep| %>
+        <% highlight = Highlight.find_by_id(rep.highlightid) %>
+        <% highlightowner = User.find_by_id(highlight.userid).username %>
+
+        <div class="myreply container-fluid">
+            <%= render 'shared/voting_system', entity: rep, fromuser: current_user,
+                                                            touser: User.find(rep.userid),
+                                                            type: "major" %>
+            <small class=hposter>
+                <% if rep.recipientid != nil %>
+                    <% recipientUser = User.find_by_id(Reply.find_by_id(rep.recipientid).userid).username %>
+                    <%=time_ago_in_words(rep.created_at)%> ago, <%=@user.username%> reacted to a reply
+                <% else %>
+                    <%=time_ago_in_words(rep.created_at)%> ago, <%=@user.username%> replied to a highlight
+                <% end %>
+                <span><%= link_to 'View' , highlight_path(highlight)+'?reply='+rep.id %></span>
+            </small>
+            <div class='linkreturn pt-2'><%=rep.content %></div>
+
+        </div>
+        <hr>
+    <% end %>
+    
+    <%= render 'replies/next_page' if @pagy.next != nil %>
+
+<% end %>

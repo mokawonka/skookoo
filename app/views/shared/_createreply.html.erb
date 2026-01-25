@@ -1,0 +1,21 @@
+
+<%= form_with(model: reply, local: false) do |f| %>
+
+    <div class="field">
+        <%= f.hidden_field :highlightid, value: highlight_id %>
+    </div>
+    <% if recipient_id %>
+    <div class="field">
+        <%= f.hidden_field :recipientid, value: recipient_id %>
+    </div>
+    <% end %>
+    <div class="field" >
+        <%= f.rich_text_area :content, required: true, class: "form-control", id: formwhatfor, 
+        placeholder: "Comments should be constructive and add to the discussion." %>
+    </div>
+    <br>
+    <div class="actions">
+        <%= f.submit "save", class: "btn btn-sm btn-primary" %>
+    </div>
+
+<% end %>

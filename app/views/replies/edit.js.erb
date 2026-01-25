@@ -1,0 +1,17 @@
+var toedit = document.getElementById("<%=@reply.id%>");
+
+$(toedit).find('.onereply').html("<%=escape_javascript render('shared/createreply', reply: @reply, highlight_id: @reply.highlightid, recipient_id: @reply.recipientid, formwhatfor: 'editing')%>");
+$(toedit).find('.actions').append("<button class='btn btn-sm btn-secondary cancelreply'>cancel</button>");
+
+$(toedit).on('click', '.cancelreply' ,function(){
+
+    var ischild = $(toedit).find('.child-onereply').length != 0
+
+    if(ischild){
+        $(toedit).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'child') %>");
+    }
+    else{
+        $(toedit).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'parent') %>");
+    }
+
+});

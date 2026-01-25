@@ -1,0 +1,11 @@
+<h3 class="pb-4 pt-4">
+<%=image_tag('/assets/branch.svg', class: "header-icon")%>
+New Document
+</h3>
+
+<%= render 'shared/createepubselection' %>
+
+<div class="strike"> <span>OR</span> </div> 
+
+<%= render 'shared/createepub', epub: @epub %>
+

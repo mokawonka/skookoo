@@ -1,0 +1,940 @@
+/*
+ * This is a manifest file that'll be compiled into , which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+@import "actiontext.css";
+
+
+body{
+    min-width: 400px;
+}
+
+::selection {
+    background: rgb(255, 214, 11) !important;
+    user-select: text !important;
+}
+::-webkit-selection {
+    background: rgb(255, 214, 11) !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+}
+::-moz-selection {
+    background: rgb(255, 214, 11) !important;
+    user-select: text !important;
+    -moz-user-select: text !important;
+}
+
+
+li button{
+    border-top-left-radius: 21px !important;
+    border-top-right-radius: 21px !important;
+}
+
+input{
+    border-radius: 21px !important;
+}
+
+.dropdown-menu{
+    border-radius: 21px ! important;
+}
+
+.dropdown-item{
+    border-radius: 21px ! important;
+}
+
+.btn{
+    border-radius: 21px ! important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-primary{
+    background-color: #0951a9 ! important;
+}
+
+.modal-backdrop {
+    padding: 0px;
+    background-color: transparent !important;
+ }
+
+.modal-content{
+    border-radius: 21px !important;
+    border-width: 3px !important;
+    border-color: #0951a9 !important;
+}
+
+.popover{
+    border-radius: 21px !important;
+}
+
+.popover-body p{
+    color:#444444;
+}
+
+.dropdown-item{
+    color:#444444!important;
+}
+
+.dropdown-toggle{
+    color:#444444!important;
+}
+
+trix-editor {
+    border-radius: 21px !important;
+}
+
+/*scrollbar style (chrome / opera / safari) */
+/* width */
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    background: transparent;
+    padding-left: 7px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #0951a9;
+    border-radius: 16px;
+}
+  
+
+.dimmed{
+    opacity: 0.5;
+}
+
+.has-search .form-control {
+    padding-left: 2.375rem;
+    display:inline;
+}
+  
+.has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: inline;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}
+
+#notificationbutton{
+    padding:0;
+}
+
+#searchform{
+    display: inline-block;
+    text-align: center;
+    width: calc(100% - 200px);
+}
+
+#searchform > input{
+    border: solid 2px #0951a9;
+    border-radius: 21px;
+    height: 40px;
+    width: 375px;
+    color:#444444;
+}
+
+#searchform > input:focus {
+    border: solid 2px #ff8080;
+    box-shadow: none;
+    outline: none;
+}
+
+@media only screen and (max-width: 600px) 
+{
+    #searchform > input{
+        width: 200px;
+    }
+}
+
+input{
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 7px;
+    background-color: #f8f8f8;
+    resize: none;
+}
+
+textarea {
+    width: 100%;
+    height: 150px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 21px;
+    background-color: #f8f8f8;
+    font-size: 16px;
+    resize: none;
+}
+
+.berry {
+    border: solid 5px #0951a9;
+    border-radius: 21px;
+    padding-top: 21px;
+    padding-bottom: 21px;
+    margin-bottom:42px;
+}
+
+#myhighlights{
+    padding-bottom: 100px;
+}
+
+#myideas{
+    padding-bottom: 100px;
+}
+
+.apple{
+    border: solid 5px rgb(255, 115, 0);
+    border-radius: 21px;
+    padding-top: 21px;
+    padding-bottom: 21px;
+    margin-bottom:42px;
+}
+
+#myvocabulary{
+    padding-bottom: 100px;
+}
+
+.lemon{
+    border: solid 5px #00a711;
+    border-radius: 21px;
+    padding-top: 21px;
+    padding-bottom: 21px;
+    margin-bottom:42px;
+}
+
+.subtitle{
+    color: gray;
+    font-size: small;
+    padding-left: 4em;
+}
+
+.berryquote{
+    color: #444444;
+    font-size: 18px;
+    text-align: justify;
+    /* max-height: 500px; */
+    /* overflow-y: scroll; */
+    /* scroll-behavior: smooth; */
+
+    margin-top: 2em;
+}
+
+.postedby{
+    color: #0951a9;
+    text-decoration: none;
+}
+
+.berryquote a{
+    color: #444444;
+    text-decoration: none;
+}
+
+.berryquote a:hover{
+    color: #0951a9;
+}
+
+.berryquote > blockquote {
+    color: #0951a9;
+    position: relative;
+    margin: 0.5em;
+    padding: 0.5em 2em 0.5em 3em;
+}
+
+.berryquote > blockquote:before {
+    position: absolute;
+    font-size: 3em;
+    line-height: 1;
+    top: 0;
+    left: 0;
+    content: "\201C";
+}
+
+.berryquote > blockquote:after {
+    position: absolute;
+    float:right;
+    font-size:3em;
+    line-height: 1;
+    right:0;
+    bottom:-0.5em;
+    content: "\201D";
+}
+
+.thegif{
+    border: 1px solid #0951a9;
+    border-radius: 21px;
+    box-shadow: inset;
+
+    width: auto;
+    height: auto;
+
+    max-width: 100px;
+    max-height: 100px;
+}
+
+
+/****************** OR PANEL (highlight creation) ********************/
+.strike {
+    display: block;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap; 
+    color:gray;
+    padding-bottom: 1em;
+    padding-top: 1em;
+}
+
+.strike > span {
+    position: relative;
+    display: inline-block;
+}
+
+.strike > span:before,
+.strike > span:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 9999px;
+    height: 1px;
+    background: gray;
+}
+
+.strike > span:before {
+    right: 100%;
+    margin-right: 15px;
+}
+
+.strike > span:after {
+    left: 100%;
+    margin-left: 15px;
+}
+/*************************************************************************/
+
+
+#gifresults {
+    margin-top: 3em;
+
+    max-height: 500px;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+}
+
+
+#emojiresults{
+    border: 2px #0951a9 solid;
+    border-radius: 21px;
+
+    max-height: 200px;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+}
+
+#highlight{
+    padding-top: 1em;
+    text-align: center;
+    color: #0951a9; /* blue berry */
+}
+
+#highlight > blockquote {
+    position: relative;
+    margin: 0.5em;
+    padding: 0.5em 2em 0.5em 3em;
+}
+
+#highlight > blockquote:before {
+    position: absolute;
+    font-size: 5em;
+    line-height: 1;
+    top: 0;
+    left: 0;
+    content: "\201C";
+}
+
+#highlight > blockquote:after {
+    position: absolute;
+    float:right;
+    font-size:5em;
+    line-height: 1;
+    right:0;
+    bottom:-0.5em;
+    content: "\201D";
+}
+
+#gifsearch{
+    margin-right:5px;
+}
+
+
+/* Styled for adding the Add button to GIFs */
+.onegif {
+    position: relative;
+    width: 50%;
+  }
+
+  .onegif img {
+    width: 100%;
+    height: auto;
+    border: black 3px solid;
+  }
+
+  .onegif .btn {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    background-color: #ffce00;
+    color: #444444;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+
+
+#gifresults > div {
+    width: 198px;
+    margin: 10px;
+    text-align: center;
+    line-height: 75px;
+    font-size: 30px; 
+  }
+  
+#gifresults > div > img {
+    height: 198px;
+    width: 198px; 
+    border-radius: 21px;
+}
+
+#emojiresults > div {
+    width: 64px;
+    margin: 3px;
+    text-align: center;
+    line-height: 75px;
+    font-size: 30px; 
+}
+
+#emojiresults > div > img {
+    height: 64px;
+    width: 64px; 
+    border-radius: 3px;
+}
+
+  
+  
+
+/* Styled for adding the Add button to Emojis */
+
+  .oneemoji {
+    position: relative;
+    width: 50%;
+  }
+
+  .oneemoji img {
+    width: 100%;
+    height: auto;
+  }
+
+   .oneemoji .btn {
+    position: absolute;
+    top: 100%;
+    left: 86%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    background-color: #ffce00;
+    color: #444444;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 6px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+
+.icon {
+    border-radius: 21px;
+    margin: auto;
+    display: block;
+    margin-top:1em;
+    margin-bottom:1em;
+}
+
+.berrycolor {
+    color: #0951a9;
+}
+
+
+.container-fluid {
+    color: #444444; /*soft black*/
+}
+
+.centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.pagination{
+    font-size: 12px;
+    position: relative;
+    padding-bottom:30px;
+}
+
+.pagination li a{
+    color:#0951a9;
+    border-radius: 21px !important;
+}
+
+.pagination .active a{
+    background-color:#0951a9 !important;
+}
+
+#all {
+    padding-top: 3em;
+}
+
+#commentbutton {
+    color: white;
+}
+
+#headbar {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-right: 7px;
+    padding-left: 7px;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99;
+    min-width: 400px;
+}
+
+
+#footer {
+    position: fixed;
+    background-color: white;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    z-index: 99;
+    /* Set the fixed height of the footer here */
+    height: 25px;
+    line-height: 25px;
+}
+
+#footer > a {
+    font-size: small;
+    text-decoration: none;
+}
+
+#headbarcontrols {
+    float: right;
+}
+
+
+.cadetblue {
+    color: cadetblue;
+}
+
+.purple {
+    color: purple;
+}
+
+
+.blue {
+    color: blue;
+}
+
+.green {
+    color: green;
+}
+
+.gray {
+    color: gray;
+}
+
+.red {
+    color: red;
+}
+
+.brown {
+    color: brown;
+}
+
+.black {
+    color: #444444;
+}
+
+.customgreen{
+    color: #65bd7e;
+}
+
+.applered{
+    color: rgb(255, 115, 0);
+}
+
+.lemongreen{
+    color: #00a711;
+}
+
+.softdark{
+    color: #444444;
+}
+
+/* reading progress bar */
+
+#read_progressbar{
+    background-color: #0951a9 !important;
+    position:fixed;
+    bottom:0px;
+    left:0;
+    right:0;
+    width: 0px;
+    height: 7px;
+}
+
+/* upload progress bar */
+
+#progressBar{
+    border: black  2px solid;
+    border-radius: 5px;
+    height: 10px;
+    position:relative;
+    left:25%;
+    width: 50%; 
+}
+
+#progressWidth{
+    width: 0%; 
+    height: 100%; 
+    position: absolute; 
+    background: #0951a9;
+}
+
+
+/* documents index */
+
+.docu {
+    padding-top:1em;
+    padding-bottom:1em;
+    margin-bottom:3em;
+    border: solid 5px rgb(138, 97, 61);
+    border-radius: 21px;
+}
+
+.coverpic {
+    border-radius: 7px;
+    margin-bottom: 2em;
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.docutitle{
+    font-size: larger;
+    color: rgb(138, 97, 61);
+}
+
+.docuauthor{
+    font-size: larger;
+    color:#444444;
+}
+
+.docufile{
+    font-size: smaller;
+    color: gray;
+}
+
+.docudate{
+    font-size: smaller;
+    color: gray;
+}
+
+
+/* Show highlight */
+
+.hsource{
+    color: #444444;
+    text-align: center;
+    margin-bottom: 2em;
+    padding-bottom: 2em;
+}
+
+.hsource a{
+    color: #0951a9;
+    text-decoration: none;
+}
+
+.hsource a:hover{
+    color: #0951a9;
+}
+
+.replyheader{
+    font-size: 12px;
+    color: gray;
+}
+
+.replyheader > a{
+    color: #0951a9;
+    text-decoration: none;
+}
+
+.replybody {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    font-size: 16px;
+    color: #444444;
+}
+
+.replyactions{
+    font-size: 12px;
+}
+
+.replyactions > span {
+    padding-right:1em;
+}
+
+.replyactions > span >  a {
+    color: gray;
+    text-decoration: none;
+}
+
+.replyactions > span >  a:hover {
+    color: #0951a9;
+}
+
+
+.onereply{
+    background-color: #cce0ff;
+    border-radius:21px;
+    padding-right: 21px;
+    padding-left: 21px;
+    padding-top: 21px;
+    padding-bottom: 21px;
+    margin-bottom:42px;
+    min-width: 200px;
+
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.linkreturn{
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+
+.parent-onereply{
+    margin-left:50px;
+}
+
+.child-onereply{
+    margin-left:30px;
+}
+
+.fromposter-onereply{
+    background-color: #cfffd9;
+}
+
+
+#allreplies{
+    padding-bottom: 300px;
+}
+
+#figimgpreview{
+    border-radius: 21px;
+    object-position: center;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
+figcaption{
+    display:none;
+}
+
+figure > img {
+    border-radius: 21px;
+    width: 300px;
+}
+
+.highlightactions{
+    font-size: 12px;
+    padding-top: 7px;
+    margin-top: 0px;
+}
+
+.highlightactions > span >  a {
+    color: gray;
+    text-decoration: none;
+}
+
+.highlightactions > span >  a:hover {
+    color:#0951a9;
+}
+
+.highlightactions > span > .hshare{
+    padding-right: 1em;
+    cursor: pointer;
+}
+
+.highlightactions > span > .hhook{
+    padding-right: 1em;
+    cursor: pointer;
+}
+
+.hrating{
+  width: 33px;
+  float:left;
+}
+
+.hrating p{
+    margin-bottom: 0px;
+    margin-top:0px;
+    padding-left: 6px;
+}
+
+.oscore{
+    width: 50px !important;
+    text-align: center !important;
+    margin-left: -14px !important;
+    padding-left: 0px !important;
+    color:#ff8080;
+}
+
+.bscore{
+    width: 50px !important;
+    text-align: center !important;
+    margin-left: -14px !important;
+    padding-left: 0px !important;
+    color:#0951a9;
+}
+
+.hscore{
+    width: 50px !important;
+    text-align: center !important;
+    margin-left: -14px !important;
+    padding-left: 0px !important;
+    color:#808080;
+}
+
+.moscore{
+    color:#ff8080;
+}
+
+.mbscore{
+    color:#0951a9;
+}
+
+.mhscore{
+    color:#808080;
+}
+
+
+#upvote.active {
+    background: orangered;
+    color: white;
+}
+
+#downvote.active {
+    background: rgb(119, 119, 236);
+    color: white;
+}
+  
+
+.menu-icon{
+    margin-right: 7px;
+    border-radius: 100%;
+    width: 32px;
+    height: 32px;
+    opacity: 0.8;
+    object-fit: cover;
+    object-position: center;
+}
+
+.header-icon{
+    margin-right: 3px;
+    border-radius: 100%;
+    width: 42px;
+    height: 42px;
+    object-fit: cover;
+    object-position: center;
+}
+  
+.panel-icon{
+    margin-right: 7px;
+    border-radius: 100%;
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.panel-icon-text{
+    vertical-align: middle;
+}
+
+
+.whitefade {
+    position: relative;
+    z-index: 0 !important;
+    bottom: 5em;
+    height: 5em; 
+    background: -webkit-linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 1) 100%
+    ); 
+    background-image: -moz-linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 1) 100%
+    );
+    background-image: -o-linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 1) 100%
+    );
+    background-image: linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 1) 100%
+    );
+    background-image: -ms-linear-gradient(
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 1) 100%
+    );
+} 
+
+#collection{
+    margin-bottom: 5em;
+    max-width: 375px;
+    max-height: 600px;
+    overflow: scroll;
+}
+
+.notiftext{
+    color:#0951a9;
+}

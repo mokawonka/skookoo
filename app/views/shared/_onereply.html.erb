@@ -1,0 +1,95 @@
+<%
+    avatarclass = type == "parent" ? "parent-reply-avatar" : "child-reply-avatar"
+    toggleclass = type == "parent" ? "parent-reply-toggle" : "child-reply-toggle"
+    onereplyclass = type == "parent" ? "parent-onereply" : "child-onereply"
+
+    poster = User.find_by_id(reply.userid)
+
+    subreplies = reply.getsubreplies
+
+    replyuser = poster.username
+    owner_id = Highlight.find(reply.highlightid).userid 
+    highlightowner = User.find(owner_id).username
+
+    iffromposter = reply.userid == owner_id ? "fromposter-onereply" : ""
+
+%>
+
+
+<div id="<%=reply.id%>">
+
+    <!-- displaying reply -->
+    <% if !reply.deleted %>
+
+        <!-- Avatar -->
+        <% if poster.avatar.attached? %>
+            <%= link_to image_tag(poster.avatar.variant(resize_to_limit:[64, 64]), class: avatarclass), user_path(poster.username), style:'height:fit-content' %>
+        <% else %>
+            <%= link_to image_tag("/assets/default-avatar.svg", class: avatarclass),  user_path(poster.username), style:'height:fit-content' %>
+        <% end %>
+
+        <!-- collapser / expander if children present -->
+        <% if subreplies.count > 0 %>
+
+            <%= link_to image_tag("/assets/replies-collapse.png", size: "17x17", id: "toggle-" + reply.id.to_s , class: toggleclass) %>
+
+            <script>
+
+                $('#toggle-<%=reply.id%>').on('click', function(e){
+                    e.preventDefault();
+
+                    if ($(this).attr('src').indexOf("collapse") != -1) {
+                        $(this).attr('src', "/assets/replies-expand.png");
+                        $('#children-<%=reply.id%>').hide();
+                    }
+                    else {
+                        $(this).attr('src', "/assets/replies-collapse.png");
+                        $('#children-<%=reply.id%>').show();
+                    }
+                });
+
+            </script>
+            
+        <% end %>
+
+
+        <div class="onereply <%=onereplyclass%> <%=iffromposter%>">
+            <div class="replyheader">
+                By <%= link_to replyuser, user_path(replyuser) %> <%=time_ago_in_words(reply.created_at)%> ago
+                <% if reply.edited %>(edited)<% end %>
+            </div>
+            <div class=replybody>
+                <%=reply.content%>
+            </div>
+            <div class=replyactions>
+
+                <span><%= render 'shared/voting_system', entity: reply, fromuser: current_user,
+                                                                        touser: User.find(reply.userid),
+                                                                        type: "minor" %></span>
+
+                <span><%= link_to 'reply', reply_path(reply), remote: "true" %></span>
+
+                <% if current_user != nil %>
+
+                    <% if current_user.username == replyuser %>
+                        <span><%= link_to 'edit', edit_reply_path(reply), remote: "true" , class: "editcomment" %></span>
+                        <span><%= link_to 'delete', reply, method: :delete, remote:"true", data: { confirm: "Delete, Are you sure?"} %></span>
+                    <% elsif current_user.username == highlightowner %>
+                        <span><%= link_to 'delete', reply, method: :delete, remote:"true", data: { confirm: "Delete, Are you sure?"} %></span>
+                    <% end %>
+
+                <% end %>
+            </div>
+            <div class="d-none pt-3 replytobox"></div>
+        </div>
+        
+    <% else %>
+    
+        <% if subreplies.count > 0 %>
+            <div class="onereply text-center gray">[deleted]</div>
+        <% end %>
+
+    <% end %>
+
+
+</div>

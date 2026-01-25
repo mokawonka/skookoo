@@ -1,0 +1,260 @@
+<%
+    avatar_filepath = "/assets/default-avatar.svg"
+    if @user.avatar.attached?
+        avatar_filepath = @user.avatar.variant(resize_to_limit:[400, 400])
+    end
+%>
+
+
+<div id=presentation>
+
+    <div id=avatarprofile>
+
+        <%= image_tag(avatar_filepath , class: "avatar_profile", id: 'avatar') %>
+
+        <% if logged_in? %>
+            
+        <% if current_user == @user %>
+            <div id=editavatar class="d-none" >
+                <%= render 'changeavatar', user: current_user %>
+            </div>
+            <button id=editbutton class='btn'>Edit profile</button>
+        <% else %>
+            <% if current_user.following.include? @user.id %>
+                <%= link_to 'Unfollow', user_unfollow_path(@user), remote: true, class: 'btn' ,id:'followbutton' %>
+            <% else %>
+                <%= link_to 'Follow', user_follow_path(@user), remote: true, class: 'btn', id:'followbutton' %>
+            <% end %>
+        <% end %>
+            
+        <% end %>
+    </div>
+
+    <div id="infoprofile">
+        <span id=nameprofile><%= @user.name %></span>
+        <% if logged_in? %>
+            <% if current_user == @user %>
+                 <div id=editname class=d-none>
+                    <%= render 'changename', user: current_user %>
+                </div>
+            <% end %>
+        <% end %>
+
+        <div id=joindate>
+            <span class=float-end>Joined</span><br> 
+            <%=@user.created_at.strftime("%B %Y")%>
+        </div>
+
+        <div id=handler-badges>
+            <span>@<%=@user.username%></span>
+            <span class='badge userbadge'><%=@user.mana%> mana</span>
+        </div>
+
+        <% if logged_in? %>
+            <% if current_user == @user %>
+                <div id=editbio class=d-none>
+                    <%= render 'changebio', user: current_user %>
+                </div>
+            <% end %>
+        <% end %>
+
+        <div id=biography>
+            <%=@user.bio%>
+        </div>
+
+
+        <% if logged_in? %>
+            <% if current_user == @user %>
+                 <div id=editlocation class=d-none>
+                    <%= render 'changelocation', user: current_user %>
+                </div>
+            <% end %>
+        <% end %>
+
+        <div id=location>
+            <% if @user.location? %>
+                Lives in <%=@user.location%>
+            <% end %>
+        </div>
+
+    </div>
+
+
+    <div class=pt-2 id=connections>
+        <%=link_to @user.following.count.to_s + ' Following', user_show_following_path(@user), remote: true, class: 'follownb' %> 
+        <%=link_to @user.followers.count.to_s + ' Followers', user_show_followers_path(@user), remote: true, class: 'follownb' %>
+    </div>
+
+</div>
+
+<div id="activity">
+
+    <ul class="nav nav-tabs border-0" id="profiletabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="highlights-tab" data-bs-toggle="tab" data-bs-target="#highlights" type="button" role="tab" aria-controls="highlights" aria-selected="true">
+                <%=image_tag('/assets/berry.svg' , size:"25x25")%><%=@totalH%> Highlights 
+            </button>
+        </li>
+
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="myreplies-tab" data-bs-toggle="tab" data-bs-target="#myreplies" type="button" role="tab" aria-controls="myreplies" aria-selected="false">
+                <%=image_tag('/assets/honeypot.svg' , size:"25x25")%><%=@totalR%> Replies
+            </button>
+        </li>
+
+    </ul>
+
+
+    <div class="tab-content" id="profilecontent">
+
+        <div class="tab-pane fade show active" id="highlights" role="tabpanel" aria-labelledby="highlights-tab">
+
+            <% if @user.hooked != nil %>
+                <% hookedhighlight = Highlight.find_by_id(@user.hooked) %>
+                <% if hookedhighlight != nil %>
+
+                    <% if logged_in? %>
+
+                        <% if current_user == @user %>
+                            <span class="hookedhighlight">
+                                <a><span id="unhook">Hooked</span><%= image_tag '/assets/hook.svg', size:'21x21'%></a>
+                            </span>
+                            <%= render 'shared/userhook', hid: 'none', user: @user %>
+                        <% else %>
+                            <span class="hookedhighlight">
+                                <span>Hooked</span><%= image_tag '/assets/hook.svg', size:'21x21'%>
+                            </span>
+                        <% end %>
+
+                    <% end %>
+
+                    <%= render 'shared/post', highlight: hookedhighlight %>
+                    <hr>
+
+                <% end %>
+            <% end %>
+
+            <% if @hrecords.count > 0  %>
+
+              <%=render "highlights/scrollable_list" %>
+
+            <% else %>
+                <div style="padding-top:80px;" class="text-center dimmed">
+                    <%= image_tag '/assets/empty_basket.png', size: '100x100'%>
+                    <p> No highlights collected </p>
+                </div>
+            <% end %>
+
+        </div>
+
+        <div class="tab-pane fade" id="myreplies" role="tabpanel" aria-labelledby="myreplies-tab"></div>
+
+    </div>
+
+
+</div>
+
+
+<%= javascript_include_tag asset_path('posts_postprocessing.js') %>
+<%= stylesheet_link_tag asset_path('posts_postprocessing.css') %>
+
+<script>
+    $('#myreplies-tab').on('click', function(){
+    <% if logged_in? %>
+        var actionurl = "/users/" + "<%=@user.id%>" + "/show_replies?authenticity_token=" + "<%=form_authenticity_token%>";
+        $.get(actionurl);
+    <% else %>
+        $('#myreplies').html('<br><div class=embeddedlogin><%= escape_javascript render "shared/login" %>');
+    <% end %>
+    });
+</script>
+
+<% if logged_in? %>
+
+<!-- zoom on profile avatar -->
+<div class="modal" id="avatarmodal" tabindex="-1" role="dialog" aria-labelledby="avatarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <img src="" class='centered' id="avatarpreview">
+    </div>
+</div>
+
+<!-- following / followers list -->
+<div class="modal fade" id="followmodal" tabindex="-1" role="dialog" aria-labelledby="followsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body" id='followbodymodal'> </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).on('click', '.avatar_profile', function() {
+        
+        $('#avatarpreview').attr('src', $(this).attr('src'));
+        $('#avatarmodal').modal('show');
+    });
+
+
+    $('#followmodal').hide();
+    $('#followbutton').on('click', function(){
+
+        var txt = $(this).text();
+        if( txt == 'Follow') $(this).text('Unfollow');    
+        else if (txt == 'Unfollow') $(this).text('Follow');
+    });
+
+
+    <% if current_user == @user %>
+
+    $('#editbutton').on('click', function(){        
+        var txt = $(this).text();
+
+        if( txt == 'Edit profile'){
+
+            $('#handler-badges').addClass('d-none');
+
+            $('#avatar').addClass('d-none');
+            $('#editavatar').removeClass('d-none');
+
+            $('#biography').addClass('d-none');
+            $('#editbio').removeClass('d-none');
+
+            $('#nameprofile').addClass('d-none');
+            $('#editname').removeClass('d-none');
+
+            $('#location').addClass('d-none');
+            $('#editlocation').removeClass('d-none');
+
+            $(this).text('Save');
+        }     
+        else if (txt == 'Save'){
+
+            $('#handler-badges').removeClass('d-none');
+
+            $('#avatar').removeClass('d-none');
+            $('#editavatar').addClass('d-none');
+
+            $('#biography').removeClass('d-none');
+            $('#editbio').addClass('d-none');
+
+            $('#nameprofile').removeClass('d-none');
+            $('#editname').addClass('d-none');
+
+            $('#location').removeClass('d-none');
+            $('#editlocation').addClass('d-none');
+            
+            if($('#user_avatar').val() != '' ) $('#changeavatar').click();
+            if($('#bioinput').val() != '<%=@user.bio%>' ) $('#changebio').click();
+            if($('#nameinput').val() != '<%=@user.name%>' ) $('#changename').click();
+            if($('#locationinput').val() != '<%=@user.location%>' ) $('#changelocation').click();
+
+
+            $(this).text('Edit profile');
+        } 
+    });
+
+    <% end %>
+
+</script>
+<% end %>

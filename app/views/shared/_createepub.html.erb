@@ -1,0 +1,98 @@
+<%= form_with(model: epub, local: false, html: { data: { controller: "uploadprogress" } } ) do |form| %>
+
+  <% if epub.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(epub.errors.count, "error") %> prohibited this epub from being saved:</h2>
+
+      <ul>
+        <% epub.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <br>
+
+  <div class="text-center pb-5">
+
+    <h5 class=gray> Upload your own epub file</h5>
+    <br>
+
+    <div class="field">
+      <%= form.file_field :epub_file, direct_upload: true, accept: "application/epub+zip", id: "epub_upload" %>
+    </div>
+    <br>
+
+    <div class="actions" id="submitepub">
+        <%= form.submit "Submit" , class: "btn btn-warning border-3 border-dark" , data: { action: "click->uploadprogress#showProgress" }%>
+    </div>
+
+    <div id="uploadStatus" style="display:none;"  data-target="uploadprogress.progress">
+      <div>
+        <br><br> Uploading your file... <span id="progressText" data-target="uploadprogress.progressText"></span>
+      </div>
+      <div id="progressBar">
+        <div id="progressWidth" data-target="uploadprogress.progressWidth">
+        </div>
+      </div>
+    </div>
+
+    <button type=button class='btn btn-warning border-3 border-dark' id=createfromdb>Submit</button>
+  
+  </div>
+
+<% end %>
+
+
+<script>
+
+   function calculateHash(file, callback) 
+   {  
+     let reader = new FileReader();
+     reader.onload = function(event) {
+       let file_sha3 = sha3_256(reader.result);
+       callback(file_sha3);
+     };
+     reader.readAsArrayBuffer(file);
+   }
+
+   $('#submitepub').css('display', 'none');
+   $('#createfromdb').css('display', 'none');
+
+   $('#epub_upload').on("change", function(event) {
+  
+       $('#submitepub').css('display', 'none');
+       $('#createfromdb').css('display', 'none');
+
+       let file = this.files[0];
+       if (file) {
+         calculateHash(file, function(file_sha3) {
+
+            var actionurl = "/epubs/" + file_sha3 + "/check_presence";
+
+            $.post(actionurl, {
+                authenticity_token: "<%= form_authenticity_token %>"
+            })
+         });
+       }
+   });
+      
+
+
+  $('#createfromdb').on('click', function(){
+      var actionurl = "/epubs/" + epubid + "/createfromdb";
+
+      $.post(actionurl, {
+          authenticity_token: "<%= form_authenticity_token %>"
+      })
+      .done(function(data, textStatus, jqXHR){
+          // Success → redirect client-side
+          window.location.href = "<%= documents_path %>";
+      })
+      .fail(function(jqXHR, textStatus, errorThrown){
+          alert("Error creating document: " + textStatus);
+          console.log(jqXHR.responseText);
+      });
+  });
+
+</script>

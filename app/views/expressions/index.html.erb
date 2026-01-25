@@ -1,0 +1,38 @@
+<h3 class="pt-4 pb-4">
+<%=image_tag('/assets/lemon.svg', class: "header-icon")%>
+My Vocabulary
+<div class=subtitle>
+  Private.
+</div>
+</h3>
+
+<div id=myvocabulary>
+
+<% if @records.count > 0 %>
+
+    <% @records.order('created_at DESC').each do |exp| %>
+      
+      <div class="lemon container-fluid">
+
+        <%= button_to '', exp, method: :delete, class: "btn-close float-end", data: {confirm: "Are you sure?"} %>
+        <strong class="lemongreen">Added <%=time_ago_in_words(exp.created_at)%> ago</strong>
+        
+        <div class="pt-3 text-center"> <%= exp.content %> </div>
+
+      </div>
+
+      <br>
+    <% end %>
+
+<% else %>
+
+    <div class="centered text-center dimmed">
+        <%= image_tag '/assets/empty_basket.png', size: '100x100'%>
+        <p> No vocabulary collected </p>
+    </div>
+
+<% end %>
+
+</div>
+
+<%== pagy_bootstrap_nav(@pagy) if @pagy.pages > 1 %>

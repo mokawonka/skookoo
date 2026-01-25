@@ -1,0 +1,51 @@
+
+<div class="container pt-5">
+
+    <div class=pb-5>
+        <%= render "shared/onehighlight" , highlight: @highlight , document: @document, from: 'highlight' %>
+    </div>
+
+
+    <div class=pb-5>
+        <%= render 'shared/createreply', reply: @reply, highlight_id: @highlight.id, recipient_id:'', formwhatfor: "creation" %>
+    </div>
+
+
+    <div id=allreplies>
+        <%= render 'shared/highlightreplies', replies: @replies, type: "parent" %>
+    </div>
+
+</div>
+
+
+<!-- zoom on figure image -->
+<div class="modal" id="figimgmodal" tabindex="-1" role="dialog" aria-labelledby="resultLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+            <img class=centered id="figimgpreview" src="">
+    </div>
+</div>
+
+
+
+
+<script>
+
+    // zoom on attached images on click
+    $(document).on('click', 'figure img', function() {
+        $('#figimgpreview').attr('src', $(this).attr('src'));
+        $('#figimgmodal').modal('show');
+    });
+
+    $(document).ready(function(){
+
+        // scroll to reply div
+        var url = window.location.href;
+        if (url.indexOf('?reply=') != -1)
+        {
+            var replyid = url.substr(url.lastIndexOf("?reply=")+7);
+            document.getElementById(replyid).scrollIntoView();
+        }
+    });
+
+
+</script>

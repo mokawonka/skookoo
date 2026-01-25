@@ -1,0 +1,416 @@
+
+.embeddedlogin{
+  padding-left: 3em;
+  padding-right: 3em;
+}
+
+#fontlist{
+ max-height: 300px;
+ overflow: scroll;
+}
+
+.list-group{
+  border-radius: 21px !important; 
+}
+
+.list-group-item.active{
+  background-color: #0951a9 !important;
+}
+
+#allsettings{
+  padding-top: 5em;
+  padding-bottom: 5em;
+}
+
+#list-updaters{
+  max-width: 400px;
+}
+
+#updaters{
+  padding-top: 1em;
+  padding-left: 1em;
+}
+
+.smallinput{
+  min-width: 300px;
+  height: 33px;
+  margin: 7px;
+  padding:0px;
+
+  padding-left:14px;
+  padding-right:14px;
+}
+
+#nameinput{
+  width: 300px;
+  color: #0951a9;
+  background-color: white;
+  border-style: dashed;
+  overflow:hidden;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+#bioinput{
+  color:#444444;
+  background-color: white;
+  border-style: dashed;
+  resize: none;
+  overflow:scroll;
+  margin-top: 1em;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 10px;
+  padding-right: 10px;
+  max-width : 300px;
+  max-height : 90px;
+}
+
+#locationinput{
+  width: 300px;
+  color: #0951a9;
+  background-color: white;
+  border-style: dashed;
+  overflow:hidden;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+.updater-title{
+  color: #0951a9;
+  padding-top: 1em;
+  font-size: large;
+}
+
+#avatarform{
+}
+
+.avatar-upload {
+  position: relative;
+  float: left !important;
+}
+
+.avatar-upload .avatar-edit {
+  position: absolute;
+  right: 10px;
+  z-index: 1;
+  top: 0px;
+}
+
+.avatar-upload .avatar-edit input {
+  display: none;
+}
+
+.avatar-upload .avatar-edit input + label {
+  display: block;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 0;
+  border-radius: 100%;
+  background: #FFFFFF;
+  border: 1px solid transparent;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  font-weight: normal;
+  transition: all 0.2s ease-in-out;
+}
+
+.avatar-upload .avatar-edit input + label:hover {
+  background: #f1f1f1;
+  border-color: #d6d6d6;
+}
+
+.avatar-upload .avatar-edit input + label:after {
+  content: "\f040";
+  font-family: 'FontAwesome';
+  color: #757575;
+  position: absolute;
+  top: 5px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  margin: auto;
+}
+
+.avatar-upload .avatar-preview {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  border-radius: 100%;
+  border: 3px dashed #ccc;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-upload .avatar-preview > div {
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.mini-avatar{
+  border-radius: 100%;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+.parent-reply-avatar
+{
+  border-radius: 100%;
+  margin-right: 7px;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+  position:absolute;
+}
+
+.child-reply-avatar
+{
+  border-radius: 100%;
+  margin-right: 7px;
+  width: 20px;
+  height: 20px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+  position:absolute;
+}
+
+.parent-reply-toggle{
+  top: 50px;
+  left: 12px;
+  position: relative;
+}
+
+.child-reply-toggle{
+  top: 30px;
+  left: 2px;
+  position: relative;
+}
+
+.avatar_profile{
+  border-radius: 100%;
+  border: solid 3px #0951a9;
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.nav-tabs.border-0 {
+  border-bottom: 1px solid black;
+}
+
+#profilecontent{
+  border-bottom-right-radius: 21px;
+  border-bottom-left-radius: 21px;
+
+  border-left: 1px solid #e0e0e0 ; 
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  min-height: 500px;
+  margin-bottom: 50px;
+}
+
+#profiletabs {
+
+}
+
+
+#presentation{
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 1em;
+  padding-bottom: 2em;
+}
+
+.myreply{
+  min-height: 75px;
+}
+
+
+#myreplies-tab{
+  color:#444444;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+#highlights-tab{
+  color:#444444;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+#highlights{
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+#myreplies{
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+#nameprofile{
+  color: #0951a9;
+  font-size: 22px;
+  margin-bottom: 0;
+}
+
+#avatarprofile{
+  padding-top: 1em;
+  min-height: 170px;
+}
+
+#biography{
+  padding-top:10px;
+  max-width: 300px;
+}
+
+#location{
+  font-size: small;
+  color: gray;
+  padding-top:10px;
+  max-width: 300px;
+}
+
+#joindate{
+  font-size: 10px;
+  padding-top: 7px;
+  color: gray;
+  float: right;
+}
+
+#mana{
+  margin-left: 7px;
+  color: turquoise;
+  font-size: 17px;
+}
+
+#handler-badges{
+  color:gray;
+}
+
+.userbadge{
+  margin-left: 7px;
+  border-radius: 11px !important;
+  background-color: #0951a9 !important;
+}
+
+.rotate {
+  animation: rotation 33s infinite linear;
+}
+
+@keyframes rotation {
+  to {
+    transform: rotate(0deg);
+  }
+  from {
+    transform: rotate(359deg);
+  }
+}
+
+#avatarpreview{
+  border-radius: 100%; 
+  width: 300px;
+  height: 300px;
+
+  object-fit: cover;
+  object-position: center;
+}
+
+.hookedhighlight {
+  display: flex;
+  color: gray;
+  font-size: smaller;
+  float: right !important;
+  text-decoration: none;
+  padding-right: 3px;
+  padding-top: 5px;
+  padding-left: calc(100% - 100px);
+}
+
+.hookedhighlight a{
+  cursor: pointer;
+}
+
+
+#unhook:hover{
+  color:#0951a9;
+  cursor: pointer;
+}
+
+.follow{
+  font-size: small;
+  color: gray;
+  padding-right: 1em;
+}
+
+.follownb{
+  font-size: small;
+  text-decoration: none;
+  color: gray;
+  margin-right: 1em;
+}
+
+#followbutton{
+  background-color: #0951a9 !important;
+  border-color: #0951a9 !important;
+  color: white !important;
+  float: right !important;
+  margin-top: 90px !important;
+  text-decoration: none;
+}
+
+#editbutton{
+  background-color: #0951a9 !important;
+  border-color: #0951a9 !important;
+  color: white !important;
+  float: right !important;
+  margin-top: 90px !important;
+  text-decoration: none;
+}
+
+#followbodymodal{
+  min-height: 400px !important;
+}
+
+
+.followpic
+{
+  object-fit: cover;
+  object-position: center;
+  border-radius: 100%;
+  border: solid 1px #0951a9;
+  margin-right: 2em;
+}
+
+.followusername
+{
+  color:#0951a9;
+  font-size: large;
+  text-decoration: none;
+}
+
+.followbutton
+{
+  background-color: #0951a9 !important;
+  border-color: #0951a9 !important;
+  color: white !important;
+  text-decoration: none;
+  float: right;
+  margin-top: 9px;
+}
+
+.followitem
+{
+  margin-top: 1em;
+  margin-bottom: 1em;
+}

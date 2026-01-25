@@ -1,0 +1,75 @@
+<div class="post container-fluid">
+
+    <%= render 'shared/voting_system', entity: highlight, fromuser: current_user, 
+                                                          touser: User.find(highlight.userid), 
+                                                          type: "major" %>
+
+    <div class=hreaction>
+
+        <% if !highlight.comment.nil? %>
+            <%=link_to image_tag("/assets/comment.svg", size:"66x66") , highlight %>
+        <%end%>
+
+        <% if highlight.liked %>
+            <%=link_to image_tag("/assets/like.png", size:"66x66") , highlight %>
+        <%end%>
+
+        <% if highlight.emojiid %>
+            <% pathtoemoji = "/assets/emojis/" + highlight.emojiid%>
+            <%=link_to image_tag(pathtoemoji, size:"66x66") , highlight %>
+        <%end%>
+
+        <% if highlight.gifid %>
+            <%=link_to image_tag("/assets/gif.svg", size:"66x66") , highlight %>
+        <%end%>
+    </div>
+
+    <% poster = User.find_by_id(highlight.userid).username %>
+    <small class=hposter>Submitted <%=time_ago_in_words(highlight.created_at)%> ago by <%=link_to poster, user_path(poster)%> </small>  
+    <br>
+    <%= link_to highlight.quote, highlight_path(highlight), class: "hquote addReadMore showlesscontent" %> - 
+    <span id="fromauthors-<%=highlight.id%>" class="todecode authors_highlight"><%= highlight.fromauthors%></span> - 
+    <span id="fromtitle-<%=highlight.id%>" class="todecode title_highlight"> <%= highlight.fromtitle %> </span>
+
+    <div class=hactions>
+
+        <%
+            replies = Reply.where(:highlightid => highlight.id).where(:recipientid => nil).where(:deleted => false)
+            text = replies.length > 0 ? replies.length.to_s : ""
+
+            if replies.length > 1
+                text += " replies"
+            else  
+                text += " reply" 
+            end
+        %>
+        <span><%= link_to text , highlight_path(highlight) %></span>
+
+        <span><a href="" id="share-<%=highlight.id%>">share</a></span>
+
+
+        <% if Document.find_by_id(highlight.docid) != nil %>
+            <span><%= link_to 'view in book', document_path(highlight.docid) + '?cfi=' + highlight.cfi %></span>
+        <% end %>
+
+        <script>
+            $("#share-<%=highlight.id%>").on('click', function(e){
+                e.preventDefault();
+                if($(document).find("#socialshares").length != 0) $("#socialshares").remove();
+                else $(this).parent().parent().append("<%=escape_javascript render 'shared/socialmedia', highlight: highlight%>");
+            });
+
+            $('#fromauthors-<%=highlight.id%>').on('click', function(){
+                $('#mainsearchinput').val($(this).text());
+                $('#searchform').submit();
+            });
+
+            $('#fromtitle-<%=highlight.id%>').on('click', function(){
+                $('#mainsearchinput').val($(this).text());
+                $('#searchform').submit();
+            });
+        </script>
+
+    </div>
+
+</div>

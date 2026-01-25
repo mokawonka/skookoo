@@ -1,0 +1,144 @@
+// Place all the styles related to the pages controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: https://sass-lang.com/
+
+#costs{
+    border: 3px solid #444444;
+    background-color: #defeff;
+
+    border-radius: 21px;
+    text-align: center;
+    max-width: fit-content;
+    padding:14px;    
+}
+
+.plan{
+    border: 3px solid #444444;
+    background-color: #cce0ff;
+    border-radius: 21px;
+    max-width: 320px !important;
+    padding:14px;
+    margin-bottom:3em;
+}
+
+
+.manapoints{
+    color: turquoise;
+    font-size: large;
+}
+
+#homepage{
+    padding-bottom: 100px;
+}
+
+#myresults{
+    padding-left: 33px;
+    padding-right: 33px;
+    padding-bottom: 100px;
+    text-align:justify;
+}
+
+.post{
+    text-align: justify;
+    min-height: 75px;
+}
+
+.authors_highlight{
+    font-size: 12px;
+    color:white !important;
+    background-color: #444444;
+    border-radius: 7px;
+    padding: 1px;
+    padding-left:5px;
+    padding-right:5px;
+
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.authors_highlight:hover{
+    cursor:pointer;
+    background-color: #0951a9;
+}
+
+.title_highlight{
+    font-size: 12px;
+    color: white !important;
+    background-color: #444444;
+    border-radius: 7px;
+    padding: 1px;
+    padding-left:5px;
+    padding-right:5px;
+
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.title_highlight:hover {
+    cursor:pointer;
+    background-color: #0951a9;
+}
+
+.title_highlight a{
+    color:white !important;
+}
+
+.locatedWord{
+    text-decoration: underline solid 3px; 
+    text-decoration-color:red; 
+    text-underline-position: under;
+}
+
+.hreaction{
+    width: 80px;
+    float:left;
+}
+
+.hquote{
+    text-decoration:none;
+    color:#444444;
+}
+
+.hquote:hover{
+    color:#0951a9;
+}
+
+.hposter{
+    color:gray;
+    font-size: 12px;
+    padding-top:0px;
+    padding-bottom:0px;
+}
+
+.hposter a {
+    color:#0951a9;
+    text-decoration: none;
+}
+
+.hactions{
+    font-size: 12px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.hactions a {
+    text-decoration: none;
+    color:gray;
+    padding-right:10px;
+}
+
+
+#aboutcontent{
+    font-size: 22px;
+    padding-top: 100px;
+    text-align: center;
+    padding-bottom: 5em;
+    max-width: 500px;
+}
+
+
+.homepage-filters{
+    font-size: 10px !important;
+    padding-top: 0px !important;
+    height: 20px;
+}
