@@ -11,6 +11,7 @@
 
     <script>
       window.notificationSoundUrl = "<%= asset_path('windchimesound.mp3') %>";
+      window.silentUnlockSoundUrl   = "<%= asset_path('silent.mp3') %>";
     </script>
 
     <%= javascript_importmap_tags %>
@@ -68,15 +69,21 @@
                   </span>
               </button>
 
-              <ul class="dropdown-menu dropdown-menu-end shadow">
+              <ul class="allnotifications dropdown-menu dropdown-menu-end shadow">
                 <% @notifications = current_user.notifications %>
-                <li class=text-center style="color:#0951a9"><h2>Notifications</h2></li>
+                <li class=text-center style="color:#0951a9"><h4>Notifications</h4></li>
                 <li><hr class="dropdown-divider"></li>
-                <div id="notifications-dropdown" class="notification-list">
-                  <% @notifications.newest_first.limit(7).each do |notification| %>
-                    <%= render "notifications/notification", notification: notification %>
-                  <% end %>
-                </div>
+                <% if @notifications.count > 0 %>
+                  <div id="notifications-dropdown" class="notification-list">
+                    <% @notifications.newest_first.limit(7).each do |notification| %>
+                      <%= render "notifications/notification", notification: notification %>
+                    <% end %>
+                  </div>
+                <% else %>
+                    <div class=text-center>
+                      No notifications
+                    </div>
+                <% end %>
                 <% if @notifications.unread.any? %>
                   <li><hr class="dropdown-divider"></li>
                   <li class="text-center">

@@ -6,7 +6,7 @@ export default class extends Controller {
     const unlockAudio = () => {
       //console.log("Unlocking audio context on user gesture")
 
-      const silent = new Audio("/assets/sounds/silent.mp3")
+      const silent = new Audio(window.silentUnlockSoundUrl)
       silent.volume = 0
       silent.play().catch(() => {})  // silent fail is ok
 
