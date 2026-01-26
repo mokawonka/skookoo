@@ -2,11 +2,12 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
+    static values = { url: String }
+
   connect() {
     const unlockAudio = () => {
-      //console.log("Unlocking audio context on user gesture")
 
-      const silent = new Audio(window.silentUnlockSoundUrl)
+      const silent = new Audio(this.urlValue)
       silent.volume = 0
       silent.play().catch(() => {})  // silent fail is ok
 

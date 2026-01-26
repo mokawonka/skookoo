@@ -9,11 +9,6 @@
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= favicon_link_tag asset_path('favicon.ico') %>
 
-    <script>
-      window.notificationSoundUrl = "<%= asset_path('windchimesound.mp3') %>";
-      window.silentUnlockSoundUrl   = "<%= asset_path('silent.mp3') %>";
-    </script>
-
     <%= javascript_importmap_tags %>
   </head>
 
@@ -45,6 +40,7 @@
               <% if current_user.allownotifications %>
 
                 <div data-controller="audio-unlocker"
+                     data-audio-unlocker-url-value="<%= asset_path('silent.mp3') %>"
                      data-turbo-permanent 
                      style="display:none"></div>
 
@@ -71,7 +67,9 @@
 
               <ul class="allnotifications dropdown-menu dropdown-menu-end shadow">
                 <% @notifications = current_user.notifications %>
-                <li class=text-center style="color:#0951a9"><h4>Notifications</h4></li>
+                <li class="text-center" style="color: #0951a9;">
+                  <h5 class="mb-0 fw-bold">Notifications</h5>
+                </li>
                 <li><hr class="dropdown-divider"></li>
                 <% if @notifications.count > 0 %>
                   <div id="notifications-dropdown" class="notification-list">
@@ -80,9 +78,12 @@
                     <% end %>
                   </div>
                 <% else %>
-                    <div class=text-center>
-                      No notifications
+                  <div class="text-center py-5 text-muted">
+                    <div class="mb-3">
+                      <i class="fa fa-bell-slash fs-1"></i>
                     </div>
+                    <p class="mb-1">No notifications yet</p>
+                  </div>
                 <% end %>
                 <% if @notifications.unread.any? %>
                   <li><hr class="dropdown-divider"></li>

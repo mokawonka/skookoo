@@ -2,38 +2,46 @@
   padding: 0;                    /* remove default padding so scroll area touches edges */
   overflow: hidden;              /* prevent outer scrollbar */
 }
-.allnotifications{
-  min-width: 200px;
+
+.allnotifications {
+  min-width: 340px !important;           /* wider than 200px — looks better for notifications */
+  max-width: 420px;           /* prevents it from being too wide on large screens */
+  min-height: 220px;          /* ← this is key: ensures decent height even when empty */
+  max-height: 80vh;           /* don't let it take the whole screen on mobile */
+  overflow: hidden;           /* prevent outer scrollbar */
+  border-radius: 0.5rem;
 }
 
+/* Scrollable list when there are notifications */
 .notification-list {
-  /* Core scrollable styles */
-  max-height: 380px;             /* adjust this value to your preference (e.g. 300px–450px) */
-  overflow-y: auto;              /* vertical scrollbar when content overflows */
-  overflow-x: hidden;            /* no horizontal scroll */
-
-  /* Nice scrollbar styling (optional but modern look) */
-  scrollbar-width: thin;         /* Firefox */
-  scrollbar-color: #adb5bd #f8f9fa;  /* thumb / track */
+  max-height: 380px;          /* adjust based on your notification item height */
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 -1rem;            /* compensate for padding on sides if needed */
+  padding: 0 1rem;
 }
 
-/* Webkit browsers (Chrome, Edge, Safari) */
+/* Nice scrollbar (optional) */
 .notification-list::-webkit-scrollbar {
   width: 6px;
 }
-
 .notification-list::-webkit-scrollbar-track {
   background: #f8f9fa;
-  border-radius: 10px;
 }
-
 .notification-list::-webkit-scrollbar-thumb {
   background: #adb5bd;
-  border-radius: 10px;
+  border-radius: 3px;
 }
 
-.notification-list::-webkit-scrollbar-thumb:hover {
-  background: #6c757d;
+/* Make sure notification items look good */
+.notification-item {          /* add this class to your _notification partial */
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
 }
 
 #notifications-container {
