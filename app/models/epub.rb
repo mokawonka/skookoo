@@ -5,9 +5,17 @@ class Epub < ApplicationRecord
 
     attribute :public_domain, :boolean, default: true
 
+
+    include PgSearch::Model
+    pg_search_scope :global_search,
+        against: [:title, :authors],
+    using: {
+        tsearch: { prefix: true }
+    }
+
     def cover_url
 
-        return "https://via.placeholder.com/260x360?text=#{title.to_s.truncate(20)}" unless cover_pic.attached?
+        return false unless cover_pic.attached?
 
         Rails.application.routes.url_helpers.rails_blob_url(
             cover_pic,
@@ -42,24 +50,6 @@ class Epub < ApplicationRecord
     end
 
 
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
     # static method used for seeding DB
     def self.save_epub(filepath)
 
@@ -84,7 +74,7 @@ class Epub < ApplicationRecord
           e.lang = reader.metadata.languages[0].content
           e.sha3 = SHA3::Digest.file(filepath).hexdigest
           # e.public_domain equals true by default 
-      
+
           # get cover pic
           if reader.cover_image
       

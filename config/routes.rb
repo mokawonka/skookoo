@@ -72,7 +72,8 @@ Rails.application.routes.draw do
     get 'createfromdb'
     
     collection do
-      get 'available', to: 'epubs#available', defaults: { format: :json }
+      get 'available'
+      get 'search'
     end
   end
 

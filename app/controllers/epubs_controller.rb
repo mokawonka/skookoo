@@ -20,15 +20,72 @@ class EpubsController < ApplicationController
         @epub = Epub.new
     end
 
-    def available
-      epubs = Epub.all.where(public_domain: true).order(created_at: :desc)
+    # def available
+    #   epubs = Epub.where(public_domain: true).order("RANDOM()").limit(100)
 
-      render json: epubs.as_json(
-        only:    [:id, :title, :authors, :public_domain],
-        methods: [:cover_url, :filename]
+    #   render json: epubs.as_json(
+    #     only:    [:id, :title, :authors, :public_domain],
+    #     methods: [:cover_url, :filename]
+    #   )
+    # end
+
+    def available
+      
+      @pagy, epubs = pagy(
+        Epub.where(public_domain: true).order("RANDOM()"),
+        items: 10,
+        page: params[:page]&.to_i || 1
       )
+
+      render json: {
+        books: epubs.as_json(
+          only:    [:id, :title, :authors, :public_domain],
+          methods: [:cover_url, :filename]
+        ),
+        pagination: {
+          current_page:  @pagy.page,
+          total_pages:   @pagy.pages,
+          total_count:   @pagy.count,
+          next_page_url: @pagy.next ? url_for(page: @pagy.next) : nil
+        }
+      }
+    
     end
-  
+
+    def search
+
+        @query = params[:query]&.strip
+
+        if @query.blank?
+          render json: { error: "Query cannot be blank" }, status: :bad_request
+          return
+        end
+
+        @fromCollection = Epub.global_search(@query)
+        
+        @pagy, epubs = pagy(
+          @fromCollection,
+          items: 10,
+          page: params[:page]&.to_i || 1
+        )
+
+        render json: {
+          books: epubs.as_json(
+            only:    [:id, :title, :authors, :public_domain],
+            methods: [:cover_url, :filename]
+          ),
+          pagination: {
+            current_page:  @pagy.page,
+            total_pages:   @pagy.pages,
+            total_count:   @pagy.count,
+            next_page_url: @pagy.next ? url_for(request.query_parameters.merge(page: @pagy.next)) : nil
+          }
+        }
+
+    end
+
+
+
     def create
 
       # save epub to db
@@ -88,6 +145,7 @@ class EpubsController < ApplicationController
                 @document.epubid  = @epub.id
                 @document.title   = @epub.title
                 @document.authors = @epub.authors
+                @document.ispublic = @epub.public_domain
 
                 if @document.save
                     flash[:notice] = "Document added successfully."
