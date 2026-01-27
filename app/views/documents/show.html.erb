@@ -61,7 +61,7 @@
 <% else %>
 
       <!-- we only update the progress for the document owner-->
-      <% if current_user.id == @document.userid %> 
+      <% if logged_in? && current_user.id == @document.userid %> 
 
         <%= form_with(model: @document, url: [@document, :update_progress], local: false,  class: "d-none") do |form| %>
 
@@ -173,7 +173,7 @@
 
           var url = window.location.href;
 
-          <% if current_user.id == @document.userid %>
+          <% if logged_in? && current_user.id == @document.userid %>
 
             if (url.indexOf('cfi') == -1)
             {
@@ -212,7 +212,7 @@
 
         });
 
-        <% if current_user.darkmode %>
+        <% if logged_in? && current_user.darkmode %>
 
             rendition.themes.register("dark",
             {
@@ -266,7 +266,7 @@
         var timeoutHandle;
 		    rendition.on('relocated', function(location){
           updateProgressbar();
-          <% if current_user.id == @document.userid %>
+          <% if logged_in? && current_user.id == @document.userid %>
             // wait 7 seconds before updating progress
             window.clearTimeout(timeoutHandle);
             timeoutHandle = window.setTimeout(function(){updateProgressinDB();}, 7000);
@@ -294,7 +294,7 @@
         <% end %>
 
 
-        <% if current_user.id == @document.userid %> // if user is owner of the document
+        <% if logged_in? && current_user.id == @document.userid %> // if user is owner of the document
 
 
           // ability to add highlights

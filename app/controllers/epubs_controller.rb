@@ -19,15 +19,7 @@ class EpubsController < ApplicationController
     def new
         @epub = Epub.new
     end
-
-    # def available
-    #   epubs = Epub.where(public_domain: true).order("RANDOM()").limit(100)
-
-    #   render json: epubs.as_json(
-    #     only:    [:id, :title, :authors, :public_domain],
-    #     methods: [:cover_url, :filename]
-    #   )
-    # end
+    
 
     def available
 
@@ -36,7 +28,7 @@ class EpubsController < ApplicationController
       seed = session.fetch(:epub_seed) { rand(1_000_000_000) }.tap do |s|
         session[:epub_seed] = s unless session.key?(:epub_seed)
       end
-      
+
       @pagy, epubs = pagy(
         Epub.where(public_domain: true, lang: @lang).order(Arel.sql("md5(id::text || '#{seed}')")),
         items: 10,
@@ -121,7 +113,7 @@ class EpubsController < ApplicationController
           @epub.authors = reader.metadata.creators[0].to_s.split(";").join(", ")
           @epub.lang = reader.metadata.languages[0].content
           @epub.sha3 = SHA3::Digest.file(filename).hexdigest
-          @epub.public_domain = false
+          @epub.public_domain = false # Uploaded epubs are not public 
 
           # get cover pic
           if reader.cover_image
@@ -188,6 +180,7 @@ class EpubsController < ApplicationController
             @document.epubid = @epub.id
             @document.title = @epub.title
             @document.authors = @epub.authors
+            @document.ispublic = @epub.public_domain
         
             if @document.save
               flash[:notice] = "Document added successfully."

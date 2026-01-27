@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
   patch 'documents/:id/update_progress', to: 'documents#update_progress'
   patch 'documents/:id/update_locations', to: 'documents#update_locations'
+  get "/documents/not_public", to: "documents#not_public", as: :document_not_public
 
   post 'users/:id/update_font', to: 'users#update_font'
   patch 'users/:id/hook', to: 'users#update_hooked'

@@ -1,6 +1,7 @@
 class DocumentsController < ApplicationController
   protect_from_forgery except: :progress
-  before_action :authorize_user!
+  before_action :authorize_user!, only: [:create, :index, :destroy, :edit,
+                                         :update, :update_locations, :update_progress]
 
 
   def index
@@ -10,7 +11,6 @@ class DocumentsController < ApplicationController
     @documents = Document.where(:userid => myuserid).order(
       Arel.sql("COALESCE(last_accessed_at, updated_at) DESC NULLS LAST")
     )
-
 
     @pagy, @records = pagy(@documents, items: 7)
   end
@@ -25,20 +25,28 @@ class DocumentsController < ApplicationController
 
   end
 
+  def not_public
+
+  end
+
 
   def show
-    
-    if !@document.ispublic
-      
-    end
-
     @document = Document.find(params[:id])
-    @document.update_column(:last_accessed_at, Time.current)
 
+    if logged_in? && current_user.id == @document.userid
 
-    @highlights = Highlight.where(:docid => @document.id)
-    @vocabs = Expression.where(:docid => @document.id)
-    @ideas = Idea.where(:docid => @document.id)
+      @document.update_column(:last_accessed_at, Time.current)
+      @highlights = Highlight.where(:docid => @document.id) 
+      @vocabs = Expression.where(:docid => @document.id)
+      @ideas = Idea.where(:docid => @document.id)
+
+    else
+      if !@document.ispublic
+        redirect_to document_not_public_path and return
+      else
+        @highlights = Highlight.where(:docid => @document.id)
+      end
+    end
 
   end
 
