@@ -28,6 +28,10 @@ class DocumentsController < ApplicationController
 
   def show
     
+    if !@document.ispublic
+      
+    end
+
     @document = Document.find(params[:id])
     @document.update_column(:last_accessed_at, Time.current)
 

@@ -1,7 +1,7 @@
 <div class="pt-3 pb-3 text-center">
   
 
-  <button type="button" class="btn dropdown-toggle gray" data-bs-toggle="dropdown" aria-expanded="false">
+  <button id="collectionDropdown" type="button" class="btn dropdown-toggle gray" data-bs-toggle="dropdown" aria-expanded="false">
     English collection
   </button>
 
@@ -76,6 +76,9 @@ document.addEventListener('turbo:load', () => {
 
     currentLang = $(this).attr('value'); // en | fr
     nextPageUrl = `/epubs/available?lang=${currentLang}`;
+
+    const label = $(this).text();
+    $('#collectionDropdown').text(label);
 
     resetCarousel();
     loadMoreBooks();
@@ -212,6 +215,7 @@ function loadMoreBooks() {
       if (!hasRenderedFirstPage && newBooks.length > 0) {
         calculateCardWidth();
         hasRenderedFirstPage = true;
+        updateButtons();
       }
 
       setupDrag();

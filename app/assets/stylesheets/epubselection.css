@@ -69,6 +69,10 @@
       padding-top:1em;
     }
 
+    #collectionDropdown{
+      color:#0951a9 !important;
+    }
+
     #epub-search > input{
         border-radius: 21px;
         height: 40px;
