@@ -3,6 +3,8 @@ class ReplyNotifier < Noticed::Event
 
   deliver_by :database
   deliver_by :turbo_broadcast, class: "DeliveryMethods::TurboBroadcast"
+  deliver_by :email, mailer: "ReplyMailer", method: :notify, with: ->(event) { { notification: event } }
+
 
   # Define methods here — Noticed delegates them to the notification instance
   def message

@@ -1,0 +1,6 @@
+<p>Hello <%= @user.username %>,</p>
+
+<p><%= User.where(id: @reply.userid).pick(:username) %> replied:</p>
+<blockquote><%= @reply.content.to_plain_text %></blockquote>
+
+<p>View the reply: <%= link_to 'Go to reply', @url %></p>
