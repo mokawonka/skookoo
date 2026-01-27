@@ -8,7 +8,7 @@
 failed = 0
 @test_epubs.each_with_index do |file, index|
     puts "Test Dataset - Saving epub [#{File.basename(file)}] to database... [#{index+1} / #{@test_epubs.count}]"
-    if !Epub.save_epub(file)
+    if !Epub.save_epub(file, "en")
         failed += 1
     end
 end

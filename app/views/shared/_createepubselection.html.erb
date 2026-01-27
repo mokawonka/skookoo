@@ -1,8 +1,17 @@
 <div class="pt-3 pb-3 text-center">
-  <h5 class="text-muted mb-4">Choose one from our free ebook collection</h5>
+  
+
+  <button type="button" class="btn dropdown-toggle gray" data-bs-toggle="dropdown" aria-expanded="false">
+    English collection
+  </button>
+
+  <ul class="dropdown-menu  dropdown-menu-start">
+      <li><%= link_to 'English collection', '#', value: 'en', class: "dropdown-item collection-choice" %></li>
+      <li><%= link_to 'French collection', '#', value: 'fr', class: "dropdown-item collection-choice" %></li>
+  </ul>
 
 
-  <%= form_with url: "/epub/search", method: :get, class: "form-group has-search", :html=> {:id => 'epub-search'} do |form|%>
+  <%= form_with url: "/epub/search", method: :get, class: "form-group has-search", :html=> {:id => 'epub-search', novalidate: true} do |form|%>
     <div class="fa fa-search form-control-feedback"></div>
     <%= form.text_field :query, required: true,  placeholder: "Search for available books", autocomplete: "off", spellcheck: false, id: "epub-search-input", class: "form-control ds-input" %>
   <% end %>
@@ -45,7 +54,7 @@ document.addEventListener('turbo:load', () => {
 
   let allBooks = [];
   let filteredBooks = [];
-  let nextPageUrl = '/epubs/available';
+  let nextPageUrl = '/epubs/available?lang=en';
   let isLoading = false;
   let currentIndex = 0;
   let cardWidth = 0;           // will be calculated after render
@@ -58,27 +67,35 @@ document.addEventListener('turbo:load', () => {
   let prevTranslate = 0;
   let animationID = null;
 
+  let currentLang = 'en';
 
   loadMoreBooks();
+
+  $('.collection-choice').on('click', function(e) {
+    e.preventDefault();
+
+    currentLang = $(this).attr('value'); // en | fr
+    nextPageUrl = `/epubs/available?lang=${currentLang}`;
+
+    resetCarousel();
+    loadMoreBooks();
+  });
 
   searchForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    console.log("inside inside inside")
     const query = searchInput.value.trim();
-        console.log(query)
-
 
     if (!query) {
-      // Reset to normal list
-      nextPageUrl = '/epubs/available';
+      nextPageUrl = `/epubs/available?lang=${currentLang}`;
       resetCarousel();
       loadMoreBooks();
       return;
     }
 
-    // Search mode
-    nextPageUrl = `/epubs/search?query=${encodeURIComponent(query)}`;
+    nextPageUrl =
+      `/epubs/search?query=${encodeURIComponent(query)}&lang=${currentLang}`;
+
     resetCarousel();
     loadMoreBooks();
   });
@@ -221,9 +238,13 @@ function appendNewCards(books) {
       <img src="${book.cover_url && book.cover_url.trim() !== '' 
           ? book.cover_url : "<%= asset_path('default_epub_cover.png') %>"}" 
            alt="${book.title}" loading="lazy">
-      <p class="text-center card-title">${book.title}</p>
-      <h5 class="text-center">${book.authors}</h5>
-    `;
+           `;
+      if(currentLang == "fr"){
+        card.innerHTML +=       `
+        <p class="text-center card-title">${book.title}</p>
+        <h5 class="text-center">${book.authors}</h5>
+      `;}
+
 
     card.addEventListener('click', () => {
       var actionurl = `/epubs/${book.id}/createfromdb`;
@@ -261,55 +282,6 @@ function loadMoreIfAtEnd() {
     loadMoreBooks();
   }
 }
-
-  function renderBooks(books) {
-    track.innerHTML = '';
-
-    books.forEach(book => {
-      const card = document.createElement('div');
-      card.className = 'epub-card';
-      card.dataset.id = book.id;
-
-      card.innerHTML = `
-        <img src="${book.cover_url && book.cover_url.trim() !== '' 
-            ? book.cover_url : "<%= asset_path('default_epub_cover.png') %>"}" 
-             alt="${book.title}" loading="lazy">
-        <p class="text-center card-title">${book.title}</p>
-        <h5 class=text-center> ${book.authors}</h5>
-      `;
-
-      card.addEventListener('click', () => {
-            var actionurl = `/epubs/${book.id}/createfromdb`;
-
-            $.post(actionurl, {
-                authenticity_token: "<%= form_authenticity_token %>"
-            })
-            .done(function(data, textStatus, jqXHR){
-                // Success → redirect client-side
-                window.location.href = "<%= documents_path %>";
-            })
-            .fail(function(jqXHR, textStatus, errorThrown){
-                alert("Error creating document: " + textStatus);
-                console.log(jqXHR.responseText);
-            });
-        });
-
-      track.appendChild(card);
-    });
-
-    // Important: calculate real width + gap after cards are in DOM
-    if (books.length > 0) {
-      const firstCard = track.querySelector('.epub-card');
-      const styles = window.getComputedStyle(firstCard);
-      const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
-      cardWidth = firstCard.offsetWidth + gap;
-    }
-
-    currentIndex = 0;
-    updateCarousel();
-    updateButtons();
-  }
-
 
 function maybeLoadMoreAtEnd() {
   const maxIndex = Math.max(0, filteredBooks.length - visibleCardsCount());
@@ -355,13 +327,6 @@ function maybeLoadMoreAtEnd() {
     return 4; // or 5 — tune to your design
   }
 
-  // Optional: recalculate on resize (mostly for responsive)
-  window.addEventListener('resize', () => {
-    if (filteredBooks.length > 0) {
-      renderBooks(filteredBooks); // cheap re-calc
-      setupDrag();
-    }
-  });
 });
 
 </script>

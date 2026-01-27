@@ -30,9 +30,15 @@ class EpubsController < ApplicationController
     # end
 
     def available
+
+      @lang = params[:lang]&.strip || "en"
+
+      seed = session.fetch(:epub_seed) { rand(1_000_000_000) }.tap do |s|
+        session[:epub_seed] = s unless session.key?(:epub_seed)
+      end
       
       @pagy, epubs = pagy(
-        Epub.where(public_domain: true).order("RANDOM()"),
+        Epub.where(public_domain: true, lang: @lang).order(Arel.sql("md5(id::text || '#{seed}')")),
         items: 10,
         page: params[:page]&.to_i || 1
       )
@@ -46,7 +52,7 @@ class EpubsController < ApplicationController
           current_page:  @pagy.page,
           total_pages:   @pagy.pages,
           total_count:   @pagy.count,
-          next_page_url: @pagy.next ? url_for(page: @pagy.next) : nil
+          next_page_url: @pagy.next ? url_for(request.query_parameters.merge(page: @pagy.next)) : nil
         }
       }
     
@@ -55,16 +61,18 @@ class EpubsController < ApplicationController
     def search
 
         @query = params[:query]&.strip
+        @lang  = params[:lang]&.strip
 
         if @query.blank?
           render json: { error: "Query cannot be blank" }, status: :bad_request
           return
         end
 
-        @fromCollection = Epub.global_search(@query)
-        
+        scope = Epub.where(public_domain: true)
+        scope = scope.where(lang: @lang) if @lang.present?
+
         @pagy, epubs = pagy(
-          @fromCollection,
+          scope.global_search(@query),
           items: 10,
           page: params[:page]&.to_i || 1
         )

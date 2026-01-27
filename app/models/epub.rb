@@ -51,7 +51,7 @@ class Epub < ApplicationRecord
 
 
     # static method used for seeding DB
-    def self.save_epub(filepath)
+    def self.save_epub(filepath, language)
 
       e = Epub.new
       e.epub_file.attach(io: File.open(filepath), 
@@ -71,7 +71,7 @@ class Epub < ApplicationRecord
       
           e.title = reader.metadata.title
           e.authors = reader.metadata.creators[0].to_s.split(";").join(", ")
-          e.lang = reader.metadata.languages[0].content
+          e.lang = language
           e.sha3 = SHA3::Digest.file(filepath).hexdigest
           # e.public_domain equals true by default 
 
