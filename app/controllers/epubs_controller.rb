@@ -16,8 +16,14 @@ class EpubsController < ApplicationController
       end
     end
   
+
+
     def new
         @epub = Epub.new
+
+        @englishCount = Epub.where(public_domain: true, lang: "en").count
+        @frenchCount = Epub.where(public_domain: true, lang: "fr").count
+
     end
     
 

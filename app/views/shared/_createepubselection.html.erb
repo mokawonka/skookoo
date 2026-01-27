@@ -6,8 +6,8 @@
   </button>
 
   <ul class="dropdown-menu  dropdown-menu-start">
-      <li><%= link_to 'English collection', '#', value: 'en', class: "dropdown-item collection-choice" %></li>
-      <li><%= link_to 'French collection', '#', value: 'fr', class: "dropdown-item collection-choice" %></li>
+      <li><%= link_to 'English collection (' + @englishCount.to_s + ' books)', '#', value: 'en', class: "dropdown-item collection-choice" %></li>
+      <li><%= link_to 'French collection (' + @frenchCount.to_s + ' books)', '#', value: 'fr', class: "dropdown-item collection-choice" %></li>
   </ul>
 
 
