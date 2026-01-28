@@ -175,14 +175,14 @@
     $('#gifform').on('submit', function(e){
       e.preventDefault();
 
-      var API_KEY = "Vsa6RyTveLS9mFOQVsTPmE8vndGnKc6G";
+      var API_KEY = "<%=@giphyApiKey%>";
       var results_limit = 20;
       var query = $('#gifsearch').val();
       query.replace(/\s\s+/g, ' '); // several spaces to single space
       if(query.charAt(query.length - 1) == ' ') query = query.slice(0, -1);
       query = query.replace(/\s/g, '+'); // single space to +
 
-      var gcommand = "http://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=" + API_KEY + "&limit=" + results_limit;
+      var gcommand = "https://api.giphy.com/v1/gifs/search?q=" + query + "&api_key=" + API_KEY + "&limit=" + results_limit;
 
       var runcommand = $.get(gcommand, function(data){
           $('#gifresults').empty();

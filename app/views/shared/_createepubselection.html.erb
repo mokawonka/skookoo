@@ -112,7 +112,6 @@ document.addEventListener('turbo:load', () => {
     hasRenderedFirstPage = false;
     nextPageUrl = nextPageUrl; // keep current (search or default)
     updateCarousel();
-    updateButtons();
   }
 
 
@@ -189,7 +188,6 @@ function pointerUp(e) {
 
   prevTranslate = currentTranslate;
 
-  updateButtons();
   loadMoreIfAtEnd();
 }
 
@@ -215,7 +213,6 @@ function loadMoreBooks() {
       if (!hasRenderedFirstPage && newBooks.length > 0) {
         calculateCardWidth();
         hasRenderedFirstPage = true;
-        updateButtons();
       }
 
       setupDrag();
@@ -301,7 +298,6 @@ function maybeLoadMoreAtEnd() {
     if (currentIndex <= 0) return;
     currentIndex--;
     updateCarousel();
-    updateButtons();
   });
 
   nextBtn.addEventListener('click', () => {
@@ -309,7 +305,6 @@ function maybeLoadMoreAtEnd() {
     if (currentIndex >= maxIndex) return;
     currentIndex++;
     updateCarousel();
-    updateButtons();
     maybeLoadMoreAtEnd();
   });
 
@@ -317,11 +312,6 @@ function maybeLoadMoreAtEnd() {
     track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
   }
 
-  function updateButtons() {
-    const maxIndex = Math.max(0, filteredBooks.length - visibleCardsCount());
-    prevBtn.disabled = currentIndex <= 0;
-    nextBtn.disabled = currentIndex >= maxIndex;
-  }
 
   // Rough estimation — adjust breakpoints if needed
   function visibleCardsCount() {

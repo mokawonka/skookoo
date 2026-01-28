@@ -1,6 +1,6 @@
 # run with: rails r "load 'db/french.rb'"
 
-@general_path = Rails.root.join("..", "free_french_epubs").to_s.freeze # /home/djeb/webapp/../all-epubs
+@general_path = Rails.root.join("..", "free_french_epubs").to_s.freeze # /home/djeb/skookoo/../free_french_epubs
 @test_epubs = Dir[File.join(@general_path, "**", "*.epub")]
 
 

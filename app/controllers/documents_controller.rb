@@ -32,9 +32,11 @@ class DocumentsController < ApplicationController
 
   def show
     @document = Document.find(params[:id])
+    @giphyApiKey = ""
 
     if logged_in? && current_user.id == @document.userid
 
+      @giphyApiKey = "Vsa6RyTveLS9mFOQVsTPmE8vndGnKc6G"
       @document.update_column(:last_accessed_at, Time.current)
       @highlights = Highlight.where(:docid => @document.id) 
       @vocabs = Expression.where(:docid => @document.id)

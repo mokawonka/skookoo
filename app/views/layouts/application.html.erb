@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="<%= 'darkmode' if logged_in? && current_user.darkmode %>" lang="en">
+
   <head>
     <title>Skookoo</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -197,23 +198,20 @@
 
     $("nav .pagination").addClass("justify-content-center");
 
-    // dark mode on entire html
-    <% if logged_in? %>
-      <% if current_user.darkmode %>
-
-          $('html').css({"-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
-          $('img').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
-          $('#gifresults').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
-          $('#emojiresults').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
-          $('#followbodymodal').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
-
-      <% end %>
-    <% end %>
-
   </script>
 
 
-  <style type="text/css">  
+  <style type="text/css">
+
+    html.darkmode {
+      filter: invert(1) hue-rotate(180deg);
+    }
+
+    /* Re-invert images so they look normal */
+    html.darkmode img,
+    html.darkmode video {
+      filter: invert(1) hue-rotate(180deg);
+    }
 
   <% if controller.action_name == "about" %>
 

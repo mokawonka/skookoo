@@ -14,7 +14,7 @@ class ReplyNotifier < Noticed::Event
   def message
     reply = params[:reply]
     author_name = User.where(id: reply.userid).pick(:username) || "Someone"
-    "New reply from #{author_name}: #{reply.content.to_plain_text.truncate(60)}"
+    "Reply from #{author_name}: #{reply.content.to_plain_text.truncate(10)}"
   end
 
   def url
