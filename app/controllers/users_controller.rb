@@ -383,7 +383,8 @@ class UsersController < ApplicationController
 
         def user_params
             params.require(:user).permit(:email, :name, :username, :password, :password_confirmation, 
-                                         :avatar, :mana, :votes, :darkmode, :font, :allownotifications, 
+                                         :avatar, :mana, :votes, :darkmode, :font, 
+                                         :allownotifications, :emailnotifications, 
                                          :hooked, :following, :followers, :bio, :location)
         end
 

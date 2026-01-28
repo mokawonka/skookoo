@@ -1,6 +1,38 @@
-<p>Hello <%= @user.username %>,</p>
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; line-height: 1.6;">
+  <p style="font-size: 16px;">
+    Hello <strong><%= @user.username %></strong>,
+  </p>
 
-<p><%= User.where(id: @reply.userid).pick(:username) %> replied:</p>
-<blockquote><%= @reply.content.to_plain_text %></blockquote>
+  <p style="margin-top: 20px;">
+    <strong><%= User.where(id: @reply.userid).pick(:username) %></strong> just replied to your post:
+  </p>
 
-<p>View the reply: <%= link_to 'Go to reply', @url %></p>
+  <blockquote style="
+    margin: 20px 0;
+    padding: 15px 20px;
+    background-color: #f9f9fb;
+    border-left: 4px solid #0951a9;
+    color: #555;
+    font-style: italic;
+  ">
+    <%= @reply.content.to_plain_text %>
+  </blockquote>
+
+  <p style="margin-top: 25px;">
+    <%= link_to 'View the reply →', @url,
+      style: '
+        display: inline-block;
+        padding: 10px 16px;
+        background-color: #0951a9;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+      '
+    %>
+  </p>
+
+  <p style="margin-top: 30px; font-size: 13px; color: #888;">
+    You’re receiving this because you have email notifications enabled.
+  </p>
+</div>

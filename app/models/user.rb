@@ -9,6 +9,7 @@ class User < ApplicationRecord
     attribute :mana, :integer, default: 1
     attribute :darkmode, :boolean, default: false
     attribute :allownotifications, :boolean, default: true
+    attribute :emailnotifications, :boolean, default: true  
     attribute :font, :string, default: 'League Spartan Bold'
 
 

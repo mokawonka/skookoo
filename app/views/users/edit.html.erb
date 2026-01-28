@@ -88,6 +88,14 @@ My settings
               <%= form.label 'Enabled', style: 'margin-left: 1em' %>
               <%= form.submit "", id: "submitallownotifs", class: 'd-none'%>
             <% end %>
+            <hr>
+            <p class='updater-title'>Email notifications</p>
+
+            <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
+              <%= form.check_box :emailnotifications , onclick: "$('#submitemailnotifs').click();" %>
+              <%= form.label 'Enabled', style: 'margin-left: 1em' %>
+              <%= form.submit "", id: "submitemailnotifs", class: 'd-none'%>
+            <% end %>
 
           </div>
 
