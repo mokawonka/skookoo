@@ -14,15 +14,15 @@
   </head>
 
   <%= stylesheet_link_tag asset_path('font-awesome.min.css') %>
+  <%= stylesheet_link_tag 'posts_postprocessing', media: 'all', 'data-turbo-track': 'reload' %>
   <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
   <%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
   <%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
   <%= javascript_include_tag asset_path('jszip.min.js') %>
-  <%= javascript_include_tag asset_path('epub.js') %>
+  <%= javascript_include_tag asset_path('epub.min.js') %>
   <%= javascript_include_tag asset_path('he.js') %>
   <%= javascript_include_tag asset_path('sha3.min.js') %>
-
-
+  <%= javascript_include_tag 'posts_postprocessing', 'data-turbo-track': 'reload' %>
 
   <body>
     <nav id="headbar" class="navbar-expand-lg navbar-light bg-light border-bottom box-shadow">

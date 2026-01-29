@@ -1,2 +1,1 @@
-var homepageposts = document.getElementById("homepage");
-$(homepageposts).html("<%=escape_javascript render('shared/filteredposts', pagy: @pagy, records: @records)%>")
+$("#homepage").html("<%= j render('shared/filteredposts', pagy: @pagy, records: @records)%>")

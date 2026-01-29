@@ -2,11 +2,8 @@ Rails.application.routes.draw do
 
   root 'pages#home'
 
-  post 'pages/home' => 'pages#home'
   get 'pages/home' => 'pages#home'
-  
   get 'pages/following', to: 'pages#filter'
-
 
   get 'users/:username' => 'users#show'
   get 'users/:id/show_following' => 'users#show_following'

@@ -26,6 +26,11 @@ class User < ApplicationRecord
     validates :password, confirmation: { case_sensitive: true }, :if => :password
 
 
+    attr_accessor :previous_followers
+
+    before_save :store_previous_followers
+    after_save :notify_new_followers
+
 
     def getvote(entityid)
         if votes.key?(entityid)
@@ -38,6 +43,24 @@ class User < ApplicationRecord
             end
         else
             return 0
+        end
+    end
+
+    private
+    
+    def store_previous_followers
+        # Save a copy of the followers before saving
+        self.previous_followers = followers_was || []
+    end
+
+    def notify_new_followers
+        new_follower_ids = (followers || []) - (previous_followers || [])
+        new_follower_ids.each do |follower_id|
+        follower = User.find_by(id: follower_id)
+        next unless follower
+
+        # Send a notification using Noticed
+        FollowNotifier.with(follower: follower, followed_user: self).deliver_later(self)
         end
     end
 
