@@ -66,7 +66,10 @@ Rails.application.routes.draw do
 
   
   resources :notifications, only: [] do
-    patch :mark_all_read, on: :collection
+      collection do
+        patch :mark_all_read
+        delete :clear_all
+      end
   end
 
   resources :epubs do
