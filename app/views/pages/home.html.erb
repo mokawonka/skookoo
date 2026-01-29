@@ -1,47 +1,35 @@
 <h3 class="pb-4 pt-4">
-<%=image_tag('/assets/crate.svg', size: "33x33")%>
-Homepage
+  <%= image_tag('crate.svg', size: "33x33") %>
+  Homepage
 
-<% if logged_in? %>
-<!--<button id=whoifollow class="homepage-filters btn btn-sm border-2 border-dark"> Who I follow </button>-->
-<% end %>
-
+  <% if logged_in? %>
+    <button id="whoifollow" class="btn btn-sm" 
+            style="border-color: #0951a9; background-color: #ffffff; color: #0951a9;">
+      Who I follow
+    </button>
+  <% end %>
 </h3>
 
-
-<div id=homepage>
-    <%= render "shared/filteredposts", records: @records, pagy: @pagy %>
+<div id="homepage">
+  <%= render "shared/filteredposts", records: @records, pagy: @pagy %>
 </div>
 
-
-
-<%= javascript_include_tag asset_path('posts_postprocessing.js') %>
-<%= stylesheet_link_tag asset_path('posts_postprocessing.css') %>
-
-<% if logged_in? %>
-
 <script>
+  $('#whoifollow').on('click', function () {
+    const button = $(this);
 
-    // $('#whoifollow').on('click', function(){
+    if (!button.hasClass('active')) {
+      button.addClass('active');
+      button.css('background-color', '#0951a9');
+      button.css('color', '#ffffff');
 
-    //     if (!$(this).hasClass('active'))
-    //     {
-    //         $(this).addClass('active');
-    //         $(this).css('background-color', '#ffc107');
-    //         var followerid = "<%=current_user.id%>";
-    //         var actionurl = "/pages/" + followerid + "/filter?authenticity_token=" + "<%=form_authenticity_token%>";
-    //         $.post(actionurl);
-    //     }
-    //     else
-    //     {
-    //         $(this).removeClass('active');
-    //         $(this).css('background-color', '#ffffff');
-    //         var actionurl = "/pages/home?authenticity_token=" + "<%=form_authenticity_token%>";
-    //         $.post(actionurl);
-    //     }
+      $.get('/pages/following');
+    } else {
+      button.removeClass('active');
+      button.css('background-color', '#ffffff');
+      button.css('color', '#0951a9');
 
-    // });
-    
+      $.get('/pages/home');
+    }
+  });
 </script>
-
-<% end %>

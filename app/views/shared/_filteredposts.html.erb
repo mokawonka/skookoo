@@ -1,12 +1,24 @@
+<% if records.any? %>
 
-<% records.order('created_at DESC').each do |highlight| %>
+  <% records.each do |highlight| %>
     <%= render 'shared/post', highlight: highlight %>
     <hr>
+  <% end %>
+
+  <%== pagy_bootstrap_nav(pagy) if pagy.pages > 1 %>
+
+<% else %>
+  
+  <div class="text-center py-5 text-muted">
+    <div class="mb-3">
+      <i class="fa fa-users-slash fs-1"></i>
+    </div>
+
+    <h5 class="mb-2">Nothing to display</h5>
+    <p class="mb-0">
+      You’re not following anyone yet,<br>
+      or the people you follow haven’t posted.
+    </p>
+  </div>
+
 <% end %>
-
-
-
-<%== pagy_bootstrap_nav(pagy) if pagy.pages > 1 %>
-<script>
-    $("nav .pagination").addClass("justify-content-center");
-</script>

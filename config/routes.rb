@@ -4,8 +4,9 @@ Rails.application.routes.draw do
 
   post 'pages/home' => 'pages#home'
   get 'pages/home' => 'pages#home'
-  post 'pages/:followerid/filter' => 'pages#filter'
-  get 'pages/:followerid/filter' => 'pages#filter'
+  
+  get 'pages/following', to: 'pages#filter'
+
 
   get 'users/:username' => 'users#show'
   get 'users/:id/show_following' => 'users#show_following'

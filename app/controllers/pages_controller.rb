@@ -41,18 +41,17 @@ class PagesController < ApplicationController
   
 
   def filter
+    following_ids = current_user.following || []
 
-    @userid = params[:followerid]
-    @following = User.find(@userid).following
+    @bulkfiltered = Highlight
+      .where(userid: following_ids)
+      .order(created_at: :desc)
 
-    @bulkfiltered = Highlight.where(userid: @following)
     @pagy, @filtered = pagy(@bulkfiltered, items: 21)
 
     respond_to do |format|
       format.js
     end
-
   end
-
 
 end
