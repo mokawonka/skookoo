@@ -1,10 +1,17 @@
 require "active_support/core_ext/integer/time"
 
+Rails.application.routes.default_url_options[:host] = 'mokawonka.space'
+Rails.application.routes.default_url_options[:protocol] = 'https'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  config.hosts << "skookoo.com"
-  config.hosts << "skookoo.herokuapp.com"
+  config.hosts << "mokawonka.space"
+  config.hosts << "0.0.0.0"
+  config.hosts << "127.0.0.1"
+  config.hosts << "localhost"
+  config.consider_all_requests_local = true
+
 
   # Code is not reloaded between requests.
   config.cache_classes = true

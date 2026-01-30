@@ -17,10 +17,18 @@ class Epub < ApplicationRecord
 
         return false unless cover_pic.attached?
 
-        Rails.application.routes.url_helpers.rails_blob_url(
-            cover_pic,
-            host: Rails.application.config.action_mailer.default_url_options&.[](:host) || "http://localhost:3000"
+        Rails.application.routes.url_helpers.url_for(
+            cover_pic.variant(resize_to_limit: [400, 400])
         )
+
+        # public_host = ENV.fetch('APP_HOST', 'mokawonka.space')
+        # public_protocol = 'https'
+
+        # Rails.application.routes.url_helpers.rails_blob_url(
+        #     cover_pic.variant(resize_to_limit: [400,400], format: :webp, quality: 80),
+        #     host: public_host,
+        #     protocol: public_protocol,
+        # )
     end
     
     def filename
