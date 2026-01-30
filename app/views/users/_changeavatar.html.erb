@@ -44,10 +44,6 @@ function readURL(input) {
     }
 }
 
-<% if current_user.darkmode %>
-    $('#imagePreview').css({ "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)"});
-<% end %>
-
 $("#user_avatar").change(function() {
     readURL(this);
 });

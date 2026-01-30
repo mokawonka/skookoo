@@ -212,15 +212,6 @@
 
         });
 
-        <% if logged_in? && current_user.darkmode %>
-
-            rendition.themes.register("dark",
-            {
-              "img": { "-webkit-filter": "invert(1) hue-rotate(180deg)", "filter": "invert(1) hue-rotate(180deg)" }
-            });
-            rendition.themes.select("dark");
-        <% end %>
-
 
         function updateProgressbar()
         {
