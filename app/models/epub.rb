@@ -21,7 +21,7 @@ class Epub < ApplicationRecord
             cover_pic.variant(resize_to_limit: [400, 400])
         )
 
-        # public_host = ENV.fetch('APP_HOST', 'mokawonka.space')
+        # public_host = 'mokawonka.space'
         # public_protocol = 'https'
 
         # Rails.application.routes.url_helpers.rails_blob_url(

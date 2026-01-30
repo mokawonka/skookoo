@@ -13,9 +13,9 @@ class User < ApplicationRecord
     attribute :font, :string, default: 'League Spartan Bold'
 
 
-    serialize :votes,     type: Hash
-    serialize :following, type: Array
-    serialize :followers, type: Array
+    serialize :votes,     type: Hash, coder: JSON
+    serialize :following, type: Array, coder: JSON
+    serialize :followers, type: Array, coder: JSON
 
 
     validates :email, email: true, presence: true, uniqueness: {message: "already taken"}

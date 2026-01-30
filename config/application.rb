@@ -9,7 +9,7 @@ Bundler.require(*Rails.groups)
 module Assembly
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 6.1
+    config.load_defaults 7.2
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
@@ -17,5 +17,9 @@ module Assembly
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.active_storage.variant_processor = :vips # sudo apt install libvips libvips-dev
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
+
+
   end
 end

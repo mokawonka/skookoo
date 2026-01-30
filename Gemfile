@@ -39,7 +39,6 @@ gem "sprockets-rails"
 
 # Use Active Storage variant
 gem 'image_processing', '~> 1.2'
-#gem 'ruby-vips', '~> 2.1', '>= 2.1.4' # faster than imagemagick apparently
 
 gem 'pagy', '~> 5.10' # omit patch digit
 gem 'pg_search', '~> 2.3.6'
