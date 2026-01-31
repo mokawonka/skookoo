@@ -98,7 +98,7 @@
   <%end%>
 
   <% if highlight.emojiid %>
-      <% pathtoemoji = "/assets/emojis/" + highlight.emojiid%>
+      <% pathtoemoji = "emojis/" + highlight.emojiid%>
       <%=image_tag(pathtoemoji, class:"icon", size:"100x100")%>
   <%end%>
 
@@ -106,7 +106,7 @@
 
       <% linktogif = 'https://i.giphy.com/media/' + highlight.gifid + '/giphy.gif' %>
       <div class="text-center">
-        <img id="gif-<%=highlight.id%>" class=thegif src="/assets/gif.svg" data-src="<%=linktogif%>">
+        <%= image_tag("gif.svg", id: "gif-#{highlight.id}", class: "thegif", data: { src: linktogif }) %>
       </div>
 
       <script>

@@ -7,20 +7,20 @@
     <div class=hreaction>
 
         <% if !highlight.comment.nil? %>
-            <%=link_to image_tag("/assets/comment.svg", size:"66x66") , highlight %>
+            <%=link_to image_tag("comment.svg", size:"66x66") , highlight %>
         <%end%>
 
         <% if highlight.liked %>
-            <%=link_to image_tag("/assets/like.png", size:"66x66") , highlight %>
+            <%=link_to image_tag("like.png", size:"66x66") , highlight %>
         <%end%>
 
         <% if highlight.emojiid %>
-            <% pathtoemoji = "/assets/emojis/" + highlight.emojiid%>
+            <% pathtoemoji = "emojis/" + highlight.emojiid%>
             <%=link_to image_tag(pathtoemoji, size:"66x66") , highlight %>
         <%end%>
 
         <% if highlight.gifid %>
-            <%=link_to image_tag("/assets/gif.svg", size:"66x66") , highlight %>
+            <%=link_to image_tag("gif.svg", size:"66x66") , highlight %>
         <%end%>
     </div>
 

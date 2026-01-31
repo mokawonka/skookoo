@@ -2,7 +2,7 @@
     $('#myreplies').html('<br><%= escape_javascript render "replies/scrollable_list"%>');
 <% else %>
     var content = "<div style='padding-top:80px;' class='text-center dimmed'> \
-                        <%=escape_javascript image_tag('/assets/sad_bee.png', size: '100x100')%> \
+                        <%=escape_javascript image_tag('sad_bee.png', size: '100x100')%> \
                         <p> No replies produced </p> \
                     </div>";
 

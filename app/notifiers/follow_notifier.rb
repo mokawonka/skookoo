@@ -27,7 +27,7 @@ class FollowNotifier < Noticed::Event
         only_path: true
       )
     else
-      "/assets/default-avatar.svg"
+      "default-avatar.svg"
     end
   end
 end

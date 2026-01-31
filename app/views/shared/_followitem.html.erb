@@ -2,7 +2,7 @@
 
 <% if user != nil %>
 
-    <% pathtoavatar = user.avatar.attached? ? user.avatar.variant(resize_to_limit:[200, 200]) : '/assets/default-avatar.svg' %>
+    <% pathtoavatar = user.avatar.attached? ? user.avatar.variant(resize_to_limit:[200, 200]) : 'default-avatar.svg' %>
 
     <div class=followitem>
         <%= link_to image_tag(pathtoavatar, size: '50x50', class: 'followpic') , user_path(user.username) %>

@@ -39,7 +39,7 @@ class ReplyNotifier < Noticed::Event
   private
 
   def default_avatar_url(user = nil)
-    "/assets/default-avatar.svg"  
+    "default-avatar.svg"  
   end
 
 end

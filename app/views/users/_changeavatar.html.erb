@@ -15,7 +15,7 @@
                 <% if @user.avatar.attached? %>
                     <div id="imagePreview" style="background-image: url(<%=polymorphic_url(@user.avatar.variant(resize_to_limit:[200, 200]))%>);"> </div>
                 <% else %>
-                    <div id="imagePreview" style="background-image: url('/assets/default-avatar.svg');"> </div>
+                    <div id="imagePreview" style="background-image: url('default-avatar.svg');"> </div>
                 <% end %>
             </div>
             

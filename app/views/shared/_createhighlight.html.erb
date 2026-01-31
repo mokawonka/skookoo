@@ -1,25 +1,18 @@
-<!-- list of emojis -->
-<% 
-    target_folder_path = File.join(Rails.root, "/app/assets/images/emojis/")
-    files = Dir.children(target_folder_path)
-%>
-
-
 <div class="text-center">
 
-    <h5 class=pb-1> <%=image_tag('/assets/berry_icon.png', class: 'panel-icon')%> Highlight with</h5>
+    <h5 class=pb-1> <%=image_tag('berry_icon.png', class: 'panel-icon')%> Highlight with</h5>
 
     <button id="emojibutton" class="btn btn-sm btn-danger border-2 border-dark text-white m-1">
-    <%=image_tag('/assets/emoji.svg', class: 'panel-icon')%><span class=panel-icon-text>Emojis</span>
+    <%=image_tag('emoji.svg', class: 'panel-icon')%><span class=panel-icon-text>Emojis</span>
     </button>
     <button id="likebutton" class="btn btn-sm btn-primary border-2 border-dark text-white m-1">
-    <%=image_tag('/assets/like.png', class: 'panel-icon')%><span class=panel-icon-text>Like</span>
+    <%=image_tag('like.png', class: 'panel-icon')%><span class=panel-icon-text>Like</span>
     </button>
     <button id="commentbutton" class="btn btn-sm btn-info border-2 border-dark text-white m-1" >
-    <%=image_tag('/assets/comment.svg', class: 'panel-icon')%><span class=panel-icon-text>Comment</span>
+    <%=image_tag('comment.svg', class: 'panel-icon')%><span class=panel-icon-text>Comment</span>
     </button>
     <button id="addgifbutton" class="btn btn-sm btn-warning border-2 border-dark text-white m-1">
-    <%=image_tag('/assets/gif.svg', class: 'panel-icon')%><span class=panel-icon-text>Gif</span>
+    <%=image_tag('gif.svg', class: 'panel-icon')%><span class=panel-icon-text>Gif</span>
     </button>
 
     <br><br>
@@ -90,10 +83,10 @@
 
 
     <button id="ideabutton" class="btn btn-sm btn-outline-danger border-2 m-1">
-        <%=image_tag('/assets/apple.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to ideas</span>
+        <%=image_tag('apple.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to ideas</span>
     </button>
     <button id="vocabbutton" class="btn btn-sm btn-outline-success border-2 m-1">
-        <%=image_tag('/assets/lemon.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to vocabulary</span>
+        <%=image_tag('lemon.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to vocabulary</span>
     </button>
 
 
@@ -141,12 +134,13 @@
             $('#gifresults').hide();
             $('#commentform').hide();
 
-            <% files.each do |image| %>
-                <% if File.extname(image) == ".svg"%>
-                    var imgtag = '<%=image_tag "/assets/emojis/" + image , size:"64x64" %>';
-                    var imgstr = '<div class="container oneemoji">' + imgtag + '</div>';
-                    $("#emojiresults").append(imgstr);
-                <% end %>
+            <% emoji_filenames.each do |filename| %>
+                <%  
+                    # Use image_tag → it adds digest/fingerprint automatically in production
+                    imgtag = image_tag("emojis/#{filename}", size: "64x64", alt: filename.sub(/\.svg$/, ''))
+                %>
+                var imgstr = '<div class="container oneemoji"><%= imgtag.html_safe %></div>';
+                $("#emojiresults").append(imgstr);
             <% end %>
             
             $('#emojiresults').show();
@@ -255,7 +249,9 @@
               else
               {
                 // getting file.svg
-                var emojiid = e.target.src.substring(e.target.src.lastIndexOf('/')+1);
+                var fullSrc = e.target.src;
+                var filename = fullSrc.substring(fullSrc.lastIndexOf('/') + 1);  // "1F927-05a9a...svg"
+                var emojiid  = filename.split('-')[0] + '.svg';                  // "1F927.svg"
 
                     // filling hidden input field form
                     $('#emojiid').val(emojiid);

@@ -1,5 +1,5 @@
 <h3 class="pt-4">
-<%=image_tag('/assets/tree.svg', class: "header-icon")%>
+<%=image_tag('tree.svg', class: "header-icon")%>
 My Documents
 </h3>
 
@@ -29,11 +29,11 @@ My Documents
                   <% if @affiliated_epub.cover_pic.variable? %>
                     <%= link_to image_tag(@affiliated_epub.cover_pic.variant(resize_to_limit:[300, 300]), class: "coverpic"), document  %>
                   <% else %>
-                    <%= link_to image_tag('/assets/default_epub_cover.png', size: '150x200', class: "coverpic"), document  %>
+                    <%= link_to image_tag('default_epub_cover.png', size: '150x200', class: "coverpic"), document  %>
                   <% end %>
 
               <% else %>
-                  <%= link_to image_tag('/assets/default_epub_cover.png', size: '150x200', class: "coverpic"), document  %>                
+                  <%= link_to image_tag('default_epub_cover.png', size: '150x200', class: "coverpic"), document  %>                
               <% end %>
 
             </div>
@@ -58,7 +58,7 @@ My Documents
 <% else %>
 
     <div class="centered text-center dimmed">
-        <%= image_tag '/assets/sad_bee.png', size: '100x100'%>
+        <%= image_tag 'sad_bee.png', size: '100x100'%>
         <p> You don't have any documents </p>
     </div>
 

@@ -1,5 +1,5 @@
 <h3 class="pb-4 pt-4">
-<%=image_tag('/assets/ladder.png', size: "33x33")%>
+<%=image_tag('ladder.png', size: "33x33")%>
 Search
 </h3>
 
@@ -19,7 +19,7 @@ Search
     <% else %>
 
         <div class="centered text-center dimmed">
-            <%= image_tag '/assets/empty_basket.png', size: '100x100'%>
+            <%= image_tag 'empty_basket.png', size: '100x100'%>
             <p> No results found for "<%=@query%>" </p>
         </div>
 
@@ -28,6 +28,3 @@ Search
 </div>
 
 <%== pagy_bootstrap_nav(@pagy) if @pagy.pages > 1 %>
-
-<%= javascript_include_tag asset_path('posts_postprocessing.js') %>
-<%= stylesheet_link_tag asset_path('posts_postprocessing.css') %>

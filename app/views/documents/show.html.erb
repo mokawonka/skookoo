@@ -27,7 +27,7 @@
 
       async function displaybook(){
 
-          $('#firstloading').html('<div class=text-center><%= image_tag "/assets/ready.png" %></div>');
+          $('#firstloading').html('<div class=text-center><%= image_tag "ready.png" %></div>');
           await new Promise(r => setTimeout(r, 2000));
           $('#firstloading').hide();
 

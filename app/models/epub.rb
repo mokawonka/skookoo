@@ -21,14 +21,6 @@ class Epub < ApplicationRecord
             cover_pic.variant(resize_to_limit: [400, 400])
         )
 
-        # public_host = 'mokawonka.space'
-        # public_protocol = 'https'
-
-        # Rails.application.routes.url_helpers.rails_blob_url(
-        #     cover_pic.variant(resize_to_limit: [400,400], format: :webp, quality: 80),
-        #     host: public_host,
-        #     protocol: public_protocol,
-        # )
     end
     
     def filename

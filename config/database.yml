@@ -85,9 +85,9 @@ development:
 #
 production:
   <<: *default
-  # database: hb_production
-  # username: hookedberry
-  # password: <%= ENV['ASSEMBLY_DATABASE_PASSWORD'] %>
+  database: skookoo_production
+  username:
+  password:
 
 #production:
 #  adapter:sqlite3

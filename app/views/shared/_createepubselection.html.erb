@@ -235,12 +235,12 @@ function appendNewCards(books) {
     card.className = 'epub-card';
     card.dataset.id = book.id;
 
-    // console.log("book cover = ", book.cover_url)
+    //console.log("book cover = ", book.cover_url)
 
     card.innerHTML = `
       <img src="${book.cover_url && book.cover_url.trim() !== '' 
           ? book.cover_url : "<%= asset_path('default_epub_cover.png') %>"}" 
-           alt="${book.title}">
+           alt="${book.title}" loading="lazy" >
            `;
       
         card.innerHTML +=       `

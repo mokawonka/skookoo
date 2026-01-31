@@ -59,7 +59,7 @@
               <% end %>
       
               <button id="notificationbutton" type="button" class="btn p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                <%= image_tag('/assets/wind_chime.svg', class: 'mini-avatar') %>
+                <%= image_tag('wind_chime.svg', class: 'mini-avatar') %>
                 <% count = current_user.notifications.unread.count %>
                   <span id="notification-count">
                     <%= render "notifications/notification_count", count: count %>
@@ -109,7 +109,7 @@
               <% if current_user.avatar.attached? %>
                 <%=image_tag(current_user.avatar.variant(resize_to_limit:[64, 64]), class: 'mini-avatar') %>
               <% else %>
-                <%=image_tag('/assets/default-avatar.svg', class: 'mini-avatar') %>
+                <%=image_tag('default-avatar.svg', class: 'mini-avatar') %>
               <% end %>
             </button>
 
@@ -119,22 +119,22 @@
 
               <li><hr class="dropdown-divider"></li>
 
-              <li><%= link_to image_tag('/assets/bee.svg', class: 'menu-icon') + 'My Profile', user_path(current_user.username), class: "dropdown-item" %></li>
-              <li><%= link_to image_tag('/assets/tree.svg', class: 'menu-icon') + 'My Documents', documents_path, class: "dropdown-item" %></li>
-              <li><%= link_to image_tag('/assets/apple.svg', class: 'menu-icon') + 'My Ideas', myideas_path, class: "dropdown-item" %></li>
-              <li><%= link_to image_tag('/assets/lemon.svg', class: 'menu-icon') + 'My Vocabulary', myvocab_path, class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('bee.svg', class: 'menu-icon') + 'My Profile', user_path(current_user.username), class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('tree.svg', class: 'menu-icon') + 'My Documents', documents_path, class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('apple.svg', class: 'menu-icon') + 'My Ideas', myideas_path, class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('lemon.svg', class: 'menu-icon') + 'My Vocabulary', myvocab_path, class: "dropdown-item" %></li>
               
               <li><hr class="dropdown-divider"></li>
 
               <li>
                 <% if current_user.darkmode %>
-                    <%= link_to image_tag('/assets/light-mode.svg', class: 'menu-icon') + 'Light mode', [current_user, :switch_mode], method: :patch, remote: "true", class: "dropdown-item" %>
+                    <%= link_to image_tag('light-mode.svg', class: 'menu-icon') + 'Light mode', [current_user, :switch_mode], method: :patch, remote: "true", class: "dropdown-item" %>
                 <% else %>
-                    <%= link_to image_tag('/assets/dark-mode.svg', class: 'menu-icon') + 'Dark mode', [current_user, :switch_mode], method: :patch, remote: "true", class: "dropdown-item" %>
+                    <%= link_to image_tag('dark-mode.svg', class: 'menu-icon') + 'Dark mode', [current_user, :switch_mode], method: :patch, remote: "true", class: "dropdown-item" %>
                 <% end %>
               </li>
 
-              <li><%= link_to image_tag('/assets/settings.svg', class: 'menu-icon') + 'Settings', mysettings_path, class: "dropdown-item" %></li>
+              <li><%= link_to image_tag('settings.svg', class: 'menu-icon') + 'Settings', mysettings_path, class: "dropdown-item" %></li>
 
               <li><hr class="dropdown-divider"></li>
               <li>
