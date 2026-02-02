@@ -60,6 +60,10 @@ input{
     outline: none !important;
 }
 
+footer a {
+    color:#0951a9 !important;
+}
+
 .btn-primary{
     background-color: #0951a9 ! important;
 }

@@ -2,7 +2,7 @@
   
 
   <button id="collectionDropdown" type="button" class="btn dropdown-toggle gray" data-bs-toggle="dropdown" aria-expanded="false">
-    English collection
+    English collection (<%=@englishCount.to_s%> books)
   </button>
 
   <ul class="dropdown-menu  dropdown-menu-start">
@@ -17,312 +17,382 @@
   <% end %>
 
 
-    <div class="carousel-container position-relative">
+  <div class="carousel-container position-relative">
+      <!-- Loading overlay -->
+      <div id="carousel-loading" class="loading-overlay">
+          <div class="spinner"></div>
+          <p class="loading-text">Loading book...</p>
+      </div>
 
-        <!-- Loading overlay / spinner -->
-        <div id="carousel-loading" class="loading-overlay">
-            <div class="spinner"></div>
-            <p class="loading-text">Loading free ebooks...</p>
-        </div>
+      <div class="carousel-track" id="epub-carousel"></div>
+  </div>
 
+  <!-- Buttons now outside / below -->
+  <div class="carousel-controls mt-1 d-flex justify-content-center align-items-center gap-4">
+      <button class="carousel-btn prev" id="prevBtn" type="button" aria-label="Previous book"> < </button>
 
-        <div class="carousel-track" id="epub-carousel"></div>
-            <button class="carousel-btn prev" id="prevBtn">←</button>
-            <button class="carousel-btn next" id="nextBtn">→</button>
-        </div>
+      <!-- New Select / Add button in the middle -->
+      <button class="carousel-btn select-btn" id="selectCurrentBtn" type="button" aria-label="Select this book">
+          Add this book
+      </button>
+
+      <button class="carousel-btn next" id="nextBtn" type="button" aria-label="Next book"> > </button>
+  </div>
+  
+</div>
+
+<div class="modal fade" id="confirmEpubModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add this book?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p id="confirm-book-title" class="fw-semibold mb-1"></p>
+        <p class="text-muted mb-0">
+          This will add the ebook to your documents.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="confirmEpubBtn">
+          Yes, add it
+        </button>
+      </div>
     </div>
+  </div>
+</div>
 
 
 <script>
+
 document.addEventListener('turbo:load', () => {
+  const track         = document.getElementById('epub-carousel');
+  const prevBtn       = document.getElementById('prevBtn');
+  const nextBtn       = document.getElementById('nextBtn');
+  const searchForm    = document.getElementById('epub-search');
+  const searchInput   = document.getElementById('epub-search-input');
+  const loadingOverlay = document.getElementById('carousel-loading');
+  const selectBtn = document.getElementById('selectCurrentBtn');
 
-  const track = document.getElementById('epub-carousel');
-  const searchForm = document.getElementById('epub-search');
-  const searchInput = document.getElementById('epub-search-input');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
 
-    if (!track) return;  
-    if (!searchForm || !prevBtn || !nextBtn) {
-        console.warn("Carousel elements missing on this page");
-        return;
+  if (!track || !prevBtn || !nextBtn) return;
+
+
+  if (track.dataset.initialized === "true") {
+    return;
+  }
+  track.dataset.initialized = "true";
+
+  document.addEventListener('turbo:before-cache', () => {
+    const track = document.getElementById('epub-carousel');
+    if (track) {
+      delete track.dataset.initialized;
     }
 
-    const loadingOverlay = document.getElementById('carousel-loading');
-    if (!loadingOverlay) return;
+    const selectBtn = document.getElementById('selectCurrentBtn');
+    if (selectBtn) {
+      selectBtn.disabled = true; // reset UI state
+    }
+  });
 
+  let nextPageUrl     = '/epubs/available?lang=en';
+  let isLoading       = false;
+  let currentIndex    = 0;
+  let totalCards      = 0;
+  let currentLang     = 'en';
 
-  let allBooks = [];
-  let filteredBooks = [];
-  let nextPageUrl = '/epubs/available?lang=en';
-  let isLoading = false;
-  let currentIndex = 0;
-  let cardWidth = 0;           // will be calculated after render
-  let hasRenderedFirstPage = false; 
-
-
-  let isDragging = false;
-  let startX = 0;
+  let isDragging      = false;
+  let startX          = 0;
   let currentTranslate = 0;
-  let prevTranslate = 0;
-  let animationID = null;
+  let prevTranslate   = 0;
+  let pendingBookId = null;
 
-  let currentLang = 'en';
+  // ────────────────────────────────────────────────
+  // Core navigation
+  // ────────────────────────────────────────────────
 
-  loadMoreBooks();
+  function goToIndex(idx) {
+    if (idx < 0 || idx >= totalCards) return;
+    currentIndex = idx;
+    track.style.transform = `translateX(-${idx * 100}%)`;
+    updateNavigation();
+  }
+
+  function next() {
+    if (currentIndex < totalCards - 1) {
+      goToIndex(currentIndex + 1);
+    } else if (nextPageUrl && !isLoading) {
+      loadMoreBooks();
+    }
+  }
+
+  function prev() {
+    if (currentIndex > 0) goToIndex(currentIndex - 1);
+  }
+
+  function updateNavigation() {
+    const hasCards = totalCards > 0;
+
+    if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+    if (nextBtn) nextBtn.disabled = currentIndex >= totalCards - 1 && !nextPageUrl;
+
+    if (selectBtn) {
+      selectBtn.disabled = !hasCards;
+    }
+  }
+
+  // ────────────────────────────────────────────────
+  // Loading
+  // ────────────────────────────────────────────────
+
+  function loadMoreBooks() {
+    if (!nextPageUrl || isLoading) return;
+
+    // Remember if we were at the end before loading
+    const wasAtEnd = currentIndex >= totalCards - 1;
+
+    isLoading = true;
+    loadingOverlay.classList.remove('hidden');
+
+    fetch(nextPageUrl)
+      .then(r => r.json())
+      .then(data => {
+        const books = data.books || [];
+
+        // Append books
+        appendCards(books);
+
+        nextPageUrl = data.pagination?.next_page_url || null;
+        isLoading = false;
+        loadingOverlay.classList.add('hidden');
+
+        updateNavigation();
+
+        // ── Important fix ─────────────────────────────────────
+        // If we were on the last card → automatically go to the next one now
+        if (wasAtEnd && books.length > 0) {
+          // Small delay so DOM has time to update widths/heights
+          setTimeout(() => {
+            goToIndex(currentIndex + 1);
+          }, 50);
+        }
+        // ──────────────────────────────────────────────────────
+
+        // First load case
+        if (totalCards === books.length && books.length > 0) {
+          goToIndex(0);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        loadingOverlay.innerHTML = '<p style="color:#dc2626">Load failed</p>';
+        isLoading = false;
+      });
+  }
+
+  function appendCards(books) {
+    books.forEach(book => {
+      if (track.querySelector(`[data-id="${book.id}"]`)) return;
+
+      const card = document.createElement('div');
+      card.className = 'epub-card';
+      card.dataset.id = book.id;
+
+      const cover = book.cover_url ? book.cover_url : "<%= asset_path('default_epub_cover.png') %>";
+
+      card.innerHTML = `
+        <img src="${cover}" alt="${book.title}" loading="lazy">
+        <p class="text-center card-title mt-2">${book.title}</p>
+        <h5 class="text-center text-muted small">${book.authors || ''}</h5>
+      `;
+
+      // card.addEventListener('click', () => {
+      //   // your modal logic here
+      //   pendingBookId = book.id;
+      //   document.getElementById('confirm-book-title').textContent = book.title;
+      //   new bootstrap.Modal(document.getElementById('confirmEpubModal')).show();
+      // });
+
+      track.appendChild(card);
+      totalCards++;
+    });
+    
+    updateNavigation();
+  }
+
+  // ────────────────────────────────────────────────
+  // Drag / Touch
+  // ────────────────────────────────────────────────
+
+  function getX(e) {
+    return e.touches ? e.touches[0]?.pageX : e.pageX;
+  }
+
+  function onDown(e) {
+    if (!e.isPrimary) return;
+    isDragging = true;
+    startX = getX(e);
+    prevTranslate = -currentIndex * track.clientWidth;
+    track.style.transition = 'none';
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    const x = getX(e);
+    if (!x) return;
+    currentTranslate = prevTranslate + (x - startX);
+    track.style.transform = `translateX(${currentTranslate}px)`;
+  }
+
+  function onUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    track.style.transition = 'transform 0.4s cubic-bezier(0.25,0.1,0.25,1)';
+
+    const movedPx = currentTranslate - prevTranslate;
+    const threshold = track.clientWidth * 0.25; // 25% drag → change
+
+    let targetIndex = currentIndex;
+
+    if (movedPx < -threshold && currentIndex < totalCards - 1) {
+      targetIndex++;
+    } else if (movedPx > threshold && currentIndex > 0) {
+      targetIndex--;
+    }
+
+    goToIndex(targetIndex);
+
+    // Load more if near end
+    if (targetIndex >= totalCards - 2 && nextPageUrl && !isLoading) {
+      loadMoreBooks();
+    }
+  }
+
+  // Bind once
+  track.addEventListener('pointerdown', onDown, { passive: false });
+  track.addEventListener('pointermove', onMove, { passive: false });
+  track.addEventListener('pointerup', onUp);
+  track.addEventListener('pointercancel', onUp);
+  track.addEventListener('pointerleave', onUp);
+
+  // ────────────────────────────────────────────────
+  // Buttons + search + language
+  // ────────────────────────────────────────────────
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+
+  searchForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = searchInput.value.trim();
+    nextPageUrl = q
+      ? `/epubs/search?query=${encodeURIComponent(q)}&lang=${currentLang}`
+      : `/epubs/available?lang=${currentLang}`;
+    resetAndLoad();
+  });
 
   $('.collection-choice').on('click', function(e) {
     e.preventDefault();
-
-    currentLang = $(this).attr('value'); // en | fr
+    currentLang = $(this).attr('value');
+    $('#collectionDropdown').text($(this).text());
     nextPageUrl = `/epubs/available?lang=${currentLang}`;
-
-    const label = $(this).text();
-    $('#collectionDropdown').text(label);
-
-    resetCarousel();
-    loadMoreBooks();
+    resetAndLoad();
   });
 
-  searchForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+    // ────────────────────────────────────────────────
+  // Modal confirmation button (delegated – survives Turbo)
+  // ────────────────────────────────────────────────
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'confirmEpubBtn') {
+      e.preventDefault(); // optional – prevents any default if needed
 
-    const query = searchInput.value.trim();
-
-    if (!query) {
-      nextPageUrl = `/epubs/available?lang=${currentLang}`;
-      resetCarousel();
-      loadMoreBooks();
-      return;
-    }
-
-    nextPageUrl =
-      `/epubs/search?query=${encodeURIComponent(query)}&lang=${currentLang}`;
-
-    resetCarousel();
-    loadMoreBooks();
-  });
-
-  function resetCarousel() {
-    allBooks = [];
-    filteredBooks = [];
-    track.innerHTML = '';
-    currentIndex = 0;
-    cardWidth = 0;
-    hasRenderedFirstPage = false;
-    nextPageUrl = nextPageUrl; // keep current (search or default)
-    updateCarousel();
-  }
-
-
-
-function setupDrag() {
-  // Remove old listeners if any (important after re-render)
-  track.removeEventListener('pointerdown', pointerDown);
-  track.removeEventListener('pointermove', pointerMove);
-  track.removeEventListener('pointerup', pointerUp);
-  track.removeEventListener('pointercancel', pointerUp);
-  track.removeEventListener('mouseleave', pointerUp);
-
-  track.addEventListener('pointerdown', pointerDown);
-  track.addEventListener('pointermove', pointerMove);
-  track.addEventListener('pointerup', pointerUp);
-  track.addEventListener('pointercancel', pointerUp);
-  // Also handle mouse leave as safety
-  track.addEventListener('mouseleave', pointerUp);
-}
-
-function pointerDown(e) {
-  isDragging = true;
-  startX = e.pageX || e.touches?.[0]?.pageX || 0;   // works for mouse & touch
-
-  currentTranslate = prevTranslate;   // start from last snapped position
-
-  // Optional: add grabbing cursor
-  track.style.cursor = 'grabbing';
-
-  // Prevent text selection & default behaviors
-  e.preventDefault();
-}
-
-function pointerMove(e) {
-  if (!isDragging) return;
-
-  const currentPosition = e.pageX || e.touches?.[0]?.pageX || 0;
-  const diff = currentPosition - startX;
-
-  currentTranslate = prevTranslate + diff;
-
-  // Apply live drag
-  track.style.transition = 'none';           // smooth during drag
-  track.style.transform = `translateX(${currentTranslate}px)`;
-
-  // Optional: stop buttons from being clickable during drag
-  e.preventDefault();
-}
-
-function pointerUp(e) {
-  if (!isDragging) return;
-  isDragging = false;
-
-  track.style.cursor = 'grab';   // or remove if you didn't set it
-
-  // Calculate which card we should snap to
-  const movedBy = currentTranslate - prevTranslate;
-  const cardStep = cardWidth;   // your existing cardWidth + gap
-
-  // How many cards did we move?
-  let cardsMoved = Math.round(movedBy / cardStep);
-
-  // Update index
-  currentIndex = currentIndex - cardsMoved;   // note: negative because translate is negative
-
-  // Clamp index
-  const maxIndex = Math.max(0, filteredBooks.length - visibleCardsCount());
-  currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
-
-  // Snap back
-  track.style.transition = 'transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-  currentTranslate = -currentIndex * cardWidth;
-  track.style.transform = `translateX(${currentTranslate}px)`;
-
-  prevTranslate = currentTranslate;
-
-  loadMoreIfAtEnd();
-}
-
-function loadMoreBooks() {
-  if (!nextPageUrl || isLoading) return;
-
-  isLoading = true;
-
-  fetch(nextPageUrl)
-    .then(res => res.json())
-    .then(data => {
-      const newBooks = data.books || [];
-
-      allBooks.push(...newBooks);
-      filteredBooks.push(...newBooks);
-
-      // Append only the new cards to the DOM
-      appendNewCards(newBooks);
-
-      nextPageUrl = data.pagination.next_page_url;
-      isLoading = false;
-
-      if (!hasRenderedFirstPage && newBooks.length > 0) {
-        calculateCardWidth();
-        hasRenderedFirstPage = true;
+      if (!pendingBookId) {
+        console.warn("No pendingBookId set");
+        return;
       }
 
-      setupDrag();
-      loadingOverlay.classList.add('hidden');
-      $(searchForm).show();
-    })
-    .catch(err => {
-      console.error("Failed to load epubs", err);
-      // Optional: show error message instead of spinner
-      loadingOverlay.innerHTML = `
-        <p style="color: #dc2626;">Failed to load books</p>
-        <button onclick="location.reload()">Retry</button>
-      `;
-    });
-}
+      const actionurl = `/epubs/${pendingBookId}/createfromdb`;
 
-function appendNewCards(books) {
-  books.forEach(book => {
-    const card = document.createElement('div');
-    card.className = 'epub-card';
-    card.dataset.id = book.id;
-
-    //console.log("book cover = ", book.cover_url)
-
-    card.innerHTML = `
-      <img src="${book.cover_url && book.cover_url.trim() !== '' 
-          ? book.cover_url : "<%= asset_path('default_epub_cover.png') %>"}" 
-           alt="${book.title}" loading="lazy" >
-           `;
-      
-        card.innerHTML +=       `
-        <p class="text-center card-title">${book.title}</p>
-        <h5 class="text-center">${book.authors}</h5>
-      `;
-
-
-    card.addEventListener('click', () => {
-      var actionurl = `/epubs/${book.id}/createfromdb`;
       $.post(actionurl, {
         authenticity_token: "<%= form_authenticity_token %>"
       })
-      .done(() => {
-        window.location.href = "<%= documents_path %>";
-      })
-      .fail((jqXHR, textStatus) => {
-        alert("Error creating document: " + textStatus);
-      });
-    });
+        .done(() => {
+          window.location.href = "<%= documents_path %>";
+        })
+        .fail((jqXHR, textStatus) => {
+          alert("Error creating document: " + textStatus);
+        })
+        .always(() => {
+          // Optional: close modal after attempt
+          const modalEl = document.getElementById('confirmEpubModal');
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          if (modal) modal.hide();
+        });
 
-    track.appendChild(card);
+      pendingBookId = null; // clear it
+    }
   });
-}
-
-// Calculate card width only once (after first render)
-function calculateCardWidth() {
-  if (track.children.length === 0) return;
-  const firstCard = track.children[0];
-  const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
-  cardWidth = firstCard.offsetWidth + gap;
-}
 
 
-function atEndOfCarousel(buffer = 1) {
-  const maxIndex = Math.max(0, filteredBooks.length - visibleCardsCount());
-  return currentIndex >= maxIndex - buffer;
-}
+  if (selectBtn) {
+        selectBtn.addEventListener('click', () => {
+            // Get the currently visible card
+            const currentCard = track.children[currentIndex];
+            if (!currentCard) {
+                alert("No book selected");
+                return;
+            }
 
-function loadMoreIfAtEnd() {
-  if (atEndOfCarousel(1)) {
+            // Get book ID from data attribute
+            const bookId = currentCard.dataset.id;
+            if (!bookId) {
+                console.warn("No book ID found on current card");
+                return;
+            }
+
+            // Optional: get title from DOM (more reliable than storing separately)
+            const titleElement = currentCard.querySelector('.card-title');
+            const bookTitle = titleElement ? titleElement.textContent.trim() : "this book";
+
+            // Set global pending ID
+            pendingBookId = bookId;
+
+            // Update modal title
+            const titleEl = document.getElementById('confirm-book-title');
+            if (titleEl) {
+                titleEl.textContent = bookTitle;
+            }
+
+            // Show modal
+            const modalEl = document.getElementById('confirmEpubModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        });
+    }
+
+
+  function resetAndLoad() {
+    track.innerHTML = '';
+    totalCards = 0;
+    currentIndex = 0;
+    track.style.transform = 'translateX(0)';
+    updateNavigation();
     loadMoreBooks();
   }
-}
 
-function maybeLoadMoreAtEnd() {
-  const maxIndex = Math.max(0, filteredBooks.length - visibleCardsCount());
+  updateNavigation(); // your existing function
 
-  // Load more when user reaches (or is very close to) the end
-  if (currentIndex >= maxIndex - 1) {
-    loadMoreBooks();
-  }
-}
-
-  // 3. Navigation
-  prevBtn.addEventListener('click', () => {
-    if (currentIndex <= 0) return;
-    currentIndex--;
-    updateCarousel();
-  });
-
-  nextBtn.addEventListener('click', () => {
-    const maxIndex = Math.max(0, filteredBooks.length - visibleCardsCount());
-    if (currentIndex >= maxIndex) return;
-    currentIndex++;
-    updateCarousel();
-    maybeLoadMoreAtEnd();
-  });
-
-  function updateCarousel() {
-    track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-  }
-
-
-  // Rough estimation — adjust breakpoints if needed
-  function visibleCardsCount() {
-    if (window.innerWidth < 768) return 1;
-    if (window.innerWidth < 992) return 2;
-    if (window.innerWidth < 1200) return 3;
-    return 4; // or 5 — tune to your design
-  }
-
+  // Start
+  loadMoreBooks();
 });
 
 </script>

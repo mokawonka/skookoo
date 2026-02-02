@@ -37,7 +37,7 @@ class EpubsController < ApplicationController
 
       @pagy, epubs = pagy(
         Epub.where(public_domain: true, lang: @lang).order(Arel.sql("md5(id::text || '#{seed}')")),
-        items: 10,
+        items: 1,
         page: params[:page]&.to_i || 1
       )
 
@@ -71,7 +71,7 @@ class EpubsController < ApplicationController
 
         @pagy, epubs = pagy(
           scope.global_search(@query),
-          items: 10,
+          items: 1,
           page: params[:page]&.to_i || 1
         )
 

@@ -1,6 +1,9 @@
 class Epub < ApplicationRecord
     has_one_attached :epub_file
-    has_one_attached :cover_pic
+
+    has_one_attached :cover_pic do |attachable|
+        attachable.variant :thumb, resize_to_limit: [400, 400], preprocessed: true
+    end
 
 
     attribute :public_domain, :boolean, default: true

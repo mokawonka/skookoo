@@ -33,8 +33,8 @@
     }
 
     @keyframes spin {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
   .search-input {
@@ -45,24 +45,121 @@
     padding: 0 1.5rem;
   }
 
-    .carousel-container {
-    overflow: hidden;
-    padding: 1.5rem 3rem;     
-    margin: 0 1rem;
+  .carousel-container {
     position: relative;
-    }
+    width: 100%;
+    max-width: 250px;           /* ← your preferred max card width */
+    margin: 0 auto;
+    padding-top: 1em;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;   /* better touch behavior */
+  }
 
-    .carousel-track {
+  .carousel-track {
+    display: flex;
+    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: transform;
+    user-select: none;
+    transform: translateX(0%);
+  }
+
+  .epub-card {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 100%;
+    box-sizing: border-box;
+    scroll-snap-align: center;
+  }
+
+  .epub-card img {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f8f9fa;
+  }
+
+    .carousel-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #0951a9;
+        border: none;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
         display: flex;
-        flex-wrap: nowrap;
-        gap: 1.5rem;
-
-        transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        will-change: transform;
-        touch-action: pan-y;
-        -webkit-user-select: none;
-        user-select: none;
+        align-items: center;
+        justify-content: center;
     }
+
+    .carousel-btn:hover {
+        background: #0b63cc;
+        transform: scale(1.12);
+    }
+
+    .carousel-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Optional: nicer arrows using only text (remove pseudo-elements if you prefer) */
+    .carousel-btn.prev::before,
+    .carousel-btn.next::before {
+        content: none;   /* ← disable fancy arrows if you want simple ← → */
+    }
+
+    /* Controls wrapper */
+    .carousel-controls {
+        margin-top: 1.5rem;        /* space between carousel and buttons */
+    }
+
+    .carousel-btn.select-btn {
+        width: auto;                    /* not fixed width like arrows */
+        min-width: 160px;               /* comfortable size */
+        padding: 0 1.5rem;
+        height: 60px;
+        border-radius: 30px;            /* pill shape – nicer than circle here */
+        background: green;            /* green = positive action (add) */
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel-btn.select-btn:hover {
+        background: #218838;
+        transform: scale(1.08);
+        box-shadow: 0 10px 24px rgba(40, 167, 69, 0.45);
+    }
+
+    .carousel-btn.select-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        background: #6c757d;
+    }
+
+    /* Optional: smaller on mobile */
+    @media (max-width: 576px) {
+        .carousel-btn.select-btn {
+            min-width: 140px;
+            font-size: 1rem;
+            padding: 0 1.2rem;
+            height: 54px;
+        }
+        .carousel-controls {
+            gap: 2.5rem !important;
+        }
+    }
+
 
     .card-title{
       color:#0951a9; 
@@ -74,33 +171,18 @@
     }
 
     #epub-search > input{
+        border: solid 2px #ff8080;
         border-radius: 21px;
         height: 40px;
         width: 300px;
         color:#444444;
     }
 
-  .epub-card {
-    flex: 0 0 260px;
-    width: 260px;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-    transition: all 0.25s ease;
-    cursor: pointer;
-  }
+    #epub-search > input:focus {
+        box-shadow: none;
+        outline: none;
+    }
 
-  .epub-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.18);
-  }
-
-  .epub-card img {
-    width: 100%;
-    object-fit: cover;
-    object-position: top;
-  }
 
   .epub-info {
     padding: 1rem;
@@ -122,30 +204,6 @@
     margin: 0;
   }
 
-
-  .carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.9);
-    border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    font-size: 1.6rem;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.2s;
-  }
-
-  .carousel-btn:hover {
-    background: white;
-    transform: translateY(-50%) scale(1.08);
-  }
-
-  .prev { left: 8px; }
-  .next { right: 8px; }
 
   @media (max-width: 768px) {
     .epub-card { flex: 0 0 220px; width: 220px; }

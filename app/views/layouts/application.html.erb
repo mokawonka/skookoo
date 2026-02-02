@@ -7,7 +7,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+<%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= favicon_link_tag asset_path('favicon.ico') %>
 
     <%= javascript_importmap_tags %>
@@ -27,12 +27,16 @@
   <body>
     <nav id="headbar" class="navbar-expand-lg navbar-light bg-light border-bottom box-shadow">
 
-        <%=link_to image_tag("skookoo_logo_100.png", size:"32x32") , root_path, class: "navbar-brand" %>
+        <%=link_to image_tag("skookoo_logo_100.png") , root_path, class: "navbar-brand" %>
         
-        <%= form_with url: "/search", method: :get, class: "form-group has-search", :html=> {:id => 'searchform'} do |form|%>
+        <%
+=begin%>
+ <%= form_with url: "/search", method: :get, class: "form-group has-search", :html=> {:id => 'searchform'} do |form|%>
           <div class="fa fa-search form-control-feedback"></div>
-          <%= form.text_field :query, required: true,  placeholder: "Search", autocomplete: "off", spellcheck: false, id: "mainsearchinput", class: "form-control ds-input" %>
-        <% end %>
+          <%= form.text_field :query, required: true,  placeholder: "Search for quotes", autocomplete: "off", spellcheck: false, id: "mainsearchinput", class: "form-control ds-input" %>
+        <% end %> 
+<%
+=end%>
 
 
         <span class=float-end>
@@ -56,6 +60,7 @@
                   <ul id="notifications-popup">
                   </ul>
                 </div>
+
               <% end %>
       
               <button id="notificationbutton" type="button" class="btn p-0" data-bs-toggle="dropdown" aria-expanded="false">
