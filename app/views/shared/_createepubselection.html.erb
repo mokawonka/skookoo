@@ -204,7 +204,7 @@ document.addEventListener('turbo:load', () => {
       card.className = 'epub-card';
       card.dataset.id = book.id;
 
-      const cover = book.cover_url ? book.cover_url : "<%= asset_path('default_epub_cover.png') %>";
+      const cover = book.cover_url ? book.cover_url.trim() : "<%= asset_path('default_epub_cover.png') %>";
 
       card.innerHTML = `
         <img src="${cover}" alt="${book.title}" loading="lazy">
