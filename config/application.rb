@@ -18,7 +18,8 @@ module Skookoo
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
     config.active_storage.variant_processor = :vips # sudo apt install libvips libvips-dev
-    config.active_storage.resolve_model_to_route = :rails_storage_proxy
+    # config.active_storage.resolve_model_to_route = :rails_storage_proxy
+    config.active_storage.resolve_model_to_route = :rails_storage_redirect
 
 
   end

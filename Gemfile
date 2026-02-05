@@ -49,7 +49,7 @@ gem "noticed", "~> 2.9"
 gem 'turbo-rails'
 gem "redis", "~> 5.0"
 
-
+gem "aws-sdk-s3", require: false
 
 
 # Reduces boot times through caching; required in config/boot.rb

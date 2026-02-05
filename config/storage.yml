@@ -6,6 +6,14 @@ local:
   service: Disk
   root: <%= Rails.root.join("storage") %>
 
+cloudflare:
+  service: S3
+  endpoint: https://79b6f1ae5a01b8b8f23069e3b3af234e.r2.cloudflarestorage.com
+  access_key_id: baf0e9b0a13dba2f44c98a63ff6f35cb
+  secret_access_key: ce0bce7eb6f4068ff8135f972f5c352b13497fd89cbabd0a0910df15290e7754
+  region: auto
+  bucket: skookoo
+
 # Use rails credentials:edit to set the AWS secrets (as aws:access_key_id|secret_access_key)
 # amazon:
 #   service: S3

@@ -90,7 +90,8 @@ class EpubCreator
       userid:  user_id,           # ← use the passed user_id (not session!)
       epubid:  @epub.id,
       title:   @epub.title,
-      authors: @epub.authors
+      authors: @epub.authors,
+      ispublic: @epub.public_domain
     )
 
     if @document.save

@@ -18,7 +18,6 @@ Rails.application.configure do
 
   config.active_storage.service = :local
 
-
   # Code is not reloaded between requests.
   config.cache_classes = true
 

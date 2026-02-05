@@ -1,9 +1,7 @@
 class Epub < ApplicationRecord
     has_one_attached :epub_file
 
-    has_one_attached :cover_pic do |attachable|
-        attachable.variant :thumb, resize_to_limit: [400, 400], preprocessed: true
-    end
+    has_one_attached :cover_pic
 
 
     attribute :public_domain, :boolean, default: true
@@ -21,7 +19,7 @@ class Epub < ApplicationRecord
         return false unless cover_pic.attached?
 
         Rails.application.routes.url_helpers.url_for(
-            cover_pic.variant(resize_to_limit: [400, 400]).processed
+            cover_pic.variant(resize_to_limit: [400, 400])
         )
 
     end
@@ -30,15 +28,7 @@ class Epub < ApplicationRecord
         epub_file.filename.to_s if epub_file.attached?
     end
 
-    def epub_on_disk
-
-        if epub_file.attached? && (epub_file.content_type.in?(%w(application/epub+zip)) || epub_file.content_type.in?(%w(application/zip)) )
-          ActiveStorage::Blob.service.path_for(epub_file.key)
-        else
-          return -1
-        end
-    end
-
+    
     def cover=(path_to_img)
 
       # saving image jpg/png to db 
@@ -55,57 +45,62 @@ class Epub < ApplicationRecord
 
     # static method used for seeding DB
     def self.save_epub(filepath, language)
+        e = Epub.new
 
-      e = Epub.new
-      e.epub_file.attach(io: File.open(filepath), 
-                          filename: File.basename(filepath),
-                          content_type: "application/epub+zip") 
-      e.save
-  
-      filename = e.epub_on_disk
-  
-      begin
-          reader = EPUB::Parser.parse(filename)
-      rescue
-          puts "Invalid epub file\n"
-          e.destroy!
-          return false
-      else
-      
-          e.title = reader.metadata.title
-          e.authors = reader.metadata.creators[0].to_s.split(";").join(", ")
-          e.lang = language
-          e.sha3 = SHA3::Digest.file(filepath).hexdigest
-          # e.public_domain equals true by default 
+        e.epub_file.attach(
+            io: File.open(filepath),
+            filename: File.basename(filepath),
+            content_type: "application/epub+zip"
+        )
 
-          # get cover pic
-          if reader.cover_image
-      
-              temp_dir = File.join(Dir.tmpdir, "ebook" + $$.to_s)
-              Zip::File.open(filename) do |zipfile|
-                  zipfile.each do |file|
-      
-                      if File.basename(file.to_s) == File.basename(reader.cover_image.href)
-      
-                          f_path = File.join(temp_dir, file.name)
-                          FileUtils.mkdir_p(File.dirname(f_path))
-                          zipfile.extract(file, f_path)
-      
-                          e.cover = f_path
-      
-                          #deleting tmp folder
-                          FileUtils.rm_rf temp_dir
-                      end
-                  end
-      
-              end
-          end
-      
-          e.save
-          return true
-  
-      end
-  
+        e.save!
+
+        begin
+            e.epub_file.blob.open do |temp_epub|
+            reader = EPUB::Parser.parse(temp_epub.path)
+
+            e.title   = reader.metadata.title
+            e.authors = reader.metadata.creators[0].to_s.split(";").join(", ")
+            e.lang    = language
+            e.sha3    = SHA3::Digest.file(filepath).hexdigest
+
+            # extract cover
+            if reader.cover_image
+                extract_cover_from_epub(
+                temp_epub.path,
+                reader.cover_image.href,
+                e
+                )
+            end
+            end
+
+            e.save!
+            true
+
+        rescue => e
+            puts "Invalid epub file: #{e.message}"
+            e.destroy!
+            false
+        end
+    end
+
+    def self.extract_cover_from_epub(epub_path, cover_href, epub_record)
+        temp_dir = Dir.mktmpdir("ebook")
+
+        Zip::File.open(epub_path) do |zipfile|
+            zipfile.each do |entry|
+            if File.basename(entry.name) == File.basename(cover_href)
+                extracted_path = File.join(temp_dir, entry.name)
+                FileUtils.mkdir_p(File.dirname(extracted_path))
+                zipfile.extract(entry, extracted_path)
+
+                epub_record.cover = extracted_path
+                break
+            end
+            end
+        end
+    ensure
+        FileUtils.rm_rf(temp_dir)
     end
 
 end
