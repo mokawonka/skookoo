@@ -209,10 +209,11 @@ document.addEventListener('turbo:load', () => {
 
       console.log(cover);
 
+      const titleEscaped = (book.title || '').replace(/"/g, '&quot;');
       card.innerHTML = `
-        <img src="${cover}" alt="${book.title}" loading="lazy">
-        <p class="text-center card-title mt-2">${book.title}</p>
-        <h5 class="text-center text-muted small">${book.authors || ''}</h5>
+        <img src="${cover}" alt="${titleEscaped}" loading="lazy">
+        <p class="text-center card-title mt-2" title="${titleEscaped}">${book.title}</p>
+        <h5 class="text-center text-muted small" title="${(book.authors || '').replace(/"/g, '&quot;')}">${book.authors || ''}</h5>
       `;
 
       // card.addEventListener('click', () => {

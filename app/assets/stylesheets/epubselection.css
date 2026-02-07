@@ -1,6 +1,7 @@
     .loading-overlay {
         position: absolute;
         inset: 0;
+        min-height: 220px;
         background: rgba(255, 255, 255, 0.92);
         display: flex;
         flex-direction: column;
@@ -18,12 +19,14 @@
     }
 
     .spinner {
-        width: 56px;
-        height: 56px;
-        border: 6px solid #e0e0e0;
+        width: 40px;
+        height: 40px;
+        border: 5px solid #e0e0e0;
         border-top: 6px solid #6366f1;
         border-radius: 50%;
         animation: spin 1s linear infinite;
+        margin: 0 auto;
+        flex-shrink: 0;
     }
 
     .loading-text {
@@ -53,6 +56,8 @@
     padding-top: 1em;
     overflow: hidden;
     touch-action: pan-y pinch-zoom;   /* better touch behavior */
+    /* Fixed height so prev/next/select buttons don't move when title/author length varies */
+    height: 365px;
   }
 
   .carousel-track {
@@ -69,6 +74,9 @@
     min-width: 100%;
     box-sizing: border-box;
     scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   .epub-card img {
@@ -77,6 +85,31 @@
     object-fit: cover;
     border-radius: 10px;
     background: #f8f9fa;
+    flex-shrink: 0;
+  }
+
+  /* Fixed-height text block so long title/author don't push buttons down */
+  .epub-card .card-title,
+  .epub-card .epub-title {
+    flex-shrink: 0;
+    height: 5.2em;               /* 4 lines so long titles are visible */
+    margin: 0.4rem 0 0 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
+  }
+
+  .epub-card h5.text-muted,
+  .epub-card .epub-author {
+    flex-shrink: 0;
+    height: 1.5em;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
     .carousel-btn {
