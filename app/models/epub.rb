@@ -19,7 +19,7 @@ class Epub < ApplicationRecord
         return false unless cover_pic.attached?
 
         Rails.application.routes.url_helpers.url_for(
-            cover_pic.variant(resize_to_limit: [400, 400])
+            cover_pic.variant(resize_to_limit: [300, 300])
         )
 
     end

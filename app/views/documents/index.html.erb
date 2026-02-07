@@ -12,8 +12,7 @@ My Documents
 <% if @records.count > 0 %>
       
       <% @records.order('updated_at DESC').each do |document| %>
-            
-        <% @affiliated_epub = Epub.find(document.epubid)%>
+            <% affiliated_epub = document.epub %>
 
         <br>
         <div class="container-fluid docu">
@@ -24,10 +23,10 @@ My Documents
 
             <div class="col-sm-4">
 
-              <% if @affiliated_epub.cover_pic.attached? %>
+              <% if affiliated_epub&.cover_pic.attached? %>
 
-                  <% if @affiliated_epub.cover_pic.variable? %>
-                    <%= link_to image_tag(@affiliated_epub.cover_pic.variant(resize_to_limit:[300, 300]), class: "coverpic"), document  %>
+                  <% if affiliated_epub.cover_pic.variable? %>
+                    <%= link_to image_tag(affiliated_epub.cover_pic.variant(resize_to_limit:[300, 300]), class: "coverpic"), document  %>
                   <% else %>
                     <%= link_to image_tag('default_epub_cover.png', size: '150x200', class: "coverpic"), document  %>
                   <% end %>

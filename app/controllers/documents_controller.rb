@@ -7,8 +7,8 @@ class DocumentsController < ApplicationController
   def index
     myuserid = session[:user_id]
 
-    #retrieving all documents owned by current user
-    @documents = Document.where(:userid => myuserid).order(
+    #retrieving all documents owned by current user (eager load epubs to avoid N+1)
+    @documents = Document.where(:userid => myuserid).includes(:epub).order(
       Arel.sql("COALESCE(last_accessed_at, updated_at) DESC NULLS LAST")
     )
 

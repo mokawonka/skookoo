@@ -48,7 +48,7 @@
   .carousel-container {
     position: relative;
     width: 100%;
-    max-width: 250px;           /* ← your preferred max card width */
+    max-width: 150px;           /* ← your preferred max card width */
     margin: 0 auto;
     padding-top: 1em;
     overflow: hidden;
@@ -80,14 +80,14 @@
   }
 
     .carousel-btn {
-        width: 60px;
-        height: 60px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background: #0951a9;
         border: none;
         box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         color: white;
-        font-size: 2rem;
+        font-size: 1rem;
         cursor: pointer;
         transition: all 0.2s ease;
         display: flex;
@@ -121,7 +121,7 @@
         width: auto;                    /* not fixed width like arrows */
         min-width: 160px;               /* comfortable size */
         padding: 0 1.5rem;
-        height: 60px;
+        height: 40px;
         border-radius: 30px;            /* pill shape – nicer than circle here */
         background: green;            /* green = positive action (add) */
         color: white;
