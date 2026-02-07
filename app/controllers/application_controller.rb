@@ -1,6 +1,8 @@
 class ApplicationController < ActionController::Base
     include Pagy::Backend
-    
+
+    before_action :require_user
+
     # helpers functions to be used on all controllers
     helper_method :current_user, :logged_in?
     def current_user
