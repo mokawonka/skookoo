@@ -173,6 +173,50 @@
 
           var url = window.location.href;
 
+          function getCfiFromUrl() {
+            var idx = url.indexOf('cfi=');
+            if (idx === -1) return null;
+            var raw = url.substring(idx + 4).split('&')[0];
+            try {
+              var cfi = decodeURIComponent(raw.replace(/\+/g, ' '));
+              if (cfi && cfi.indexOf('epubcfi(') !== 0) cfi = 'epubcfi(' + cfi + ')';
+              return cfi;
+            } catch (e) {
+              return raw.indexOf('epubcfi(') === 0 ? raw : 'epubcfi(' + raw + ')';
+            }
+          }
+
+          async function scrollToHighlight(highlightCfi, offset = 100) {
+            await this.rendition.display(highlightCfi);
+
+            // Small delay to let layout finish
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            let range = null;
+            for (let c of this.rendition.getContents()) {
+              try {
+                range = c.range(highlightCfi) || this.rendition.getRange?.(highlightCfi);
+                if (range?.startContainer) break;
+              } catch (e) {}
+            }
+
+            if (!range) {
+              console.warn("Could not create range for CFI");
+              return;
+            }
+
+            // Force layout
+            range.startContainer.parentElement?.offsetHeight;
+
+            const rect = range.getBoundingClientRect();
+            const targetTop = rect.top + window.scrollY - (window.innerHeight / 2) + (rect.height / 2) - offset;
+
+            window.scrollTo({
+              top: Math.max(0, targetTop),
+              behavior: "smooth"
+            });
+          }
+
           <% if logged_in? && current_user.id == @document.userid %>
 
             if (url.indexOf('cfi') == -1)
@@ -186,17 +230,21 @@
            }
            else 
            {
-              var highlightCfi = url.substr(url.lastIndexOf("cfi=")+4);
-              rendition.display(highlightCfi);
-              
-              rendition.annotations.highlight(
-                highlightCfi,
-                {},
-                null,
-                "highlight",
-                { fill: "yellow", "fill-opacity": "0.3" }
-              );
+              var highlightCfi = getCfiFromUrl();
+              if (highlightCfi) {
+                
+                scrollToHighlight(highlightCfi, 120);
 
+                rendition.annotations.highlight(
+                  highlightCfi,
+                  {},
+                  null,
+                  "highlight",
+                  { fill: "yellow", "fill-opacity": "0.3" }
+                );
+              } else {
+                rendition.display();
+              }
            }
           <% else %>
 
@@ -204,8 +252,8 @@
               rendition.display();
             }
             else {
-              var highlightCfi = url.substr(url.lastIndexOf("cfi=")+4);
-              rendition.display(highlightCfi);
+              var highlightCfi = getCfiFromUrl();
+              rendition.display(highlightCfi || undefined);
             }
           
           <% end %>
@@ -314,7 +362,7 @@
 
               try {
                 const fullRangeCfi = section.cfiFromRange(range);
-                console.log("Generated range CFI:", fullRangeCfi);
+                //console.log("Generated range CFI:", fullRangeCfi);
 
                 // Your UI code
                   // clearing old results if any
