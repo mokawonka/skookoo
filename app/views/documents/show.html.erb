@@ -235,13 +235,34 @@
                 
                 scrollToHighlight(highlightCfi, 120);
 
-                rendition.annotations.highlight(
-                  highlightCfi,
-                  {},
-                  null,
-                  "highlight",
-                  { fill: "yellow", "fill-opacity": "0.3" }
-                );
+                <% if @target_highlight %>
+
+                rendition.annotations.add("highlight", highlightCfi, 
+                                    {}, 
+                                    (e) => {
+                                        var content = "<div>" + 
+                                                      "<%=escape_javascript render 'shared/onehighlight' , highlight: @target_highlight, document: @document, from: 'document' %> <br>" +
+                                                      "<%=escape_javascript render 'shared/createreply', reply: Reply.new, highlight_id: @target_highlight.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
+                                                      "<div id=allreplies>" + "<%=escape_javascript render 'shared/highlightreplies', replies: Reply.where(:highlightid => @target_highlight.id).where(:deleted => false).where(:recipientid => nil), highlight: @target_highlight, type: "parent" %>" + "</div></div>";
+
+                                        $('#conversationmodalcontent').html(content);
+                                        $('#conversationmodal').modal('show');
+
+                                        // var bbox = contents.range(cfiRange).getBoundingClientRect();
+                                    }, 
+                                    "hl", {"fill": "yellow", "fill-opacity": "0.2", "mix-blend-mode": "multiply", "pointer-events": "all",
+                                           "style": "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;", "onmouseenter": "this.style.fillOpacity='0.4'", "onmouseleave": "this.style.fillOpacity='0.2'"})
+
+                <% else %>
+                  rendition.annotations.add("highlight",
+                    highlightCfi,
+                    {},
+                    null,
+                    "highlight",
+                    { fill: "yellow", "fill-opacity": "0.2" }
+                  );
+                <% end %>
+
               } else {
                 rendition.display();
               }

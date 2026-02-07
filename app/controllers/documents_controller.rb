@@ -38,7 +38,10 @@ class DocumentsController < ApplicationController
 
       @giphyApiKey = "Vsa6RyTveLS9mFOQVsTPmE8vndGnKc6G"
       @document.update_column(:last_accessed_at, Time.current)
-      @highlights = Highlight.where(:docid => @document.id) 
+      @highlights = Highlight.where(:docid => @document.id)
+      if params[:cfi].present?
+        @target_highlight = @highlights.find_by(cfi: params[:cfi])
+      end 
       @vocabs = Expression.where(:docid => @document.id)
       @ideas = Idea.where(:docid => @document.id)
 
@@ -47,6 +50,9 @@ class DocumentsController < ApplicationController
         redirect_to document_not_public_path and return
       else
         @highlights = Highlight.where(:docid => @document.id)
+        if params[:cfi].present?
+          @target_highlight = @highlights.find_by(cfi: params[:cfi])
+        end
       end
     end
 
