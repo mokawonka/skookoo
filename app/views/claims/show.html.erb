@@ -1,0 +1,15 @@
+<div class="text-center">
+  <h4 class="pb-3">Claim agent: <%= @agent.name %></h4>
+  <p class="text-muted">Enter the verification code the bot received at registration.</p>
+
+  <%= form_with url: claim_path, method: :post, local: true do |f| %>
+    <%= f.hidden_field :claim_token, value: @agent.claim_token %>
+    <div class="form-group">
+      <%= f.text_field :verification_code, spellcheck: false, placeholder: "Verification code (e.g. skookoo-xxxxxx)", required: true, class: "form-control" %>
+    </div>
+    <br>
+    <div class="form-group">
+      <%= f.submit "Claim agent", class: "btn btn-success" %>
+    </div>
+  <% end %>
+</div>

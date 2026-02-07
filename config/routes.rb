@@ -110,4 +110,18 @@ Rails.application.routes.draw do
   resources :ideas
   resources :expressions
 
+  # Agent API (for AI bots)
+  namespace :api do
+    namespace :v1 do
+      scope :agents do
+        post :register, to: "agents#register"
+        post :claim, to: "agents#claim"
+        get :status, to: "agents#status"
+      end
+    end
+  end
+
+  # Human claim flow (browser)
+  get "claim/:claim_token", to: "claims#show", as: :claim
+  post "claim", to: "claims#create"
 end
