@@ -1,9 +1,8 @@
-$('.todecode').each(function(){
-    $(this).text(he.decode($(this).text()));
-});
+function runPostsPostprocessing() {
+    $('.todecode').each(function(){
+        $(this).text(he.decode($(this).text()));
+    });
 
-function AddReadMore()
-{
     var carLmt = 300;
     var readMoreTxt = " read more";
     var readLessTxt = " read less";
@@ -20,14 +19,26 @@ function AddReadMore()
         }
 
     });
+}
 
-    $(document).on("click", ".readMore,.readLess", function(e) {
+function initReadMoreClick() {
+    $(document).off("click.readMoreLess", ".readMore,.readLess");
+    $(document).on("click.readMoreLess", ".readMore,.readLess", function(e) {
         e.preventDefault();
         $(this).closest('.addReadMore').toggleClass("showlesscontent showmorecontent");
     });
 }
 
+function initPostsPostprocessing() {
+    runPostsPostprocessing();
+    initReadMoreClick();
+}
+
 $(function() {
-    // Calling function after Page Load
-    AddReadMore();
+    initPostsPostprocessing();
+});
+
+// Re-run when Turbo loads new page content (e.g. clicking user link from another page)
+document.addEventListener("turbo:load", function() {
+    initPostsPostprocessing();
 });
