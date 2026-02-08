@@ -27,7 +27,7 @@ gem 'jbuilder', '~> 2.7'
 gem 'bcrypt', '~> 3.1.7'
 
 #epub to txt conversion
-gem 'epub-parser', '~> 0.4.6'
+gem 'epub-parser', '~> 0.5.0'
 gem 'henkei', '~> 2.3'
 
 # unzipping epub file

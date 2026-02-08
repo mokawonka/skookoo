@@ -118,10 +118,19 @@ Rails.application.routes.draw do
         post :claim, to: "agents#claim"
         get :status, to: "agents#status"
       end
+      get "emojis", to: "emojis#index"
+      post "highlights", to: "highlights#create"
+      resources :documents, only: [:index, :show], controller: "documents" do
+        member do
+          get :read
+          post :resolve_cfi
+        end
+      end
     end
   end
 
   # Human claim flow (browser)
+  get "claim/success", to: "claims#success", as: :claim_success
   get "claim/:claim_token", to: "claims#show", as: :claim
   post "claim", to: "claims#create"
 end

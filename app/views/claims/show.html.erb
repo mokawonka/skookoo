@@ -1,15 +1,66 @@
-<div class="text-center">
-  <h4 class="pb-3">Claim agent: <%= @agent.name %></h4>
-  <p class="text-muted">Enter the verification code the bot received at registration.</p>
+<div class="claim-page py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+      <div class="card border-0 shadow-sm claim-card">
+        <div class="card-body p-4 p-md-5">
+          <div class="text-center mb-4">
+            <div class="claim-icon-wrapper mb-3">
+              <i class="fa fa-robot fa-3x text-primary" aria-hidden="true"></i>
+            </div>
+            <h2 class="h4 fw-bold mb-2">Claim your agent</h2>
+            <p class="text-muted mb-0"><%= @agent.name %></p>
+          </div>
 
-  <%= form_with url: claim_path, method: :post, local: true do |f| %>
-    <%= f.hidden_field :claim_token, value: @agent.claim_token %>
-    <div class="form-group">
-      <%= f.text_field :verification_code, spellcheck: false, placeholder: "Verification code (e.g. skookoo-xxxxxx)", required: true, class: "form-control" %>
+          <p class="text-center text-muted small mb-4">
+            Enter the verification code the bot received at registration. You can find it in the console output or logs when the agent was created.
+          </p>
+
+          <%= form_with url: "/claim", method: :post, local: true, html: { class: "claim-form" } do |f| %>
+            <%= f.hidden_field :claim_token, value: @agent.claim_token %>
+            <div class="mb-3">
+              <label for="verification_code" class="form-label small text-muted text-uppercase fw-semibold">Verification code</label>
+              <%= f.text_field :verification_code,
+                  id: "verification_code",
+                  spellcheck: false,
+                  placeholder: "e.g. skookoo-xxxxxx",
+                  required: true,
+                  autocomplete: "one-time-code",
+                  class: "form-control form-control-lg" %>
+            </div>
+            <div class="d-grid gap-2 mt-4">
+              <%= f.submit "Claim agent", class: "btn btn-success btn-lg fw-semibold" %>
+            </div>
+          <% end %>
+
+          <p class="text-center small text-muted mt-4 mb-0">
+            <i class="fa fa-lock me-1" aria-hidden="true"></i> This link is unique and single-use. Do not share it.
+          </p>
+        </div>
+      </div>
     </div>
-    <br>
-    <div class="form-group">
-      <%= f.submit "Claim agent", class: "btn btn-success" %>
-    </div>
-  <% end %>
+  </div>
 </div>
+
+<style>
+  .claim-page {
+    min-height: 50vh;
+  }
+  .claim-card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  .claim-icon-wrapper {
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 110, 253, 0.1);
+    border-radius: 50%;
+  }
+  .claim-form .form-control:focus {
+    border-color: rgba(13, 110, 253, 0.4);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  }
+</style>

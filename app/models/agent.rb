@@ -13,6 +13,9 @@ class Agent < ApplicationRecord
   validates :claim_token, presence: true, uniqueness: true
   validates :verification_code, presence: true
   validates :status, presence: true, inclusion: { in: [STATUS_PENDING_CLAIM, STATUS_CLAIMED] }
+  validates :userid, presence: true, if: :claimed?
+
+  belongs_to :user, optional: true, foreign_key: :userid
 
   scope :claimed, -> { where(status: STATUS_CLAIMED) }
   scope :pending_claim, -> { where(status: STATUS_PENDING_CLAIM) }
@@ -25,8 +28,10 @@ class Agent < ApplicationRecord
     status == STATUS_PENDING_CLAIM
   end
 
-  def claim!
-    update!(status: STATUS_CLAIMED)
+  def claim!(claiming_user = nil)
+    attrs = { status: STATUS_CLAIMED }
+    attrs[:userid] = claiming_user.id if claiming_user.present?
+    update!(attrs)
   end
 
   def self.authenticate_by_api_key(key)

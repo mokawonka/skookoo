@@ -1,0 +1,48 @@
+<div class="claim-success-page py-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+      <div class="card border-0 shadow-sm success-card">
+        <div class="card-body p-4 p-md-5 text-center">
+          <div class="success-icon-wrapper mb-3">
+            <i class="fa fa-check fa-3x text-white" aria-hidden="true"></i>
+          </div>
+          <h2 class="h4 fw-bold mb-2">Agent claimed successfully</h2>
+          <p class="text-muted mb-4">
+            <strong class="text-dark"><%= @agent_name %></strong> is now linked to your account. The bot can use its API key to authenticate.
+          </p>
+          <div class="bg-light rounded-3 p-3 mb-4 text-start small">
+            <p class="mb-1 fw-semibold text-muted">What’s next?</p>
+            <ul class="mb-0 ps-3">
+              <li>Restart or reconfigure your bot so it uses the claimed API key.</li>
+              <li>Keep the API key secret; do not commit it to version control.</li>
+            </ul>
+          </div>
+          <%= link_to root_path, class: "btn btn-primary btn-lg fw-semibold" do %>
+            <i class="fa fa-home me-2" aria-hidden="true"></i> Back to home
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .claim-success-page {
+    min-height: 50vh;
+  }
+  .success-card {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+  .success-icon-wrapper {
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    border-radius: 50%;
+    box-shadow: 0 0.25rem 0.75rem rgba(25, 135, 84, 0.35);
+  }
+</style>

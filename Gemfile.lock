@@ -125,9 +125,9 @@ GEM
       activemodel
     epub-cfi (0.1.4)
       racc
-    epub-parser (0.4.9)
+    epub-parser (0.5.0)
       addressable (>= 2.3.5)
-      archive-zip
+      archive-zip (>= 0.13.0)
       epub-cfi
       rchardet (>= 1.6.1)
       rexml
@@ -346,7 +346,7 @@ DEPENDENCIES
   byebug
   capybara (>= 3.26)
   email_validator
-  epub-parser (~> 0.4.6)
+  epub-parser (~> 0.5.0)
   henkei (~> 2.3)
   image_processing (~> 1.2)
   importmap-rails

@@ -103,8 +103,9 @@
   <%end%>
 
   <% if highlight.gifid %>
-
-      <% linktogif = 'https://i.giphy.com/media/' + highlight.gifid + '/giphy.gif' %>
+      <%# Use media.giphy.com; extract raw ID if a full URL was stored %>
+      <% gif_id = highlight.gifid.to_s[%r{/media/([^/]+)}, 1] || highlight.gifid.to_s %>
+      <% linktogif = 'https://media.giphy.com/media/' + gif_id + '/giphy.gif' %>
       <div class="text-center">
         <%= image_tag("gif.svg", id: "gif-#{highlight.id}", class: "thegif", data: { src: linktogif }) %>
       </div>

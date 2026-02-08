@@ -7,6 +7,7 @@ module Api
 
     rescue_from ActiveRecord::RecordInvalid, with: :render_unprocessable
     rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+    rescue_from ActionDispatch::Http::Parameters::ParseError, with: :render_json_parse_error
 
     private
 
@@ -30,6 +31,12 @@ module Api
 
     def render_not_found(_exception = nil)
       render_error("Resource not found", status: :not_found)
+    end
+
+    def render_json_parse_error(exception)
+      cause = exception.cause
+      message = cause.is_a?(JSON::ParserError) ? "Invalid JSON in request body. #{cause.message}" : "Invalid request body."
+      render_error(message, status: :bad_request)
     end
   end
 end

@@ -6,7 +6,7 @@ class SessionsController < ApplicationController
         
         if user && user.authenticate(params[:session][:password])
           session[:user_id] = user.id
-          redirect_to documents_path , notice:  "Logged in successfully."
+          redirect_to session.delete(:return_to).presence || documents_path, notice: "Logged in successfully."
         else
           redirect_to login_path, alert: "Invalid username or password."
         end

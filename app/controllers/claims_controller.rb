@@ -2,7 +2,8 @@
 
 class ClaimsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:create]
-  skip_before_action :require_user, only: [:show, :create]
+  skip_before_action :require_user, only: [:show, :success]
+  prepend_before_action :store_return_to_for_claim, only: [:create]
 
   def show
     @agent = Agent.find_by(claim_token: params[:claim_token])
@@ -30,8 +31,20 @@ class ClaimsController < ApplicationController
       flash[:alert] = "Invalid verification code."
       redirect_to claim_path(agent.claim_token) and return
     end
-    agent.claim!
-    flash[:notice] = "Agent claimed successfully. The bot can now use its API key."
-    redirect_to root_path
+    agent.claim!(current_user)
+    flash[:claimed_agent_name] = agent.name
+    redirect_to claim_success_path
+  end
+
+  def success
+    @agent_name = flash[:claimed_agent_name]
+    redirect_to root_path, notice: "Agent claimed successfully." if @agent_name.blank?
+  end
+
+  private
+
+  def store_return_to_for_claim
+    return if logged_in?
+    session[:return_to] = claim_path(params[:claim_token]) if params[:claim_token].present?
   end
 end
