@@ -186,35 +186,60 @@
             }
           }
 
-          async function scrollToHighlight(highlightCfi, offset = 100) {
-            await this.rendition.display(highlightCfi);
-
-            // Small delay to let layout finish
-            await new Promise(resolve => setTimeout(resolve, 800));
-
-            let range = null;
-            for (let c of this.rendition.getContents()) {
-              try {
-                range = c.range(highlightCfi) || this.rendition.getRange?.(highlightCfi);
-                if (range?.startContainer) break;
-              } catch (e) {}
-            }
-
-            if (!range) {
-              console.warn("Could not create range for CFI");
+          async function scrollToHighlight(highlightCfi) {
+            if (!highlightCfi) {
+              rendition.display();
               return;
             }
 
-            // Force layout
-            range.startContainer.parentElement?.offsetHeight;
+            try {
+              // First, let EPUB.js do its native navigation
+              await rendition.display(highlightCfi);
 
-            const rect = range.getBoundingClientRect();
-            const targetTop = rect.top + window.scrollY - (window.innerHeight / 2) + (rect.height / 2) - offset;
+              // Wait for the content to actually render (critical for bfcache restores)
+              await new Promise(resolve => {
+                const onRendered = () => {
+                  rendition.off("rendered", onRendered);
+                  resolve();
+                };
+                rendition.on("rendered", onRendered);
 
-            window.scrollTo({
-              top: Math.max(0, targetTop),
-              behavior: "smooth"
-            });
+                // Safety fallback
+                setTimeout(resolve, 900);
+              });
+
+              // Small extra delay for layout to settle (especially on back navigation)
+              await new Promise(r => setTimeout(r, 300));
+
+              // Now do precise scroll + centering
+              let range = null;
+              for (let content of rendition.getContents()) {
+                try {
+                  range = content.range(highlightCfi);
+                  if (range) break;
+                } catch (e) {}
+              }
+
+              if (range && range.startContainer) {
+                // Force reflow
+                void range.startContainer.parentElement.offsetHeight;
+
+                const rect = range.getBoundingClientRect();
+                const targetTop = rect.top + window.scrollY 
+                                  - (window.innerHeight * 0.38) 
+                                  + (rect.height / 2) 
+                                  - 120;   // your offset
+
+                window.scrollTo({
+                  top: Math.max(0, targetTop),
+                  behavior: "smooth"
+                });
+              }
+
+            } catch (err) {
+              console.error("goToHighlight failed, falling back:", err);
+              rendition.display(highlightCfi);   // safe fallback
+            }
           }
 
 
