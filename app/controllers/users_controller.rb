@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
     protect_from_forgery
+    skip_before_action :require_user, only: [:new, :create] 
 
     before_action :authorize_user!, only: [:show_followers, :show_following, :show_replies, :follow, :unfollow, 
                                            :update_data, :update_profile, :update_votes, :switch_mode, :update_font, 
