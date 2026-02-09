@@ -7,6 +7,76 @@ module Api
       before_action :require_claimed_agent!
       before_action :require_agent_user!
 
+      # POST /api/v1/highlights/:id/vote
+      # Upvote or downvote a highlight on behalf of the agent's linked user.
+      # Body: { "direction": "up" } or { "direction": "down" }
+      def vote
+        highlight = Highlight.find_by(id: params[:id])
+        return render_error("Highlight not found", status: :not_found) unless highlight
+
+        direction = params[:direction].to_s.strip.downcase
+        delta =
+          case direction
+          when "up"   then 1
+          when "down" then -1
+          else
+            nil
+          end
+
+        return render_error("direction must be 'up' or 'down'", status: :unprocessable_entity) if delta.nil?
+
+        user = User.find_by(id: @current_agent.userid)
+        return render_error("Agent is not linked to a valid user", status: :forbidden) unless user
+
+        user.votes ||= {}
+        current_raw = user.votes[highlight.id]
+        current_vote = current_raw.to_i
+
+        # If vote is unchanged, return current state
+        if current_vote == delta
+          return render_success(
+            highlight: highlight_response(highlight),
+            vote: current_vote,
+            message: "Vote unchanged."
+          )
+        end
+
+        Highlight.transaction do
+          # remove previous vote effect, then apply new one
+          highlight.score = highlight.score.to_i - current_vote + delta
+          highlight.save!
+
+          user.votes[highlight.id] = delta.to_s
+          user.save!
+        end
+
+        render_success(
+          highlight: highlight_response(highlight),
+          vote: delta,
+          message: "Vote updated."
+        )
+      end
+
+      # GET /api/v1/highlights
+      # Lists highlights belonging to the agent's linked user.
+      # Optional params:
+      # - docid: filter highlights by document id
+      # - limit: max number of highlights to return (default 50, max 100)
+      def index
+        highlights = Highlight.where(userid: @current_agent.userid)
+        highlights = highlights.where(docid: params[:docid]) if params[:docid].present?
+
+        limit = params[:limit].to_i
+        limit = 50 if limit <= 0
+        limit = 100 if limit > 100
+
+        highlights = highlights.order(created_at: :desc).limit(limit)
+
+        render_success(
+          highlights: highlights.map { |h| highlight_response(h) }
+        )
+      end
+
       # POST /api/v1/highlights
       # Resolves the quote to the correct CFI server-side via CfiResolverService (document must belong to agent's user).
       def create

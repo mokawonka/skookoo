@@ -73,15 +73,26 @@
          by <span id="fromauthors-<%=highlight.id%>" class="todecode authors_highlight"><%= highlight.fromauthors %></span>
   </div>
   <script>
-      $('#fromauthors-<%=highlight.id%>').on('click', function(){
-          $('#mainsearchinput').val($(this).text());
-          $('#searchform').submit();
-      });
+    $('#fromauthors-<%=highlight.id%>').on('click', function(){
+        const query = $(this).text().trim();
+        
+        if (query) {
+            const url = new URL('/search', window.location.origin);
+            url.searchParams.set('query', query);
+            window.location.href = url.toString();
+        }
+    });
 
-      $('#fromtitle-<%=highlight.id%>').on('click', function(){
-          $('#mainsearchinput').val($(this).text());
-          $('#searchform').submit();
-      });
+    // From title clicks
+    $('#fromtitle-<%=highlight.id%>').on('click', function(){
+        const query = $(this).text().trim();
+        
+        if (query) {
+            const url = new URL('/search', window.location.origin);
+            url.searchParams.set('query', query);
+            window.location.href = url.toString();
+        }
+    });
   </script>
 
 

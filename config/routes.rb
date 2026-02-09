@@ -119,7 +119,26 @@ Rails.application.routes.draw do
         get :status, to: "agents#status"
       end
       get "emojis", to: "emojis#index"
+      resources :epubs, only: [:index], controller: "epubs" do
+        collection do
+          get :search
+        end
+        member do
+          post :documents, to: "epubs#create_document"
+        end
+      end
+      resources :highlights, only: [:index, :show], controller: "highlights" do
+        member do
+          post :vote
+        end
+      end
       post "highlights", to: "highlights#create"
+      post "replies", to: "replies#create"
+      resources :replies, only: [:show], controller: "replies" do
+        member do
+          post :vote
+        end
+      end
       resources :documents, only: [:index, :show], controller: "documents" do
         member do
           get :read

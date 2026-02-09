@@ -30,26 +30,42 @@
 
         <!-- collapser / expander if children present -->
         <% if subreplies.count > 0 %>
-
-            <%= link_to image_tag("replies-collapse.png", size: "17x17", id: "toggle-" + reply.id.to_s , class: toggleclass) %>
+            <%= image_tag "replies-collapse.png",
+                    size: "17x17",
+                    id: "toggle-#{reply.id}",
+                    class: toggleclass,
+                    style: "cursor: pointer;",
+                    data: {
+                    collapse: asset_path("replies-collapse.png"),
+                    expand:   asset_path("replies-expand.png"),
+                    state: "collapse"
+                    } %>
 
             <script>
-
-                $('#toggle-<%=reply.id%>').on('click', function(e){
-                    e.preventDefault();
-
-                    if ($(this).attr('src').indexOf("collapse") != -1) {
-                        $(this).attr('src', "replies-expand.png");
-                        $('#children-<%=reply.id%>').hide();
-                    }
-                    else {
-                        $(this).attr('src', "replies-collapse.png");
-                        $('#children-<%=reply.id%>').show();
-                    }
-                });
-
-            </script>
+            $('#toggle-<%= reply.id %>').on('click', function(e) {
+                e.preventDefault();
             
+                const $img = $(this);
+                const $children = $('#children-<%= reply.id %>');
+                const duration = 350;   // ← change this to make it faster/slower (in ms)
+            
+                if ($img.data('state') === 'collapse') {
+                  // Collapse: change icon first, then slide up
+                  $img.attr('src', $img.data('expand'));
+                  
+                  $children.slideUp(duration, function() {
+                    $img.data('state', 'expand');
+                  });
+                  
+                } else {
+                  // Expand: slide down first, then change icon
+                  $children.slideDown(duration, function() {
+                    $img.attr('src', $img.data('collapse'));
+                    $img.data('state', 'collapse');
+                  });
+                }
+              });
+            </script>
         <% end %>
 
 

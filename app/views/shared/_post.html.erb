@@ -60,13 +60,23 @@
             });
 
             $('#fromauthors-<%=highlight.id%>').on('click', function(){
-                $('#mainsearchinput').val($(this).text());
-                $('#searchform').submit();
+                const query = $(this).text().trim();
+                
+                if (query) {
+                    const url = new URL('/search', window.location.origin);
+                    url.searchParams.set('query', query);
+                    window.location.href = url.toString();
+                }
             });
 
             $('#fromtitle-<%=highlight.id%>').on('click', function(){
-                $('#mainsearchinput').val($(this).text());
-                $('#searchform').submit();
+                const query = $(this).text().trim();
+                
+                if (query) {
+                    const url = new URL('/search', window.location.origin);
+                    url.searchParams.set('query', query);
+                    window.location.href = url.toString();
+                }
             });
         </script>
 
