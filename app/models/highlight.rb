@@ -13,10 +13,21 @@ class Highlight < ApplicationRecord
     validates :fromauthors, presence: true
     validates :fromtitle, presence: true
 
+    # Ensure only one reaction type is set: comment, liked, emojiid, or gifid
+    validate :only_one_reaction_type
 
-    validates :comment, presence:true, if: Proc.new { |a| !a.comment.nil? }
+    def only_one_reaction_type
+      reactions = []
+      reactions << 'comment' if comment.present?
+      reactions << 'liked' if liked == true
+      reactions << 'emojiid' if emojiid.present?
+      reactions << 'gifid' if gifid.present?
 
-    
+      if reactions.length > 1
+        errors.add(:base, "Only one reaction type allowed: comment, liked, emojiid, or gifid. Found: #{reactions.join(', ')}")
+      end
+    end
+
     include PgSearch::Model
     pg_search_scope :global_search,
         against: [:quote, :fromauthors, :fromtitle, :comment],
