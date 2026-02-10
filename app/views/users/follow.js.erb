@@ -1,0 +1,16 @@
+<% if @user.private? && @user.has_pending_follow_request_from?(current_user) %>
+  // Private profile → Pending request
+  $('#followbutton')
+    .text('Requested')
+    .addClass('disabled')
+    .attr('disabled', true)
+    .removeAttr('href');
+
+  $("<div class='alert alert-info mt-2'>Follow request sent! Waiting for approval.</div>")
+    .appendTo('#infoprofile')
+    .fadeOut(5000);
+
+<% else %>
+  // Public profile → Successful follow
+  $('#followbutton').text('Unfollow');
+<% end %>

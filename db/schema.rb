@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_08_095026) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_10_101152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -182,6 +182,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_08_095026) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "emailnotifications"
+    t.boolean "private_profile", default: false, null: false
+    t.text "pending_follow_requests", default: "[]"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

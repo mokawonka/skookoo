@@ -17,6 +17,7 @@ class User < ApplicationRecord
     serialize :votes,     type: Hash, coder: JSON
     serialize :following, type: Array, coder: JSON
     serialize :followers, type: Array, coder: JSON
+    serialize :pending_follow_requests, type: Array, coder: JSON
 
 
     validates :email, email: true, presence: true, uniqueness: {message: "already taken"}
@@ -45,6 +46,21 @@ class User < ApplicationRecord
         else
             return 0
         end
+    end
+
+
+    def private?
+        private_profile
+    end
+
+    def approved_follower?(viewer)
+        return false if viewer.nil?
+        following.include?(viewer.id)   # means they are accepted
+    end
+
+    def has_pending_follow_request_from?(viewer)
+        return false if viewer.nil?
+        pending_follow_requests.include?(viewer.id)
     end
 
     private

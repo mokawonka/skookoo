@@ -50,15 +50,25 @@ class UsersController < ApplicationController
 
     def show
         @user = User.find_by_username(params[:username])
-        
-        if @user.hooked != nil
+
+        if @user.nil?
+            redirect_to root_path, alert: "User not found"
+            return
+        end
+                
+        if @user.hooked.present?
             @hookedhighlight = Highlight.find_by_id(@user.hooked)
         end
 
-        @totalH = Highlight.where(:userid => @user.id).count
-        @totalR = Reply.where(:deleted => false).where(:userid => @user.id).count
+        @avatar_filepath = "default-avatar.svg"
+        if @user.avatar.attached?
+            @avatar_filepath = @user.avatar.variant(resize_to_limit:[400, 400])
+        end
 
-        @pagy, @hrecords = pagy(Highlight.where(:userid => @user.id), items: 7)
+        @totalH = Highlight.where(userid: @user.id).count
+        @totalR = Reply.where(deleted: false).where(userid: @user.id).count
+
+        @pagy, @hrecords = pagy(Highlight.where(userid: @user.id), items: 7)
         render "highlights/_scrollable_list" if params[:page]
     end
 
@@ -273,26 +283,104 @@ class UsersController < ApplicationController
 
 
     def follow
-
         @user = User.find(params[:id])
 
-        if !@user.followers.include?current_user.id 
-            @user.followers.append(current_user.id)
+        # Prevent self-follow
+        if current_user.id == @user.id
+            head :ok and return
         end
 
-        if !current_user.following.include?@user.id 
-            current_user.following.append(@user.id)
+        if @user.private?
+            # === Private profile ===
+            unless @user.pending_follow_requests.include?(current_user.id)
+            @user.pending_follow_requests << current_user.id
+            @user.save
+            end
+
+            # Optional notification (uncomment later)
+            FollowRequestNotifier.with(follower: current_user, followed_user: @user).deliver_later(@user)
+
+            flash.now[:notice] = "Follow request sent and is pending approval"
+
+        else
+            # === Public profile ===
+            @user.followers << current_user.id unless @user.followers.include?(current_user.id)
+            current_user.following << @user.id unless current_user.following.include?(@user.id)
+            
+            current_user.save
+            @user.save
+
+            flash.now[:notice] = "Following"
         end
+
+        # ← This is the clean part
+        respond_to do |format|
+            format.js 
+        end
+    end
+
+
+    def approve_follow_request
+        @requester = User.find(params[:follower_id])
+        @user = current_user 
+
+        if @user.pending_follow_requests.include?(@requester.id)
+            @user.pending_follow_requests.delete(@requester.id)
+
+            # Accept the follow
+            @user.followers << @requester.id unless @user.followers.include?(@requester.id)
+            @requester.following << @user.id unless @requester.following.include?(@user.id)
+
+            @user.save
+            @requester.save
+
+            flash.now[:notice] = "Follow request approved"
+
+            FollowApprovedNotifier.with( follower: @requester, followed_user: @user).deliver_later(@requester)
+        end
+
+        # Reload the list for the modal
+        @pending_requesters = User.where(id: @user.pending_follow_requests || [])
 
         respond_to do |format|
-            if current_user.save
-                if @user.save
-                    format.js
-                end
-            end
+            format.js { render 'refresh_follow_requests' }
+        end
+    end
+
+
+    def reject_follow_request
+        @requester = User.find(params[:follower_id])
+        @user = current_user
+
+        if @user.pending_follow_requests.include?(@requester.id)
+            @user.pending_follow_requests.delete(@requester.id)
+            @user.save
+
+            flash.now[:notice] = "Follow request rejected"
         end
 
+        # Reload the list for the modal
+        @pending_requesters = User.where(id: @user.pending_follow_requests || [])
+
+        respond_to do |format|
+            format.js { render 'refresh_follow_requests' }
+        end
     end
+
+
+    def show_follow_requests
+        @user = User.find(params[:id]) 
+
+        # Prevent nil error if the array is not initialized
+        pending_ids = @user.pending_follow_requests || []
+
+        @pending_requesters = User.where(id: pending_ids)
+
+        respond_to do |format|
+            format.js
+        end
+    end
+
 
     def unfollow
 
@@ -389,7 +477,7 @@ class UsersController < ApplicationController
         def user_params
             params.require(:user).permit(:email, :name, :username, :password, :password_confirmation, 
                                          :avatar, :mana, :votes, :darkmode, :font, 
-                                         :allownotifications, :emailnotifications, 
+                                         :allownotifications, :emailnotifications, :private_profile,
                                          :hooked, :following, :followers, :bio, :location)
         end
 

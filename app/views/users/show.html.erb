@@ -1,33 +1,36 @@
-<%
-    avatar_filepath = "default-avatar.svg"
-    if @user.avatar.attached?
-        avatar_filepath = @user.avatar.variant(resize_to_limit:[400, 400])
-    end
-%>
-
-
 <div id=presentation>
 
     <div id=avatarprofile>
 
-        <%= image_tag(avatar_filepath , class: "avatar_profile", id: 'avatar') %>
+    <%= image_tag(@avatar_filepath , class: "avatar_profile", id: 'avatar') %>
 
-        <% if logged_in? %>
-            
+    <% if logged_in? %>
+        
         <% if current_user == @user %>
-            <div id=editavatar class="d-none" >
-                <%= render 'changeavatar', user: current_user %>
-            </div>
-            <button id=editbutton class='btn'>Edit profile</button>
+        <!-- Owner sees Edit button -->
+        <div id=editavatar class="d-none" >
+            <%= render 'changeavatar', user: current_user %>
+        </div>
+        <button id=editbutton class='btn'>Edit profile</button>
+
         <% else %>
-            <% if current_user.following.include? @user.id %>
-                <%= link_to 'Unfollow', user_unfollow_path(@user), remote: true, class: 'btn' ,id:'followbutton' %>
-            <% else %>
-                <%= link_to 'Follow', user_follow_path(@user), remote: true, class: 'btn', id:'followbutton' %>
-            <% end %>
+        <!-- Visitor sees one of these 3 states -->
+        <% if @user.private? && @user.has_pending_follow_request_from?(current_user) %>
+            <!-- Pending follow request -->
+            <%= link_to 'Requested', '#', class: 'btn disabled', id: 'followbutton' %>
+        
+        <% elsif current_user.following.include?(@user.id) %>
+            <!-- Already approved follower -->
+            <%= link_to 'Unfollow', user_unfollow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
+        
+        <% else %>
+            <!-- Normal Follow button (public or private but no request yet) -->
+            <%= link_to 'Follow', user_follow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
         <% end %>
-            
         <% end %>
+        
+    <% end %>
+
     </div>
 
     <div id="infoprofile">
@@ -83,67 +86,83 @@
     <div class=pt-2 id=connections>
         <%=link_to @user.following.count.to_s + ' Following', user_show_following_path(@user), remote: true, class: 'follownb' %> 
         <%=link_to @user.followers.count.to_s + ' Followers', user_show_followers_path(@user), remote: true, class: 'follownb' %>
+
+        <%# Follow Requests link (only visible to owner) %>
+        <% if current_user == @user && @user.pending_follow_requests.any? %>
+            <%= link_to @user.pending_follow_requests.count.to_s + ' Follow Requests', 
+                        show_follow_requests_user_path(@user), 
+                        remote: true, 
+                        class: 'follownb text-warning' %>
+        <% end %>
     </div>
 
 </div>
 
 <div id="activity">
 
+  <%# === PRIVATE PROFILE CHECK === %>
+<% if @user.private? && current_user != @user && !current_user&.approved_follower?(@user) %>
+
+    <!-- Centered locker for private profiles -->
+    <div class="text-center py-5" style="padding-top: 120px;">
+        <%= image_tag 'lock.svg', size: '110x110', class: 'mb-4' %>
+        <h4>This profile is private</h4>
+        
+        <% if logged_in? %>
+        <p class="text-muted">Only approved followers can see the highlights and replies.</p>
+        <% else %>
+        <p class="text-muted">Log in to send a follow request and view this profile.</p>
+        <% end %>
+    </div>
+
+    <% else %>
+    <!-- Normal public / own / approved follower view -->
     <ul class="nav nav-tabs border-0" id="profiletabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="highlights-tab" data-bs-toggle="tab" data-bs-target="#highlights" type="button" role="tab" aria-controls="highlights" aria-selected="true">
-                <%=image_tag('berry.svg' , size:"25x25")%><%=@totalH%> Highlights 
-            </button>
-        </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="highlights-tab" data-bs-toggle="tab" data-bs-target="#highlights" type="button" role="tab" aria-controls="highlights" aria-selected="true">
+          <%=image_tag('berry.svg' , size:"25x25")%><%=@totalH%> Highlights 
+        </button>
+      </li>
 
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="myreplies-tab" data-bs-toggle="tab" data-bs-target="#myreplies" type="button" role="tab" aria-controls="myreplies" aria-selected="false">
-                <%=image_tag('honeypot.svg' , size:"25x25")%><%=@totalR%> Replies
-            </button>
-        </li>
-
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="myreplies-tab" data-bs-toggle="tab" data-bs-target="#myreplies" type="button" role="tab" aria-controls="myreplies" aria-selected="false">
+          <%=image_tag('honeypot.svg' , size:"25x25")%><%=@totalR%> Replies
+        </button>
+      </li>
     </ul>
-
 
     <div class="tab-content" id="profilecontent">
 
-        <div class="tab-pane fade show active" id="highlights" role="tabpanel" aria-labelledby="highlights-tab">
+      <div class="tab-pane fade show active" id="highlights" role="tabpanel" aria-labelledby="highlights-tab">
+        <% if @hookedhighlight != nil %>
+          <% if logged_in? && current_user == @user %>
+            <span class="hookedhighlight">
+              <a><span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%></a>
+            </span>
+            <%= render 'shared/userhook', hid: 'none', user: @user %>
+          <% else %>
+            <span class="hookedhighlight">
+              <span>Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
+            </span>
+          <% end %>
+          <%= render 'shared/post', highlight: @hookedhighlight %>
+          <hr>
+        <% end %>
 
-            <% if @hookedhighlight != nil %>
+        <% if @hrecords.count > 0 %>
+          <%= render "highlights/scrollable_list" %>
+        <% else %>
+          <div style="padding-top:80px;" class="text-center dimmed">
+            <%= image_tag 'empty_basket.png', size: '100x100'%>
+            <p> No highlights collected </p>
+          </div>
+        <% end %>
+      </div>
 
-                <% if logged_in? && current_user == @user %>
-                    <span class="hookedhighlight">
-                        <a><span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%></a>
-                    </span>
-                    <%= render 'shared/userhook', hid: 'none', user: @user %>
-                <% else %>
-                    <span class="hookedhighlight">
-                        <span>Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
-                    </span>
-                <% end %>
-
-                <%= render 'shared/post', highlight: @hookedhighlight %>
-                <hr>
-
-            <% end %>
-
-            <% if @hrecords.count > 0  %>
-
-              <%=render "highlights/scrollable_list" %>
-
-            <% else %>
-                <div style="padding-top:80px;" class="text-center dimmed">
-                    <%= image_tag 'empty_basket.png', size: '100x100'%>
-                    <p> No highlights collected </p>
-                </div>
-            <% end %>
-
-        </div>
-
-        <div class="tab-pane fade" id="myreplies" role="tabpanel" aria-labelledby="myreplies-tab"></div>
+      <div class="tab-pane fade" id="myreplies" role="tabpanel" aria-labelledby="myreplies-tab"></div>
 
     </div>
-
+  <% end %>
 
 </div>
 
@@ -187,12 +206,6 @@
 
 
     $('#followmodal').hide();
-    $('#followbutton').on('click', function(){
-
-        var txt = $(this).text();
-        if( txt == 'Follow') $(this).text('Unfollow');    
-        else if (txt == 'Unfollow') $(this).text('Follow');
-    });
 
 
     <% if current_user == @user %>

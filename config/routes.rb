@@ -93,6 +93,15 @@ Rails.application.routes.draw do
     patch 'update_data'
   end
 
+  resources :users do
+    member do
+      post   :follow
+      delete :unfollow
+      post   :approve_follow_request
+      post   :reject_follow_request
+      get    :show_follow_requests
+    end
+  end
 
   resources :documents do
       patch 'update_progress'
