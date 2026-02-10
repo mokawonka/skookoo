@@ -68,7 +68,12 @@ class UsersController < ApplicationController
         @totalH = Highlight.where(userid: @user.id).count
         @totalR = Reply.where(deleted: false).where(userid: @user.id).count
 
-        @pagy, @hrecords = pagy(Highlight.where(userid: @user.id), items: 7)
+
+        highlights = Highlight.where(userid: @user.id)
+        highlights = highlights.where.not(id: @hookedhighlight.id) if @hookedhighlight.present?
+
+        @pagy, @hrecords = pagy(highlights.order(created_at: :desc), items: 7)
+        
         render "highlights/_scrollable_list" if params[:page]
     end
 

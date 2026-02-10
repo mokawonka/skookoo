@@ -137,7 +137,7 @@
         <% if @hookedhighlight != nil %>
           <% if logged_in? && current_user == @user %>
             <span class="hookedhighlight">
-              <a><span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%></a>
+              <span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
             </span>
             <%= render 'shared/userhook', hid: 'none', user: @user %>
           <% else %>
