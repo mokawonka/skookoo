@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
     protect_from_forgery
-    skip_before_action :require_user, only: [:new, :create] 
+    skip_before_action :require_user, only: [:new, :create, :show] 
 
     before_action :authorize_user!, only: [:show_followers, :show_following, :show_replies, :follow, :unfollow, 
                                            :update_data, :update_profile, :update_votes, :switch_mode, :update_font, 
@@ -50,6 +50,10 @@ class UsersController < ApplicationController
 
     def show
         @user = User.find_by_username(params[:username])
+        
+        if @user.hooked != nil
+            @hookedhighlight = Highlight.find_by_id(@user.hooked)
+        end
 
         @totalH = Highlight.where(:userid => @user.id).count
         @totalR = Reply.where(:deleted => false).where(:userid => @user.id).count

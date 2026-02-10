@@ -109,29 +109,22 @@
 
         <div class="tab-pane fade show active" id="highlights" role="tabpanel" aria-labelledby="highlights-tab">
 
-            <% if @user.hooked != nil %>
-                <% hookedhighlight = Highlight.find_by_id(@user.hooked) %>
-                <% if hookedhighlight != nil %>
+            <% if @hookedhighlight != nil %>
 
-                    <% if logged_in? %>
-
-                        <% if current_user == @user %>
-                            <span class="hookedhighlight">
-                                <a><span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%></a>
-                            </span>
-                            <%= render 'shared/userhook', hid: 'none', user: @user %>
-                        <% else %>
-                            <span class="hookedhighlight">
-                                <span>Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
-                            </span>
-                        <% end %>
-
-                    <% end %>
-
-                    <%= render 'shared/post', highlight: hookedhighlight %>
-                    <hr>
-
+                <% if logged_in? && current_user == @user %>
+                    <span class="hookedhighlight">
+                        <a><span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%></a>
+                    </span>
+                    <%= render 'shared/userhook', hid: 'none', user: @user %>
+                <% else %>
+                    <span class="hookedhighlight">
+                        <span>Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
+                    </span>
                 <% end %>
+
+                <%= render 'shared/post', highlight: @hookedhighlight %>
+                <hr>
+
             <% end %>
 
             <% if @hrecords.count > 0  %>
