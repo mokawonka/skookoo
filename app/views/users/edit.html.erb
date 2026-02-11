@@ -86,9 +86,16 @@ My settings
             <p class='updater-title'>Private profile</p>
 
             <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
-              <%= form.check_box :private_profile , onclick: "$('#submitprivateprofile').click();" %>
-              <%= form.label 'Enabled', style: 'margin-left: 1em' %>
-              <%= form.submit "", id: "submitprivateprofile", class: 'd-none'%>
+              
+              <div class="custom-toggle">
+                <%= form.check_box :private_profile, id: "private_profile_toggle", onclick: "$('#submitprivateprofile').click();" %>
+                <label for="private_profile_toggle" class="toggle-label">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-text">Enabled</span>
+              </div>
+
+              <%= form.submit "", id: "submitprivateprofile", class: 'd-none' %>
             <% end %>
 
           </div>
@@ -103,16 +110,28 @@ My settings
             <p class='updater-title'>Real-time notifications</p>
 
             <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
-              <%= form.check_box :allownotifications , onclick: "$('#submitallownotifs').click();" %>
-              <%= form.label 'Enabled', style: 'margin-left: 1em' %>
+              <div class="custom-toggle">
+                <%= form.check_box :allownotifications, id: "allow_notifs_toggle", onclick: "$('#submitallownotifs').click();" %>
+                <label for="allow_notifs_toggle" class="toggle-label">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-text">Enabled</span>
+              </div>
               <%= form.submit "", id: "submitallownotifs", class: 'd-none'%>
             <% end %>
+
             <hr>
+            
             <p class='updater-title'>Email notifications</p>
 
             <%= form_with(model: current_user, url: [current_user, :update_data], local: false) do |form| %>
-              <%= form.check_box :emailnotifications , onclick: "$('#submitemailnotifs').click();" %>
-              <%= form.label 'Enabled', style: 'margin-left: 1em' %>
+              <div class="custom-toggle">
+                <%= form.check_box :emailnotifications, id: "email_notifs_toggle", onclick: "$('#submitemailnotifs').click();" %>
+                <label for="email_notifs_toggle" class="toggle-label">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-text">Enabled</span>
+              </div>
               <%= form.submit "", id: "submitemailnotifs", class: 'd-none'%>
             <% end %>
 
