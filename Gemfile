@@ -51,6 +51,7 @@ gem "redis", "~> 5.0"
 
 gem "aws-sdk-s3", require: false
 
+gem 'google-cloud-ai_platform' 
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false

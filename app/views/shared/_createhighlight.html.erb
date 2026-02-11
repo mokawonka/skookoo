@@ -17,6 +17,55 @@
 
     <br><br>
 
+    <button id="definitionbutton" class="btn btn-sm btn-outline-success border-2 m-1">
+        <%=image_tag('watermelon.svg', class: 'panel-icon')%><span class=panel-icon-text>Explain it</span>
+    </button>
+
+    <button id="imaginebutton" class="btn btn-sm border-2 m-1 btn-imagine">
+        <%=image_tag('grapes.svg', class: 'panel-icon')%><span class="panel-icon-text">Imagine it</span>
+    </button>
+
+    <div class="modal fade" id="definitionModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Explanation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-5" id="definition-content">
+                    <div id="loading-spinner">
+                        <div class="spinner-border text-dark mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                        <p class="text-muted">Generating...</p>
+                    </div>
+                    <div id="definition-result" class="d-none"></div>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-4">
+                    <button id="vocabbutton" type="button" class="btn btn-success px-5 py-2" data-bs-dismiss="modal" disabled>
+                        Add to vocabulary
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="imagineModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Imagination</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-5" id="imagine-content">
+                    <div id="imagine-loading">
+                        <div class="spinner-border text-dark mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+                        <p class="text-muted">Generating image...</p>
+                    </div>
+                    <div id="imagine-result" class="d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <%= form_with(scope: :highlight, url: richcomment_path, local: false, html: {id: "commentform"}) do |f| %>
         <div class="field">
             <%= f.text_area :quote, { :id => 'cquote', :class => "d-none"} %>
@@ -81,28 +130,12 @@
     <div id="emojiresults" class="flex-container"></div>
 
 
-
-    <button id="ideabutton" class="btn btn-sm btn-outline-danger border-2 m-1">
-        <%=image_tag('apple.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to ideas</span>
-    </button>
-    <button id="vocabbutton" class="btn btn-sm btn-outline-success border-2 m-1">
-        <%=image_tag('lemon.svg', class: 'panel-icon')%><span class=panel-icon-text>Add to vocabulary</span>
-    </button>
-
-
-
     <form hidden action="/expressions" method="post" data-remote="true" role="form">
         <textarea id=vcontent name="expression[content]"></textarea>
+        <textarea id=vdefinition name="expression[definition]"></textarea>
         <textarea id=vcfi name="expression[cfi]"></textarea>
         <input id=vdocid name="expression[docid]">
         <button id="railsvocabbutton" type=submit>Ok</button>
-    </form>
-
-    <form hidden action="/ideas" method="post" data-remote="true" role="form">
-        <textarea id=icontent name="idea[content]"></textarea>
-        <textarea id=icfi name="idea[cfi]"></textarea>
-        <input id=idocid name="idea[docid]">
-        <button id="railsideabutton" type=submit>Ok</button>
     </form>
 
 
@@ -327,21 +360,11 @@
 
         $('#vcontent').text($('#highlight').text());
         $('#vcfi').text($('#cfi').text());
+        $('#vdefinition').text($('#definition-content').text());
         $('#vdocid').val(documentid);
 
         // because form is hidden
         $('#railsvocabbutton').click();
-    });
-
-
-    $("#ideabutton").click(function(){
-
-        $('#icontent').text($('#highlight').text());
-        $('#icfi').text($('#cfi').text());
-        $('#idocid').val(documentid);
-
-        // because form is hidden
-        $('#railsideabutton').click();
     });
 
     // copy highlighted text to clipboard
@@ -366,6 +389,46 @@
     $('#highlightmodal').on('click', '#copytext', function(){
         copytoclip($('#highlight blockquote').text());
         $(this).text("Copied");
+    });
+
+
+    // View Definition
+    $('#definitionbutton').on('click', function(){
+        var text = $('#highlight blockquote').text().trim();
+        
+        $('#definitionModal').modal('show');
+        
+        $('#loading-spinner').removeClass('d-none');
+        $('#definition-result').addClass('d-none');
+        $('#vocabbutton').prop('disabled', true);
+
+        $.post('/gemini/define', { text: text }, function(data){
+            $('#loading-spinner').addClass('d-none');
+            $('#definition-result').html(data.html).removeClass('d-none');
+            $('#vocabbutton').prop('disabled', false);
+        }).fail(function(){
+            $('#loading-spinner').addClass('d-none');
+            $('#definition-result').html('<p class="text-danger">Failed to get definition.</p>').removeClass('d-none');
+            $('#vocabbutton').prop('disabled', true);
+        });
+    });
+
+
+    $('#imaginebutton').on('click', function(){
+        var text = $('#highlight blockquote').text().trim();
+        
+        $('#imagineModal').modal('show');
+        
+        $('#imagine-loading').removeClass('d-none');
+        $('#imagine-result').addClass('d-none');
+
+        $.post('/gemini/imagine', { text: text }, function(data){
+            $('#imagine-loading').addClass('d-none');
+            $('#imagine-result').html(data.html).removeClass('d-none');
+        }).fail(function(){
+            $('#imagine-loading').addClass('d-none');
+            $('#imagine-result').html('<p class="text-danger">Failed to generate image.</p>').removeClass('d-none');
+        });
     });
 
 </script>

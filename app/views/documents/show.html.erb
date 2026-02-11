@@ -374,7 +374,6 @@
                                            "style": "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;", "onmouseenter": "this.style.fillOpacity='0.4'", "onmouseleave": "this.style.fillOpacity='0.2'"})
         <% end %>
 
-
         <% if logged_in? && current_user.id == @document.userid %> // if user is owner of the document
 
 
@@ -444,19 +443,6 @@
                                       
                                       } , 
                                       "hl", {"fill": "green", "fill-opacity": "0.3", "mix-blend-mode": "multiply"})
-
-          <% end %>
-
-
-          // loading ideas / private
-          <% @ideas.each do |idea| %>
-
-            rendition.annotations.add("highlight", "<%=idea.cfi%>", 
-                                      {}, 
-                                      (e) => {
-                                        
-                                      } , 
-                                      "hl", {"fill": "red", "fill-opacity": "0.3", "mix-blend-mode": "multiply"})
 
           <% end %>
 

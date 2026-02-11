@@ -23,6 +23,8 @@ Rails.application.routes.draw do
   post 'highlights/:id' => 'highlights#show'
   post "richcomment" , to: 'highlights#create'
 
+  post '/gemini/define',  to: 'gemini#define'
+  post '/gemini/imagine', to: 'gemini#imagine'
 
   get "newdocument", to: "epubs#new"
 
@@ -32,7 +34,6 @@ Rails.application.routes.draw do
   get "signup", to: "users#new"
   get "mysettings", to: "users#edit"
 
-  get "myideas", to: "ideas#index"
   get "myvocab", to: "expressions#index"
 
   get "search", to: "pages#search"
@@ -116,7 +117,6 @@ Rails.application.routes.draw do
     patch 'update_score'
   end
 
-  resources :ideas
   resources :expressions
 
   # Agent API (for AI bots)

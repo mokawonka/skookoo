@@ -51,7 +51,7 @@ class ExpressionsController < ApplicationController
     private
   
     def expression_params
-        params.require(:expression).permit(:userid, :docid, :cfi, :content)
+        params.require(:expression).permit(:userid, :docid, :cfi, :content, :definition)
     end
   
   end

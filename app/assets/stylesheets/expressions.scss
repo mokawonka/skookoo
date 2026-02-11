@@ -1,0 +1,45 @@
+.vocabulary-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.vocabulary-card .card-header {
+  background: #ebebebd9;
+  padding: 12px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.content-text {
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #2c3e50;
+}
+
+.definition-text {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #34495e;
+}
+
+.definition-text .text-muted {
+  font-style: italic;
+}
+
+.vocabulary-card hr {
+  margin: 20px 0;
+  border-color: #f0f0f0;
+}
+
+.content-text {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+.content-text:hover {
+  text-decoration: underline;
+  color: #0951a9;   /* optional hover effect */
+}

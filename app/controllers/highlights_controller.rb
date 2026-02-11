@@ -1,4 +1,5 @@
 class HighlightsController < ApplicationController
+  skip_before_action :require_user, only: [:show]
   skip_before_action :verify_authenticity_token
   before_action :authorize_user! , only: [:create, :destroy, :update_score]
   # before_action :check_timestamp , only: [:create, :destroy, :update_score]

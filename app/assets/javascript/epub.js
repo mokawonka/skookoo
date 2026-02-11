@@ -3322,12 +3322,43 @@ function replaceLinks(contents, fn) {
       }
 
       link.onclick = function () {
-        if (linkUrl && linkUrl.hash) {
-          fn(linkUrl.Path.path + linkUrl.hash);
-        } else if (linkUrl) {
-          fn(linkUrl.Path.path);
+        let target = href;
+
+        // Clean absolute URL
+        if (target.indexOf("://") > -1) {
+          try {
+            const url = new URL(target);
+            target = url.pathname + (url.hash || "");
+            if (target.startsWith("/")) target = target.substring(1);
+          } catch (e) {}
+        }
+
+        // Extract just the filename (e.g. "chapter011.html")
+        const filename = target.split("/").pop();
+
+        // console.log("→ Filename from TOC:", filename);
+
+        // Find the correct full href from the spine
+        let finalHref = null;
+        if (typeof book !== "undefined" && book.spine && book.spine.spineItems) {
+          for (let item of book.spine.spineItems) {
+            if (item.href && item.href.endsWith(filename)) {
+              finalHref = item.href;
+              break;
+            }
+          }
+        }
+
+        if (finalHref) {
+          // console.log("→ Found matching spine item →", finalHref);
+          
+          if (typeof rendition !== "undefined" && rendition.display) {
+            rendition.display(finalHref);
+          } else if (typeof window.rendition !== "undefined") {
+            window.rendition.display(finalHref);
+          }
         } else {
-          fn(href);
+          console.error("Could not find matching section for:", filename);
         }
 
         return false;

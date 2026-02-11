@@ -135,3 +135,33 @@
 .arrow:active {
   color: #000;
 }
+
+
+#definitionModal,
+#imagineModal {
+  z-index: 1060 !important;
+}
+
+#definitionModal .modal-backdrop,
+#imagineModal .modal-backdrop {
+  z-index: 1059 !important;
+}
+
+.btn-imagine {
+  color: #9b59b6 !important;
+  border-color: #9b59b6 !important;
+  background-color: transparent !important;
+}
+
+.btn-imagine:hover {
+  background-color: #9b59b6 !important;
+  color: white !important;
+  border-color: #9b59b6 !important;
+}
+
+.btn-imagine:active,
+.btn-imagine:focus {
+  background-color: #8e44ad !important;
+  color: white !important;
+  border-color: #8e44ad !important;
+}

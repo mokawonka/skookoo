@@ -93,86 +93,82 @@ class EpubsController < ApplicationController
 
 
     def create
+      @epub = Epub.new(epub_params)
 
-      # save epub to db
-        @epub = Epub.new(epub_params)
-
-
-        filename = @epub.epub_on_disk
-        if (filename == -1) # checking type on server
-          flash.now[:alert] = "File must be an epub"
-          render :new
-          return
+      # === File type validation ===
+      unless @epub.epub_file.attached? && @epub.epub_file.content_type == "application/epub+zip"
+        respond_to do |format|
+          format.js do
+            render inline: <<-JS
+              $('#uploadStatus').html('<p style="color:red;" class="pt-3">File must be an .epub file</p>');
+              $('input[type="file"]').val('');
+              $('input[type="file"]').prop('disabled', false);
+            JS
+          end
+          format.html do
+            flash.now[:alert] = "File must be an .epub file"
+            render :new
+          end
         end
+        return
+      end
 
-
+      # === Rest of the code (save + parsing) ===
+      if @epub.save
         begin
-          reader = EPUB::Parser.parse(filename)
-        rescue
-          respond_to do |format|
-              format.js {render inline: "$('#uploadStatus').html('<p style=color:red class=pt-3>Your epub file seems corrupted. Please try again with another one.</p>');" }
-          end
-          
-        else
+          temp_path = nil
+          @epub.epub_file.blob.open do |tempfile|
+            temp_path = tempfile.path
 
-          @epub.title = reader.metadata.title
-          @epub.authors = reader.metadata.creators[0].to_s.split(";").join(", ")
-          @epub.lang = reader.metadata.languages[0].content
-          @epub.sha3 = SHA3::Digest.file(filename).hexdigest
-          @epub.public_domain = false # Uploaded epubs are not public 
+            reader = EPUB::Parser.parse(temp_path)
 
-          # get cover pic
-          if reader.cover_image
-    
-            temp_dir = File.join(Dir.tmpdir, "ebook" + $$.to_s)
-            Zip::File.open(filename) do |zipfile|
-              zipfile.each do |file|
-    
-                if File.basename(file.to_s) == File.basename(reader.cover_image.href)
-    
-                  f_path = File.join(temp_dir, file.name)
-                  FileUtils.mkdir_p(File.dirname(f_path))
-                  zipfile.extract(file, f_path)
-    
-                  @epub.cover = f_path
-    
-                  #deleting tmp folder
-                  FileUtils.rm_rf temp_dir
-                end
-              end
+            @epub.title   = reader.metadata.title
+            @epub.authors = reader.metadata.creators.map(&:to_s).join(", ")
+            @epub.lang    = reader.metadata.languages.first&.content || "en"
+            @epub.sha3    = SHA3::Digest.file(temp_path).hexdigest
+            @epub.public_domain = false
+
+            if reader.cover_image
+              Epub.extract_cover_from_epub(temp_path, reader.cover_image.href, @epub)
             end
-    
-          end
-    
-          if @epub.save
-                # create document
-                @document = Document.new
-                @document.userid  = session[:user_id]      
-                @document.epubid  = @epub.id
-                @document.title   = @epub.title
-                @document.authors = @epub.authors
-                @document.ispublic = @epub.public_domain
 
-                if @document.save
-                    flash[:notice] = "Document added successfully."
-                    respond_to do |format|
-                      format.html { redirect_to documents_path }
-                      format.js do
-                        render js: "window.location = '#{documents_path}';"
-                      end
-                    end
-                else
-                    flash.now[:notice] = "Document creation failed"
-                    render :file => 'public/500.html'
-                end
+            @epub.save!
+          end
+
+          # Create Document...
+          @document = Document.new(
+            userid: session[:user_id],
+            epubid: @epub.id,
+            title: @epub.title,
+            authors: @epub.authors,
+            ispublic: false
+          )
+
+          if @document.save
+            respond_to do |format|
+              format.html { redirect_to documents_path }
+              format.js   { render js: "window.location = '#{documents_path}';" }
+            end
           else
-              flash.now[:notice] = "Epub upload failed."
-              render :file => 'public/500.html'
+            @epub.destroy
+            respond_to do |format|
+              format.js { render inline: "$('#uploadStatus').html('<p style=\"color:red;\" class=\"pt-3\">Document creation failed.</p>');" }
+            end
           end
 
+        rescue => e
+          @epub.destroy
+          respond_to do |format|
+            format.js { render inline: "$('#uploadStatus').html('<p style=\"color:red;\" class=\"pt-3\">Your epub file seems corrupted. Please try again.</p>');" }
+          end
         end
-        
+      else
+        respond_to do |format|
+          format.js { render inline: "$('#uploadStatus').html('<p style=\"color:red;\" class=\"pt-3\">Failed to upload file.</p>');" }
+        end
+      end
     end
+
 
 
     def createfromdb
