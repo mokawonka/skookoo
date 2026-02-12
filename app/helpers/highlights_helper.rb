@@ -35,4 +35,14 @@ module HighlightsHelper
   end
 
 
+  def normalize_quotes(text)
+    return "" if text.blank?
+
+    text
+      .gsub(/[\u2018\u2019]/, "'")      # curly single → straight
+      .gsub(/[\u201C\u201D]/, '"')      # curly double → straight
+      .gsub(/[\u2026]/, "...")          # ellipsis
+      .gsub(/[\u2013\u2014]/, "-")      # en/em dash → hyphen
+  end
+
 end

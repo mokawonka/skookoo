@@ -48,6 +48,21 @@ class HighlightsController < ApplicationController
     # for the user who wants to comment later on
     @reply = Reply.new
 
+    set_meta_tags(
+      title: @highlight.fromtitle,
+      description: @highlight.quote.truncate(160),
+      og: {
+        title: @highlight.fromtitle,
+        description: @highlight.quote.truncate(160),
+        image: @highlight.og_image.url,  # URL to the generated image
+        url: request.url
+      },
+      twitter: {
+        card: 'summary_large_image',
+        image: @highlight.og_image.url
+      }
+    )
+
   end
 
 

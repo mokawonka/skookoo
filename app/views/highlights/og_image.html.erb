@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <!-- Load League Spartan Bold from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 900;           /* Boldest weight available */
+      background-color: #0951a9;
+      color: #ffffff;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: 1100px;              /* Slightly inset for better breathing room */
+      max-width: 92%;
+      height: 580px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .quote {
+      font-size: 48px;            /* Bigger than attribution */
+      font-weight: 900;
+      line-height: 1.28;
+      margin: 0 0 32px 0;
+      padding: 0 40px;
+      letter-spacing: -0.5px;
+    }
+
+    .quote::before,
+    .quote::after {
+      font-size: 80px;
+      position: relative;
+      top: 8px;
+      line-height: 0;
+    }
+
+    .quote::before {
+      margin-right: 8px;
+      content: '\201C';
+    }
+
+    .quote::after {
+      content: '\201D';  
+      margin-left: 8px;
+    }
+
+    .attribution {
+      font-size: 32px;            /* Smaller than quote */
+      font-weight: 800;
+      opacity: 0.95;
+      margin: 0;
+      color: rgb(255, 214, 11);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p class="quote"><%= normalize_quotes(@highlight.quote.truncate(180)) %></p>
+    <p class="attribution"><%= @highlight.fromauthors %></p>
+  </div>
+</body>
+</html>

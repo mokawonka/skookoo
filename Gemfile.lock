@@ -198,6 +198,8 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
+    grover (1.2.8)
+      nokogiri (~> 1)
     grpc (1.78.0-arm64-darwin)
       google-protobuf (>= 3.25, < 5.0)
       googleapis-common-protos-types (~> 1.0)
@@ -248,6 +250,8 @@ GEM
       net-smtp
     marcel (1.1.0)
     matrix (0.4.3)
+    meta-tags (2.22.3)
+      actionpack (>= 6.0.0)
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
@@ -431,11 +435,13 @@ DEPENDENCIES
   email_validator
   epub-parser (~> 0.5.0)
   google-cloud-ai_platform
+  grover
   henkei (~> 2.3)
   image_processing (~> 1.2)
   importmap-rails
   jbuilder (~> 2.7)
   listen (~> 3.3)
+  meta-tags
   net-imap
   net-pop
   net-smtp

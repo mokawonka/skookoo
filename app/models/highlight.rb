@@ -1,7 +1,10 @@
 class Highlight < ApplicationRecord
     # belongs_to :document
+    after_create_commit :generate_og_image
 
     has_rich_text :comment
+    
+    has_one_attached :og_image
 
     attribute :score, :integer, default: 0
 
@@ -34,6 +37,12 @@ class Highlight < ApplicationRecord
     using: {
         tsearch: { prefix: true }
     }
+
+  private
+
+  def generate_og_image
+    GenerateOgImageJob.perform_later(self)
+  end
 
     
 end

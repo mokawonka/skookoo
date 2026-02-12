@@ -49,6 +49,9 @@ gem "noticed", "~> 2.9"
 gem 'turbo-rails'
 gem "redis", "~> 5.0"
 
+gem 'grover'
+gem 'meta-tags'
+
 gem "aws-sdk-s3", require: false
 
 gem 'google-cloud-ai_platform' 
