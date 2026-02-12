@@ -9,49 +9,56 @@ class PagesController < ApplicationController
 
 
 
-
   def home
-    @pagy, @records = pagy(Highlight.all, items: 21)
+    sort = params[:sort] || 'new'
 
-    respond_to do |format|
-      format.js
-      format.html
+    highlights = Highlight.all
+    if sort == 'top'
+      highlights = highlights.order(score: :desc)
+    else
+      highlights = highlights.order(created_at: :desc)
     end
 
+    @pagy, @records = pagy(highlights, items: 21)
+
+    respond_to do |format|
+      format.js 
+      format.html
+    end
   end
 
 
 
   def search
-
     @query = params[:query]
 
     if @query.blank?
       redirect_to root_path
     else
-
       @fromhighlights = Highlight.global_search(@query)
-      
       @pagy, @highlights = pagy(@fromhighlights, items: 21)
-
     end
-
   end
 
-  
 
-  def filter
+
+  def following
     following_ids = current_user.following || []
 
-    @bulkfiltered = Highlight
-      .where(userid: following_ids)
-      .order(created_at: :desc)
+    sort = params[:sort] || 'new' 
 
-    @pagy, @filtered = pagy(@bulkfiltered, items: 21)
+    bulkfiltered = Highlight.where(userid: following_ids)
+    
+    if sort == 'top'
+      bulkfiltered = bulkfiltered.order(score: :desc) 
+    else
+      bulkfiltered = bulkfiltered.order(created_at: :desc)
+    end
+
+    @pagy, @records = pagy(bulkfiltered, items: 21)
 
     respond_to do |format|
-      format.js
+      format.js 
     end
   end
-
 end

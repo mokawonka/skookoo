@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   root 'pages#home'
 
   get 'pages/home' => 'pages#home'
-  get 'pages/following', to: 'pages#filter'
+  get 'pages/following', to: 'pages#following'
 
   get 'users/:username' => 'users#show'
   get 'users/:id/show_following' => 'users#show_following'
