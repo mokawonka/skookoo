@@ -15,14 +15,13 @@
       <div class="highlightactions">
         <span><a class="hshare">share</a></span>
 
+        <% if document != nil %>
+            <span class=gray style='padding-right: 1em'>
+              <%= link_to 'view in book', document_path(highlight.docid) + '?cfi=' + highlight.cfi %>
+            </span>
+        <% end %>
+
         <% if logged_in? %>
-
-          <% if Document.find_by_id(highlight.docid) != nil %>
-              <span class=gray style='padding-right: 1em'>
-                <%= link_to 'view in book', document_path(highlight.docid) + '?cfi=' + highlight.cfi %>
-              </span>
-          <% end %>
-
 
           <% if current_user.hooked == highlight.id %>
               <span class=gray style='padding-right: 1em'>already hooked</span>

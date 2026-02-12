@@ -1,4 +1,5 @@
 class DocumentsController < ApplicationController
+  skip_before_action :require_user, only: [:show]
   protect_from_forgery except: :progress
   before_action :authorize_user!, only: [:create, :index, :destroy, :edit,
                                          :update, :update_locations, :update_progress]
