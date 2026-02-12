@@ -165,3 +165,118 @@
   color: white !important;
   border-color: #8e44ad !important;
 }
+
+/////////////////////////// TOC PANEL ////////////////////////////
+:root {
+  --headbar-height: 75px;
+}
+
+.toolbar { 
+  position: fixed; 
+  top: var(--headbar-height); 
+  left: 0; 
+  padding:0 !important;
+}
+
+#toc-button {
+  background: #0951a9;
+  color: white;
+  border: none;
+  width: 36px;                  /* quite narrow */
+  height: 120px;                /* shorter height */
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  box-shadow: 3px 4px 12px rgba(0,0,0,0.35);
+  transition: all 0.25s ease;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+#toc-button:hover {
+  background: #0a5fc9;
+  width: 42px;
+  box-shadow: 5px 7px 18px rgba(0,0,0,0.45);
+}
+
+  /* Hide button when sidebar is open */
+.toc-sidebar.open ~ .toolbar {
+  display: none;
+}
+
+.toc-sidebar {
+  position: fixed;
+  top: var(--headbar-height);
+  left: 0;
+  width: 320px !important;
+  height: calc(100vh - var(--headbar-height));
+  background: #f8f9fa;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+  transform: translateX(-100%);
+  transition: transform .3s ease;
+  z-index: 999;
+  overflow-y: auto;           /* important: enables scrolling */
+  display: flex;              /* ← new */
+  flex-direction: column;     /* ← new */
+}
+
+.toc-sidebar.open {
+  transform: translateX(0);
+}
+
+/* Make header fixed/sticky at the top of the sidebar */
+.toc-header {
+  background: #0951a9;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;             /* ← important: don't let it shrink */
+  position: sticky;           /* ← the key property */
+  top: 0;                     /* sticks to top of the scrolling container */
+  z-index: 10;                /* stays above the scrolling content */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15); /* optional: subtle shadow when scrolling */
+}
+
+/* The scrolling part (chapters list) */
+.toc-list {
+  padding: 10px;
+  flex-grow: 1;               /* ← takes remaining space */
+  overflow-y: auto;           /* just in case — usually not needed */
+}
+
+/* Rest remains the same */
+.toc-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+#close-toc {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.toc-list { padding: 10px; }
+.toc-list ul { list-style: none; padding-left: 15px; }
+.toc-list a {
+  color: #333; 
+  text-decoration: none; 
+  padding: 6px 8px; 
+  display: block;
+}
+.toc-list a:hover { 
+  background: #e9ecef; 
+  border-radius: 4px; 
+}

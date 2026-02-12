@@ -148,8 +148,21 @@
             </div>
           </div>
 
-      </div>
+          <div id="toc-toolbar" class="toolbar">
+            <button id="toc-button">
+              Table
+            </button>
+          </div>
 
+          <div id="toc-sidebar" class="toc-sidebar">
+            <div class="toc-header">
+              <h2>Table of Contents</h2>
+              <button id="close-toc">✕</button>
+            </div>
+            <div id="toc-list" class="toc-list"></div>
+          </div>
+
+      </div>
 
       <script>
 
@@ -157,6 +170,76 @@
 
         var rendition = book.renderTo("viewer", { method: "continuous", flow: "scrolled",  width: "100%" , iframe: false});
 
+        function initTOC() {
+          const toolbar = document.getElementById('toc-toolbar');
+          const sidebar = document.getElementById('toc-sidebar');
+          const tocButton = document.getElementById('toc-button');
+          const closeToc = document.getElementById('close-toc');
+          const tocList = document.getElementById('toc-list');
+
+          if (!tocButton || !sidebar) return;
+
+          // Toggle sidebar + hide/show button
+          function toggleSidebar() {
+            const isOpen = sidebar.classList.toggle('open');
+            toolbar.style.display = isOpen ? 'none' : 'block';
+          }
+
+          function closeSidebar() {
+            sidebar.classList.remove('open');
+            toolbar.style.display = 'block';
+          }
+
+          // Attach listeners (safe even if called multiple times)
+          tocButton.onclick = toggleSidebar;
+          closeToc.onclick = closeSidebar;
+
+          // Render TOC when book is ready
+          if (typeof book !== 'undefined') {
+            book.ready.then(() => {
+              renderTOC();
+            });
+          }
+        }
+
+        function renderTOC() {
+          const tocList = document.getElementById('toc-list');
+          if (!tocList) return;
+          tocList.innerHTML = '';
+
+          function buildList(items) {
+            const ul = document.createElement('ul');
+            items.forEach(item => {
+              const li = document.createElement('li');
+              const a = document.createElement('a');
+              a.href = '#';
+              a.textContent = item.label;
+              a.onclick = (e) => {
+                e.preventDefault();
+                if (typeof rendition !== 'undefined') {
+                  rendition.display(item.href);
+                }
+                // Optional: auto-close sidebar after click
+                // document.getElementById('toc-sidebar').classList.remove('open');
+              };
+              li.appendChild(a);
+
+              if (item.subitems && item.subitems.length) {
+                li.appendChild(buildList(item.subitems));
+              }
+              ul.appendChild(li);
+            });
+            return ul;
+          }
+
+          if (book?.navigation?.toc) {
+            tocList.appendChild(buildList(book.navigation.toc));
+          }
+        }
+
+        // Run on page load and Turbo navigation
+        document.addEventListener('turbo:load', initTOC);
+        initTOC();   // also run immediately
 
         book.ready.then(function() {
 
