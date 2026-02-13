@@ -149,9 +149,8 @@
           </div>
 
           <div id="toc-toolbar" class="toolbar">
-            <button id="toc-button">
-              Table
-            </button>
+            <button id="toc-button">Table</button>
+            <button id="settings-button">Settings</button>
           </div>
 
           <div id="toc-sidebar" class="toc-sidebar">
@@ -162,6 +161,49 @@
             <div id="toc-list" class="toc-list"></div>
           </div>
 
+          <div id="settings-panel" class="settings-panel">
+            <div class="settings-header">
+              <h2>Reader Settings</h2>
+              <button id="close-settings">✕</button>
+            </div>
+            <div class="settings-content">
+
+              <!-- Font Size -->
+              <div class="setting">
+                <label>Font Size</label>
+                <div class="slider-container">
+                  <input type="range" id="font-size-slider" min="12" max="36" value="18" step="1">
+                  <span id="font-size-value">18px</span>
+                </div>
+              </div>
+
+              <!-- Line Spacing -->
+              <div class="setting">
+                <label>Line Spacing</label>
+                <div class="slider-container">
+                  <input type="range" id="line-height-slider" min="1.0" max="3.0" value="1.6" step="0.1">
+                  <span id="line-height-value">1.6</span>
+                </div>
+              </div>
+
+              <!-- Palette -->
+              <div class="setting">
+                <label>Background Palette</label>
+                <div class="palette">
+                  <button class="color-btn active" data-bg="#ffffff" data-color="#111111" style="background:#ffffff;"></button>
+                  <button class="color-btn" data-bg="#f4ecd8" data-color="#3c2f2f" style="background:#f4ecd8;"></button>
+                  <button class="color-btn" 
+                          data-bg="#f5e8c7" 
+                          data-color="#3c2f2f" 
+                          style="background: #f5e8c7 url('<%= asset_path('textures/parchment.jpg') %>') repeat center / auto;">
+                  </button>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
       </div>
 
       <script>
@@ -170,6 +212,122 @@
 
         var rendition = book.renderTo("viewer", { method: "continuous", flow: "scrolled",  width: "100%" , iframe: false});
 
+        /* ────── SETTINGS (global, survives Turbo) ────── */
+        if (typeof window.ebookSettings === 'undefined') {
+          window.ebookSettings = {
+            fontSize: 18,
+            lineHeight: 1.6,
+            bgColor: "#ffffff",
+            textColor: "#111111"
+          };
+        }
+
+        function getSetting(key) { return window.ebookSettings[key]; }
+        function setSetting(key, value) {
+          window.ebookSettings[key] = value;
+          localStorage.setItem("ebookSettings", JSON.stringify(window.ebookSettings));
+        }
+
+        function applyEbookStyles() {
+          if (typeof rendition === "undefined" || !rendition.getContents) return;
+          
+          rendition.getContents().forEach(content => {
+            try {
+              const doc = content.document;
+              if (doc && doc.body) {
+                doc.body.style.fontSize = getSetting('fontSize') + "px";
+                doc.body.style.lineHeight = getSetting('lineHeight');
+                doc.body.style.color = getSetting('textColor');
+
+                const bg = getSetting('bgColor');
+
+                if (bg === '#f5e8c7') {
+                  doc.body.style.backgroundColor = '#f5e8c7';
+                  doc.body.style.backgroundImage = `url("<%= asset_path('textures/parchment.jpg') %>")`;
+                  console.log( doc.body.style.backgroundImage);
+                  doc.body.style.backgroundRepeat = 'repeat';
+                  doc.body.style.backgroundSize = 'auto';        
+                } else {
+                  doc.body.style.backgroundColor = bg;
+                  doc.body.style.backgroundImage = 'none';
+                }
+              }
+            } catch (e) {}
+          });
+        }
+
+        function loadSettings() {
+          const saved = localStorage.getItem("ebookSettings");
+          if (saved) {
+            const s = JSON.parse(saved);
+            window.ebookSettings.fontSize = s.fontSize || 18;
+            window.ebookSettings.lineHeight = s.lineHeight || 1.6;
+            window.ebookSettings.bgColor = s.bgColor || "#ffffff";
+            window.ebookSettings.textColor = s.textColor || "#111111";
+          }
+          const fs = document.getElementById("font-size-slider");
+          const fv = document.getElementById("font-size-value");
+          if (fs && fv) { fs.value = getSetting('fontSize'); fv.textContent = getSetting('fontSize') + "px"; }
+          const ls = document.getElementById("line-height-slider");
+          const lv = document.getElementById("line-height-value");
+          if (ls && lv) { ls.value = getSetting('lineHeight'); lv.textContent = getSetting('lineHeight').toFixed(1); }
+        }
+
+        function initSettings() {
+          const button = document.getElementById("settings-button");
+          const panel = document.getElementById("settings-panel");
+          const toolbar = document.getElementById("toc-toolbar");
+          const closeBtn = document.getElementById("close-settings");
+
+          if (!button || !panel) {
+            setTimeout(initSettings, 80);
+            return;
+          }
+
+          function togglePanel() {
+            const isOpen = panel.classList.toggle("open");
+            if (toolbar) toolbar.style.display = isOpen ? "none" : "flex";
+          }
+
+          button.onclick = togglePanel;
+          if (closeBtn) closeBtn.onclick = () => {
+            panel.classList.remove("open");
+            if (toolbar) toolbar.style.display = "flex";
+          };
+
+          // Sliders
+          const fontSlider = document.getElementById("font-size-slider");
+          const fontValue = document.getElementById("font-size-value");
+          if (fontSlider) fontSlider.oninput = e => {
+            setSetting('fontSize', parseInt(e.target.value));
+            if (fontValue) fontValue.textContent = getSetting('fontSize') + "px";
+            applyEbookStyles();
+          };
+
+          const lineSlider = document.getElementById("line-height-slider");
+          const lineValue = document.getElementById("line-height-value");
+          if (lineSlider) lineSlider.oninput = e => {
+            setSetting('lineHeight', parseFloat(e.target.value));
+            if (lineValue) lineValue.textContent = getSetting('lineHeight').toFixed(1);
+            applyEbookStyles();
+          };
+
+          // Palette
+          document.querySelectorAll(".color-btn").forEach(btn => {
+            btn.onclick = () => {
+              document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+              btn.classList.add("active");
+              setSetting('bgColor', btn.dataset.bg);
+              setSetting('textColor', btn.dataset.color);
+              applyEbookStyles();
+            };
+          });
+
+          loadSettings();
+          applyEbookStyles();
+        }
+
+        /* ────── TOC (FULLY RESTORED) ────── */
         function initTOC() {
           const toolbar = document.getElementById('toc-toolbar');
           const sidebar = document.getElementById('toc-sidebar');
@@ -179,26 +337,21 @@
 
           if (!tocButton || !sidebar) return;
 
-          // Toggle sidebar + hide/show button
           function toggleSidebar() {
             const isOpen = sidebar.classList.toggle('open');
-            toolbar.style.display = isOpen ? 'none' : 'block';
+            if (toolbar) toolbar.style.display = isOpen ? 'none' : 'flex';
           }
 
           function closeSidebar() {
             sidebar.classList.remove('open');
-            toolbar.style.display = 'block';
+            if (toolbar) toolbar.style.display = 'flex';
           }
 
-          // Attach listeners (safe even if called multiple times)
           tocButton.onclick = toggleSidebar;
           closeToc.onclick = closeSidebar;
 
-          // Render TOC when book is ready
           if (typeof book !== 'undefined') {
-            book.ready.then(() => {
-              renderTOC();
-            });
+            book.ready.then(() => renderTOC());
           }
         }
 
@@ -219,8 +372,6 @@
                 if (typeof rendition !== 'undefined') {
                   rendition.display(item.href);
                 }
-                // Optional: auto-close sidebar after click
-                // document.getElementById('toc-sidebar').classList.remove('open');
               };
               li.appendChild(a);
 
@@ -237,9 +388,21 @@
           }
         }
 
-        // Run on page load and Turbo navigation
-        document.addEventListener('turbo:load', initTOC);
-        initTOC();   // also run immediately
+        /* Safe initialization */
+        function initializeAll() {
+          initTOC();
+          initSettings();
+
+          const toolbar = document.getElementById("toc-toolbar");
+          const sidebar = document.getElementById("toc-sidebar");
+          if (toolbar) toolbar.style.display = "flex";
+          if (sidebar) sidebar.classList.remove("open");
+        }
+
+        /* Run safely */
+        window.addEventListener("load", initializeAll);
+        document.addEventListener("turbo:load", initializeAll);
+        setTimeout(initializeAll, 100);
 
         book.ready.then(function() {
 

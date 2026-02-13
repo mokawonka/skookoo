@@ -171,19 +171,29 @@
   --headbar-height: 75px;
 }
 
-.toolbar { 
-  position: fixed; 
-  top: var(--headbar-height); 
-  left: 0; 
-  padding:0 !important;
+// .toolbar { 
+//   position: fixed; 
+//   top: var(--headbar-height); 
+//   left: 0; 
+//   padding:0 !important;
+// }
+.toolbar {
+  position: fixed;
+  top: var(--headbar-height);
+  left: 0;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
 
 #toc-button {
   background: #0951a9;
   color: white;
   border: none;
-  width: 36px;                  /* quite narrow */
-  height: 120px;                /* shorter height */
+  width: 36px;
+  height: 120px;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 1.5px;
@@ -201,16 +211,13 @@
   border-bottom-right-radius: 10px;
 }
 
+
 #toc-button:hover {
   background: #0a5fc9;
   width: 42px;
   box-shadow: 5px 7px 18px rgba(0,0,0,0.45);
 }
 
-  /* Hide button when sidebar is open */
-.toc-sidebar.open ~ .toolbar {
-  display: none;
-}
 
 .toc-sidebar {
   position: fixed;
@@ -279,4 +286,175 @@
 .toc-list a:hover { 
   background: #e9ecef; 
   border-radius: 4px; 
+}
+
+
+/* Settings button (gray) */
+#settings-button {
+  background: #6c757d;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 120px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  box-shadow: 3px 4px 12px rgba(0,0,0,0.35);
+  transition: all 0.25s ease;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+#settings-button:hover {
+  background: #5a6268;
+  width: 42px;
+  box-shadow: 5px 7px 18px rgba(0,0,0,0.45);
+}
+
+/* Settings panel (bottom) */
+.settings-panel {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 460px;
+  height: 420px;
+  background: #ffffff;
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  transform: translate(-50%, 100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 10000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-panel.open {
+  transform: translate(-50%, 0);
+}
+
+.settings-header {
+  background: #0951a9;
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+#close-settings {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.settings-content {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.setting label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+input[type="range"] {
+  flex: 1;
+  accent-color: #0951a9;
+  height: 6px;
+  background: #d0d0d0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+#font-size-value, #line-height-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #0951a9;
+  min-width: 52px;
+  text-align: right;
+}
+
+.palette {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+}
+
+.color-btn {
+  width: 58px;
+  height: 58px;
+  border-radius: 999px;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.color-btn:hover {
+  transform: scale(1.12);
+}
+
+.color-btn.active {
+  border-color: #0951a9;
+  box-shadow: 0 0 0 5px rgba(9, 81, 169, 0.25);
+}
+
+/* ────── MOBILE: Smaller vertical buttons ────── */
+@media (max-width: 768px) {
+  .toolbar {
+    gap: 6px;                    /* tighter spacing between buttons */
+  }
+
+  #toc-button,
+  #settings-button {
+    width: 28px;                 /* smaller width */
+    height: 88px;                /* shorter height */
+    font-size: 12px;             /* smaller text */
+    letter-spacing: 0.8px;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.3);
+  }
+
+  #toc-button:hover,
+  #settings-button:hover {
+    width: 32px;                 /* still expands a bit on hover */
+    box-shadow: 4px 5px 12px rgba(0,0,0,0.35);
+  }
+
+  /* Make settings panel full-width on mobile */
+  .settings-panel {
+    max-width: 100% !important;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
 }
