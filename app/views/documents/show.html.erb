@@ -218,18 +218,22 @@
 
         function loadSettings() {
           const saved = localStorage.getItem("ebookSettings");
+
+          const defaults = {
+            fontSize: <%= @document.font_size || 18 %>,
+            lineHeight: <%= @document.line_height || 1.6 %>,
+            bgColor: "<%= @document.bg_color || '#ffffff' %>",
+            textColor: "<%= @document.text_color || '#111111' %>"
+          };
+
           if (saved) {
             const oldSettings = JSON.parse(saved);
-            // Merge: DB values take priority
-            window.ebookSettings = {
-              ...oldSettings,
-              fontSize: <%= @document.font_size || 18 %>,
-              lineHeight: <%= @document.line_height || 1.6 %>,
-              bgColor: "<%= @document.bg_color || '#ffffff' %>",
-              textColor: "<%= @document.text_color || '#111111' %>"
-            };
+            window.ebookSettings = { ...defaults, ...oldSettings };
+          } else {
+            window.ebookSettings = defaults;
           }
         }
+
 
         function saveSettings() {
           localStorage.setItem("ebookSettings", JSON.stringify(window.ebookSettings));
@@ -245,11 +249,16 @@
           const { fontSize, lineHeight, bgColor, textColor } = window.ebookSettings;
 
           const themeStyles = {
-            "html, body": {
-              "font-size": fontSize + "px !important",
-              "line-height": lineHeight + "em !important",
+            "html": {
+              "min-height": "100% !important",
+              "height": "100% !important"
+            },
+            "body": {
+              "min-height": "100vh !important",
               "background-color": bgColor + " !important",
-              "color": textColor + " !important"
+              "color": textColor + " !important",
+              "font-size": fontSize + "px !important",
+              "line-height": lineHeight + "em !important"
             }
           };
 
