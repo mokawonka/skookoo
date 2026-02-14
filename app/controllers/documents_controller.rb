@@ -65,6 +65,30 @@ class DocumentsController < ApplicationController
 
 
 
+  def update_settings
+    @document = Document.find(params[:id])
+
+    # Only the owner can update
+    unless current_user && current_user.id == @document.userid
+      head :forbidden
+      return
+    end
+
+    # Update settings
+    if @document.update(
+        font_size: params[:font_size],
+        line_height: params[:line_height],
+        bg_color: params[:bg_color],
+        text_color: params[:text_color]
+      )
+      render json: { status: "ok" }
+    else
+      render json: { status: "error", errors: @document.errors.full_messages }, status: 422
+    end
+  end
+
+
+
   def update
     @document = Document.find(params[:id])
 
@@ -119,7 +143,8 @@ class DocumentsController < ApplicationController
 
   def document_params
       # for whitelisting the parameters for documents to be set
-      params.require(:document).permit(:userid, :epubid, :title, :authors, :ispublic, :progress, :locations)
+      params.require(:document).permit(:userid, :epubid, :title, :authors, :ispublic, :progress, :locations,
+                                       :font_size, :line_height, :bg_color, :text_color)
   end
 
 end

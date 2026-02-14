@@ -103,7 +103,7 @@
 
       <div id=allcontent class="row">
 
-          <div id=content class="pt-3 mb-5 mr-3 ml-3">
+          <div id=content class="p-0">
           
             <div id="viewer" class="scrolled"></div>
 
@@ -210,122 +210,196 @@
 
         var book = ePub("<%=rails_blob_path(@affiliated_epub.epub_file)%>");
 
-        var rendition = book.renderTo("viewer", { method: "continuous", flow: "scrolled",  width: "100%" , iframe: false});
+        var rendition = book.renderTo("viewer", { method: "continuous", flow: "scrolled",  width: "100%" , iframe: true});
 
-        /* ────── SETTINGS (global, survives Turbo) ────── */
-        if (typeof window.ebookSettings === 'undefined') {
-          window.ebookSettings = {
-            fontSize: 18,
-            lineHeight: 1.6,
-            bgColor: "#ffffff",
-            textColor: "#111111"
-          };
-        }
-
-        function getSetting(key) { return window.ebookSettings[key]; }
-        function setSetting(key, value) {
-          window.ebookSettings[key] = value;
-          localStorage.setItem("ebookSettings", JSON.stringify(window.ebookSettings));
-        }
-
-        function applyEbookStyles() {
-          if (typeof rendition === "undefined" || !rendition.getContents) return;
-          
-          rendition.getContents().forEach(content => {
-            try {
-              const doc = content.document;
-              if (doc && doc.body) {
-                doc.body.style.fontSize = getSetting('fontSize') + "px";
-                doc.body.style.lineHeight = getSetting('lineHeight');
-                doc.body.style.color = getSetting('textColor');
-
-                const bg = getSetting('bgColor');
-
-                if (bg === '#f5e8c7') {
-                  doc.body.style.backgroundColor = '#f5e8c7';
-                  doc.body.style.backgroundImage = `url("<%= asset_path('textures/parchment.jpg') %>")`;
-                  console.log( doc.body.style.backgroundImage);
-                  doc.body.style.backgroundRepeat = 'repeat';
-                  doc.body.style.backgroundSize = 'auto';        
-                } else {
-                  doc.body.style.backgroundColor = bg;
-                  doc.body.style.backgroundImage = 'none';
-                }
-              }
-            } catch (e) {}
-          });
-        }
+        /* ─────────────────────────────────────────────
+          GLOBAL SETTINGS
+        ───────────────────────────────────────────── */
 
         function loadSettings() {
           const saved = localStorage.getItem("ebookSettings");
           if (saved) {
-            const s = JSON.parse(saved);
-            window.ebookSettings.fontSize = s.fontSize || 18;
-            window.ebookSettings.lineHeight = s.lineHeight || 1.6;
-            window.ebookSettings.bgColor = s.bgColor || "#ffffff";
-            window.ebookSettings.textColor = s.textColor || "#111111";
+            const oldSettings = JSON.parse(saved);
+            // Merge: DB values take priority
+            window.ebookSettings = {
+              ...oldSettings,
+              fontSize: <%= @document.font_size || 18 %>,
+              lineHeight: <%= @document.line_height || 1.6 %>,
+              bgColor: "<%= @document.bg_color || '#ffffff' %>",
+              textColor: "<%= @document.text_color || '#111111' %>"
+            };
           }
-          const fs = document.getElementById("font-size-slider");
-          const fv = document.getElementById("font-size-value");
-          if (fs && fv) { fs.value = getSetting('fontSize'); fv.textContent = getSetting('fontSize') + "px"; }
-          const ls = document.getElementById("line-height-slider");
-          const lv = document.getElementById("line-height-value");
-          if (ls && lv) { ls.value = getSetting('lineHeight'); lv.textContent = getSetting('lineHeight').toFixed(1); }
         }
 
-        function initSettings() {
-          const button = document.getElementById("settings-button");
-          const panel = document.getElementById("settings-panel");
-          const toolbar = document.getElementById("toc-toolbar");
+        function saveSettings() {
+          localStorage.setItem("ebookSettings", JSON.stringify(window.ebookSettings));
+        }
+
+        /* ─────────────────────────────────────────────
+          STABLE THEME ENGINE
+        ───────────────────────────────────────────── */
+
+        function applyTheme() {
+          if (!rendition) return;
+
+          const { fontSize, lineHeight, bgColor, textColor } = window.ebookSettings;
+
+          const themeStyles = {
+            "html, body": {
+              "font-size": fontSize + "px !important",
+              "line-height": lineHeight + "em !important",
+              "background-color": bgColor + " !important",
+              "color": textColor + " !important"
+            }
+          };
+
+          // Add parchment texture if needed
+          if (bgColor.toLowerCase() === "#f5e8c7") {
+            themeStyles["html, body"]["background-image"] =
+              `url("<%= asset_path('textures/parchment.jpg') %>") !important`;
+            themeStyles["html, body"]["background-repeat"] = "repeat !important";
+            themeStyles["html, body"]["background-size"] = "auto !important";
+          } else {
+            themeStyles["html, body"]["background-image"] = "none !important";
+          }
+
+          rendition.themes.register("custom", themeStyles);
+          rendition.themes.select("custom");
+        }
+
+
+
+        book.ready.then(() => {
+          rendition.themes.register("custom", {});
+          rendition.themes.select("custom");
+          loadSettings();
+          applyTheme();
+        });
+
+        /* Reapply after each re-render */
+        rendition.on("rendered", function () {
+          applyTheme();
+        });
+
+
+
+        /* ─────────────────────────────────────────────
+          SETTINGS PANEL CONTROLS
+        ───────────────────────────────────────────── */
+        <% if logged_in? && current_user.id == @document.userid %>
+          function saveSettingsToDB() {
+            const docId = "<%= @document.id %>";
+            const updateSettingsPath = `/documents/${docId}/update_settings`;
+
+            fetch(updateSettingsPath, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
+              },
+              body: JSON.stringify({
+                font_size: window.ebookSettings.fontSize,
+                line_height: window.ebookSettings.lineHeight,
+                bg_color: window.ebookSettings.bgColor,
+                text_color: window.ebookSettings.textColor
+              })
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.status === "ok") {}
+              else console.warn("Failed to save settings:", data.errors);
+            })
+            .catch(err => console.error("Error saving settings:", err));
+          }
+        <% else %>
+          function saveSettingsToDB() {}; // dummy for non-owners
+        <% end %>
+
+        function initSettingsUI() {
+          const button   = document.getElementById("settings-button");
+          const panel    = document.getElementById("settings-panel");
+          const toolbar  = document.getElementById("toc-toolbar");
           const closeBtn = document.getElementById("close-settings");
 
-          if (!button || !panel) {
-            setTimeout(initSettings, 80);
-            return;
-          }
+          if (!button || !panel || !closeBtn) return;
 
-          function togglePanel() {
+          // Open panel
+          button.onclick = () => {
             const isOpen = panel.classList.toggle("open");
             if (toolbar) toolbar.style.display = isOpen ? "none" : "flex";
-          }
+          };
 
-          button.onclick = togglePanel;
-          if (closeBtn) closeBtn.onclick = () => {
+          // Close panel
+          closeBtn.onclick = () => {
             panel.classList.remove("open");
             if (toolbar) toolbar.style.display = "flex";
+            saveSettingsToDB();   
           };
 
-          // Sliders
-          const fontSlider = document.getElementById("font-size-slider");
-          const fontValue = document.getElementById("font-size-value");
-          if (fontSlider) fontSlider.oninput = e => {
-            setSetting('fontSize', parseInt(e.target.value));
-            if (fontValue) fontValue.textContent = getSetting('fontSize') + "px";
-            applyEbookStyles();
-          };
+          // Load settings
+          loadSettings();
+          applyTheme();
 
-          const lineSlider = document.getElementById("line-height-slider");
-          const lineValue = document.getElementById("line-height-value");
-          if (lineSlider) lineSlider.oninput = e => {
-            setSetting('lineHeight', parseFloat(e.target.value));
-            if (lineValue) lineValue.textContent = getSetting('lineHeight').toFixed(1);
-            applyEbookStyles();
-          };
-
-          // Palette
           document.querySelectorAll(".color-btn").forEach(btn => {
-            btn.onclick = () => {
-              document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.remove("active");
+
+            if (btn.dataset.bg.toLowerCase() === window.ebookSettings.bgColor.toLowerCase()) {
               btn.classList.add("active");
-              setSetting('bgColor', btn.dataset.bg);
-              setSetting('textColor', btn.dataset.color);
-              applyEbookStyles();
-            };
+            }
           });
 
-          loadSettings();
-          applyEbookStyles();
+          /* ───── Font Size ───── */
+          const fontSlider = document.getElementById("font-size-slider");
+          const fontValue  = document.getElementById("font-size-value");
+
+          if (fontSlider) {
+            fontSlider.value = window.ebookSettings.fontSize;
+            fontValue.textContent = window.ebookSettings.fontSize + "px";
+
+            fontSlider.oninput = (e) => {
+              const value = parseInt(e.target.value);
+              window.ebookSettings.fontSize = value;
+              saveSettings();
+              fontValue.textContent = value + "px";
+              applyTheme();
+            };
+          }
+
+          /* ───── Line Height ───── */
+          const lineSlider = document.getElementById("line-height-slider");
+          const lineValue  = document.getElementById("line-height-value");
+
+          if (lineSlider) {
+            lineSlider.value = window.ebookSettings.lineHeight;
+            lineValue.textContent = window.ebookSettings.lineHeight.toFixed(1);
+
+            lineSlider.oninput = (e) => {
+              const value = parseFloat(e.target.value);
+              window.ebookSettings.lineHeight = value;
+              saveSettings();
+              lineValue.textContent = value.toFixed(1);
+              applyTheme();
+            };
+          }
+
+          /* ───── Background Palette ───── */
+          document.querySelectorAll(".color-btn").forEach(btn => {
+            btn.onclick = () => {
+              document.querySelectorAll(".color-btn")
+                .forEach(b => b.classList.remove("active"));
+              btn.classList.add("active");
+
+              window.ebookSettings.bgColor   = btn.dataset.bg;
+              window.ebookSettings.textColor = btn.dataset.color;
+
+              saveSettings();
+              applyTheme();
+            };
+          });
         }
+
+        document.addEventListener("turbo:load", initSettingsUI);
+
 
         /* ────── TOC (FULLY RESTORED) ────── */
         function initTOC() {
@@ -391,13 +465,14 @@
         /* Safe initialization */
         function initializeAll() {
           initTOC();
-          initSettings();
+          initSettingsUI(); 
 
           const toolbar = document.getElementById("toc-toolbar");
           const sidebar = document.getElementById("toc-sidebar");
           if (toolbar) toolbar.style.display = "flex";
           if (sidebar) sidebar.classList.remove("open");
         }
+          
 
         /* Run safely */
         window.addEventListener("load", initializeAll);
@@ -593,14 +668,14 @@
         document.addEventListener("keyup", keyListener, false);
 
         var timeoutHandle;
-		    rendition.on('relocated', function(location){
+            rendition.on('relocated', function(location){
           updateProgressbar();
           <% if logged_in? && current_user.id == @document.userid %>
             // wait 7 seconds before updating progress
             window.clearTimeout(timeoutHandle);
             timeoutHandle = window.setTimeout(function(){updateProgressinDB();}, 7000);
           <% end %>
-				});
+                });
 
 
         // loading highlights (berries) / public

@@ -109,6 +109,12 @@ Rails.application.routes.draw do
       patch 'update_locations'
   end
 
+  resources :documents do
+    member do
+      patch :update_settings
+    end
+  end
+
   resources :highlights do
     patch 'update_score'
   end
