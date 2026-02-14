@@ -217,21 +217,16 @@
         ───────────────────────────────────────────── */
 
         function loadSettings() {
-          const saved = localStorage.getItem("ebookSettings");
-
-          const defaults = {
+          // DB is the source of truth
+          window.ebookSettings = {
             fontSize: <%= @document.font_size || 18 %>,
             lineHeight: <%= @document.line_height || 1.6 %>,
             bgColor: "<%= @document.bg_color || '#ffffff' %>",
             textColor: "<%= @document.text_color || '#111111' %>"
           };
 
-          if (saved) {
-            const oldSettings = JSON.parse(saved);
-            window.ebookSettings = { ...defaults, ...oldSettings };
-          } else {
-            window.ebookSettings = defaults;
-          }
+          // Now sync localStorage to DB values
+          localStorage.setItem("ebookSettings", JSON.stringify(window.ebookSettings));
         }
 
 
@@ -263,13 +258,14 @@
           };
 
           // Add parchment texture if needed
-          if (bgColor.toLowerCase() === "#f5e8c7") {
-            themeStyles["html, body"]["background-image"] =
-              `url("<%= asset_path('textures/parchment.jpg') %>") !important`;
-            themeStyles["html, body"]["background-repeat"] = "repeat !important";
-            themeStyles["html, body"]["background-size"] = "auto !important";
+            if (bgColor.toLowerCase() === "#f5e8c7") {
+            Object.assign(themeStyles.body, {
+              "background-image": `url("<%= asset_path('textures/parchment.jpg') %>") !important`,
+              "background-repeat": "repeat !important",
+              "background-size": "auto !important"
+            });
           } else {
-            themeStyles["html, body"]["background-image"] = "none !important";
+            themeStyles.body["background-image"] = "none !important";
           }
 
           rendition.themes.register("custom", themeStyles);
@@ -407,9 +403,6 @@
           });
         }
 
-        document.addEventListener("turbo:load", initSettingsUI);
-
-
         /* ────── TOC (FULLY RESTORED) ────── */
         function initTOC() {
           const toolbar = document.getElementById('toc-toolbar');
@@ -484,9 +477,7 @@
           
 
         /* Run safely */
-        window.addEventListener("load", initializeAll);
         document.addEventListener("turbo:load", initializeAll);
-        setTimeout(initializeAll, 100);
 
         book.ready.then(function() {
 

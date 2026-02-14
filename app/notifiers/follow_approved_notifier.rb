@@ -9,7 +9,8 @@ class FollowApprovedNotifier < Noticed::Base
   end
 
   def url
-    user_path(params[:followed_user])
+      followed = params[:followed_user]
+      user_path(followed.username)
   end
 
   def avatar
