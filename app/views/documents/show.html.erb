@@ -116,6 +116,12 @@
           <div class="modal fade" id="highlightmodal" tabindex="-1" role="dialog" aria-labelledby="highlightLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title w-100 text-center">
+                      <%= image_tag('berry_icon.png', class: 'panel-icon') %>Highlight with
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
                   <div class="modal-body">
 
                     <%= render "shared/createhighlight" %>
@@ -702,61 +708,122 @@
 
           rendition.on("rendered", (section, view) => {
 
-            // Now attach the mouseup listener (only once per section if possible)
-            const doc = view.document;
-            const win = view.window;
+              const doc = view.document || view.contents?.document;
+              const win = view.window;
 
-            doc.addEventListener("contextmenu", function(e) {
-              e.preventDefault();
-            });
+              if (!doc || !win) return;
 
-            // Optional: remove previous listener if you attached it before
-            doc.removeEventListener("mouseup", handleSelection);
-            doc.addEventListener("mouseup", handleSelection);
-
-
-            function handleSelection() {
-              const selection = win.getSelection();
-              if (selection.rangeCount === 0 || selection.isCollapsed) return;
-
-              const range = selection.getRangeAt(0);
-              const text = selection.toString().trim();
-              if (text.length === 0) return;
-
-              selection.removeAllRanges();
-
+              // CSS – must have for native selection to work at all
               try {
-                const fullRangeCfi = section.cfiFromRange(range);
-                //console.log("Generated range CFI:", fullRangeCfi);
+                  const style = doc.createElement("style");
+                  style.textContent = `
+                      html, body, * {
+                          -webkit-user-select: text !important;
+                          user-select: text !important;
+                          -webkit-touch-callout: default !important;
+                          touch-action: manipulation !important;
+                      }
+                  `;
+                  (doc.head || doc.documentElement).appendChild(style);
 
-                // Your UI code
-                  // clearing old results if any
-                  $('#emojiresults').empty();
-                  $('#emojiresults').hide();
-                  $('#gifresults').empty();
-                  $('#gifresults').hide();
-                  $('#gifsearch').val('');
-
-                  $('#cfi').text(fullRangeCfi);
-                  $('#highlight').find('blockquote').text(text);
-                  $('#authors').text('<%=@document.authors%>');
-                  $('#title').text('<%=@document.title%>');
-
-                  $('#highlight').append('<br>');
-                  $('#gifform').hide();
-                  $('#commentform').hide();
-                  $('#highlightmodal').modal('show');
-
-                  //copy/translate gui reset
-                  $("#copytext").text("Copy");
-
-                  view.window.getSelection().removeAllRanges();
-              } catch (err) {
-                console.error("CFI generation crashed:", err);
+                  if (doc.body) {
+                      doc.body.style.setProperty("-webkit-user-select", "text", "important");
+                      doc.body.style.setProperty("user-select", "text", "important");
+                      doc.body.style.setProperty("-webkit-touch-callout", "default", "important");
+                  }
+              } catch (e) {
+                  console.warn("[selection-fix] CSS failed", e);
               }
-            }
-          });
 
+              // Debounce helper
+              function debounce(fn, delay) {
+                  let timer;
+                  return function(...args) {
+                      clearTimeout(timer);
+                      timer = setTimeout(() => fn.apply(this, args), delay);
+                  };
+              }
+
+              // BLOCK native context menu on touch long-press (critical for mobile!)
+              doc.addEventListener("contextmenu", (e) => {
+                  e.preventDefault();  // ← This stops Google/iOS menu from appearing
+                  // Immediately check if there's a selection after prevent
+                  const sel = win.getSelection();
+                  if (sel && !sel.isCollapsed && sel.toString().trim().length >= 20 /* key value */) {
+                      triggerCustomModal(sel, win, section);
+                  }
+              }, false);  // false = capture phase (better for touch)
+
+              // Fallback: selectionchange with debounce (fires when selection stabilizes)
+              const onSelectionChangeDebounced = debounce(() => {
+                  const sel = win.getSelection();
+                  if (!sel || sel.isCollapsed) return;
+
+                  const text = sel.toString().trim();
+                  if (text.length < 3) return; 
+
+                  triggerCustomModal(sel, win, section);
+              }, 600);  // 600 ms after last change
+
+              doc.addEventListener("selectionchange", onSelectionChangeDebounced, { passive: true });
+
+              // Touch lift fallback
+              doc.addEventListener("touchend", () => {
+                  setTimeout(() => {
+                      const sel = win.getSelection();
+                      if (!sel || sel.isCollapsed) return;
+
+                      const text = sel.toString().trim();
+                      if (text.length < 3) return;
+                      triggerCustomModal(sel, win, section);
+                  }, 400);
+              }, { passive: true });
+
+
+              doc.addEventListener("mouseup", () => {
+                  const sel = win.getSelection();
+                  if (!sel || sel.isCollapsed) return;
+
+                  const text = sel.toString().trim();
+                  if (text.length < 3) return;
+
+                  console.log("[mouseup] Valid:", text);
+                  triggerCustomModal(sel, win, section);
+              });
+
+              function triggerCustomModal(selection, win, section) {
+                  const range = selection.getRangeAt(0);
+                  const text = selection.toString().trim();
+                  if (text.length === 0) return;
+
+                  try {
+                      const fullRangeCfi = section.cfiFromRange(range);
+                      console.log("CFI generated:", fullRangeCfi);
+
+                      $('#emojiresults').empty().hide();
+                      $('#gifresults').empty().hide();
+                      $('#gifsearch').val('');
+                      $('#cfi').text(fullRangeCfi);
+                      $('#highlight').find('blockquote').text(text);
+                      $('#authors').text('<%=@document.authors%>');
+                      $('#title').text('<%=@document.title%>');
+
+                      $('#gifform').hide();
+                      $('#commentform').hide();
+                      $('#highlightmodal').modal('show');
+
+                      $("#copytext").text("Copy");
+
+                      $('#highlightmodal').one('hidden.bs.modal', () => {
+                          win.getSelection().removeAllRanges();
+                      });
+
+                  } catch (err) {
+                      console.error("Modal/CFI error:", err);
+                      win.getSelection().removeAllRanges();
+                  }
+              }
+          });
 
           // loading vocabulary / private
           <% @vocabs.each do |vocab| %>
