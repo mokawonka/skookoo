@@ -32,49 +32,54 @@
 </div>
 
 <script>
-  let current_view = 'home';
-  let current_sort = 'new';
 
-  function fetchPosts() {
-    const path = (current_view === 'following') ? '/pages/following' : '/pages/home';
-    $.get(`${path}?sort=${current_sort}`);
-  }
+  document.addEventListener('turbo:load', function() {
 
-  <% if logged_in? %>
-    $('#whoifollow').on('click', function () {
-      const button = $(this);
+      let current_view = 'home';
+      let current_sort = 'new';
 
-      if (!button.hasClass('active')) {
-        button.addClass('active');
-        button.css('background-color', '#0951a9');
-        button.css('color', '#ffffff');
-        current_view = 'following';
-      } else {
-        button.removeClass('active');
-        button.css('background-color', '#ffffff');
-        button.css('color', '#0951a9');
-        current_view = 'home';
+      function fetchPosts() {
+        const path = (current_view === 'following') ? '/pages/following' : '/pages/home';
+        $.get(`${path}?sort=${current_sort}`);
       }
 
-      fetchPosts();
-    });
-  <% end %>
+      <% if logged_in? %>
+        $('#whoifollow').on('click', function () {
+          const button = $(this);
 
-  $('#sort-top').on('click', function () {
-    if (current_sort !== 'top') {
-      current_sort = 'top';
-      $('#sort-top').addClass('active').css({'background-color': '#0951a9', 'color': '#ffffff'});
-      $('#sort-new').removeClass('active').css({'background-color': '#ffffff', 'color': '#0951a9'});
-      fetchPosts();
-    }
-  });
+          if (!button.hasClass('active')) {
+            button.addClass('active');
+            button.css('background-color', '#0951a9');
+            button.css('color', '#ffffff');
+            current_view = 'following';
+          } else {
+            button.removeClass('active');
+            button.css('background-color', '#ffffff');
+            button.css('color', '#0951a9');
+            current_view = 'home';
+          }
 
-  $('#sort-new').on('click', function () {
-    if (current_sort !== 'new') {
-      current_sort = 'new';
-      $('#sort-new').addClass('active').css({'background-color': '#0951a9', 'color': '#ffffff'});
-      $('#sort-top').removeClass('active').css({'background-color': '#ffffff', 'color': '#0951a9'});
-      fetchPosts();
-    }
-  });
+          fetchPosts();
+        });
+      <% end %>
+
+      $('#sort-top').on('click', function () {
+        if (current_sort !== 'top') {
+          current_sort = 'top';
+          $('#sort-top').addClass('active').css({'background-color': '#0951a9', 'color': '#ffffff'});
+          $('#sort-new').removeClass('active').css({'background-color': '#ffffff', 'color': '#0951a9'});
+          fetchPosts();
+        }
+      });
+
+      $('#sort-new').on('click', function () {
+        if (current_sort !== 'new') {
+          current_sort = 'new';
+          $('#sort-new').addClass('active').css({'background-color': '#0951a9', 'color': '#ffffff'});
+          $('#sort-top').removeClass('active').css({'background-color': '#ffffff', 'color': '#0951a9'});
+          fetchPosts();
+        }
+      });
+
+  }); 
 </script>

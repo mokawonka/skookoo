@@ -706,21 +706,24 @@
             const doc = view.document;
             const win = view.window;
 
+            doc.addEventListener("contextmenu", function(e) {
+              e.preventDefault();
+            });
+
             // Optional: remove previous listener if you attached it before
-            doc.removeEventListener("mouseup", handleMouseUp);
-            doc.removeEventListener("touchend", handleMouseUp);
-
-            doc.addEventListener("mouseup", handleMouseUp);
-            doc.addEventListener("touchend", handleMouseUp);
+            doc.removeEventListener("mouseup", handleSelection);
+            doc.addEventListener("mouseup", handleSelection);
 
 
-            function handleMouseUp() {
+            function handleSelection() {
               const selection = win.getSelection();
               if (selection.rangeCount === 0 || selection.isCollapsed) return;
 
               const range = selection.getRangeAt(0);
               const text = selection.toString().trim();
               if (text.length === 0) return;
+
+              selection.removeAllRanges();
 
               try {
                 const fullRangeCfi = section.cfiFromRange(range);
