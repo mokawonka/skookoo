@@ -33,6 +33,7 @@ class DocumentsController < ApplicationController
 
   def show
     @document = Document.find(params[:id])
+    @affiliated_epub = Epub.find(@document.epubid)
     @giphyApiKey = ""
 
     if logged_in? && current_user.id == @document.userid
@@ -143,8 +144,8 @@ class DocumentsController < ApplicationController
 
   def document_params
       # for whitelisting the parameters for documents to be set
-      params.require(:document).permit(:userid, :epubid, :title, :authors, :ispublic, :progress, :locations,
-                                       :font_size, :line_height, :bg_color, :text_color)
+      params.require(:document).permit(:userid, :epubid, :title, :authors, :ispublic, :progress,
+                                       :font_size, :line_height, :bg_color, :text_color, :locations)
   end
 
 end

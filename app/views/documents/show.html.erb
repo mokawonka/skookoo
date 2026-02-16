@@ -1,4 +1,4 @@
-<% @affiliated_epub = Epub.find(@document.epubid) %>
+<script>var book = ePub("<%= rails_blob_path(@affiliated_epub.epub_file) %>");</script>
 
 <!-- Saving book.locations to DB for the first opening -->
 <% if @document.opened == 0 %>
@@ -10,69 +10,41 @@
         <br>
     </div>
 
-      <!-- we only update the locations for the document owner-->
-      <%= form_with(model: @document, url: [@document, :update_locations], local: false,  class: "d-none") do |form| %>
+  <script>
+    const loading = $('#firstloading');
+    loading.append('<div class="text-center"><span class="spinner-border text-dark"></span></div>');
+    loading.show();
 
-          <div class="field">
-              <%= form.text_area :locations, { :id => 'document-locations' } %>
-          </div>
-          <div class="actions">
-              <%= form.submit "submit", id: 'submitlocations'%>
-          </div>
-
-      <% end %>
-
-
-    <script>
-
-      async function displaybook(){
-
-          $('#firstloading').html('<div class=text-center><%= image_tag "ready.png" %></div>');
-          await new Promise(r => setTimeout(r, 2000));
-          $('#firstloading').hide();
-
+    book.ready
+      .then(() => book.locations.generate(1500))
+      .then(() => { 
+        const jsonLocations = book.locations.save();  // Returns '["cfi1","cfi2",...]'
+        return fetch("<%= update_locations_document_path(@document) %>", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
+          },
+          body: JSON.stringify({
+            document: { locations: jsonLocations }  // Send the string
+          })
+        });
+      }).then(() => {
+        loading.html('<div class="text-center"><%= image_tag "ready.png" %></div>');
+        setTimeout(() => {
           window.location.reload();
-      }
-
-      // display loading message
-      $('#firstloading').append('<div class=text-center><span id="loadspinner" class="spinner-border text-dark"></span></div>');
-      $('#firstloading').show();
-
-      // loading document
-      var book = ePub("<%=rails_blob_path(@affiliated_epub.epub_file)%>");
-    
-      this.book.ready.then((book) => {
-
-          // generating locations
-          return this.book.locations.generate(600);
-      
-      }).then(function(locations){
-
-          // saving locations to DB
-          $('#document-locations').text(locations);
-          $('#submitlocations').click();
-
-          // reloading page to display book
-          displaybook();
+        }, 600);
+      })
+      .catch(err => {
+        console.error(err);
+        loading.html("<h5 class='text-danger text-center'>Failed to prepare document.</h5>");
       });
-
-    </script>
+  </script>
 
 <% else %>
 
       <!-- we only update the progress for the document owner-->
       <% if logged_in? && current_user.id == @document.userid %> 
-
-        <%= form_with(model: @document, url: [@document, :update_progress], local: false,  class: "d-none") do |form| %>
-
-            <div class="field">
-                <%= form.text_field :progress, { :id => 'reading-progress' } %>
-            </div>
-            <div class="actions">
-                <%= form.submit "submit", id: 'submitprogress'%>
-            </div>
-
-        <% end %>
 
         <script>
             function updateProgressinDB() {
@@ -86,8 +58,16 @@
                     const p = book.locations.percentageFromCfi(cfi);
 
                     if (typeof p === 'number' && !isNaN(p)) {
-                        $('#reading-progress').val(p);
-                        $('#submitprogress').click();
+                        fetch("<%= update_progress_document_path(@document) %>", {
+                          method: "PATCH",
+                          headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
+                          },
+                          body: JSON.stringify({
+                            document: { progress: p }
+                          })
+                        });
                     }
                 } catch (err) {
                     console.warn("Progress update failed (view may have changed):", err);
@@ -135,7 +115,7 @@
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
               <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal", aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="conversationmodalcontent">
 
@@ -213,8 +193,6 @@
       </div>
 
       <script>
-
-        var book = ePub("<%=rails_blob_path(@affiliated_epub.epub_file)%>");
 
         var rendition = book.renderTo("viewer", { method: "continuous", flow: "scrolled",  width: "100%" , iframe: true});
 
@@ -485,19 +463,47 @@
         /* Run safely */
         document.addEventListener("turbo:load", initializeAll);
 
+        var locationsPromise;
+
         book.ready.then(function() {
+          var stored = '<%= raw @document.locations %>';  // Raw JSON string or nil
 
-            var stored ='<%= @document.locations %>';
-            var sstored = stored.split(',epubcfi');
+          if (stored) {
+            locationsPromise = new Promise((resolve, reject) => {
+              try {
+                book.locations.load(stored);
+                resolve();
+              } catch (err) {
+                reject(err);
+              }
+            }).catch(err => {
+              console.error("Locations load failed:", err);
+              return book.locations.generate(1500);
+            });
+          } else {
+            console.log("No stored locations—generating now.");
+            locationsPromise = book.locations.generate(1500);
+          }
 
-            for(var i = 1; i < sstored.length; i++){
-              sstored[i] = 'epubcfi' + sstored[i];
+          return locationsPromise.then(() => {
+            if (!stored || !book.locations.cfis || book.locations.cfis.length === 0) {
+              const jsonLocations = book.locations.save();
+              fetch("<%= update_locations_document_path(@document) %>", {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
+                },
+                body: JSON.stringify({
+                  document: { locations: jsonLocations }
+                })
+              }).catch(err => console.error("Failed to save generated locations:", err));
             }
-
-            return book.locations.load(sstored);
-
-        }).then(function(locations){
-
+          });
+        }).then(function() {
+          // Changed: Wait for locationsPromise to resolve before display/restore
+          return locationsPromise;
+        }).then(function() {
           var url = window.location.href;
 
           function getCfiFromUrl() {
@@ -632,14 +638,14 @@
         });
 
 
-        function updateProgressbar()
-        {
+        function updateProgressbar() {
           var location = rendition.currentLocation();
-          var cfi  = location.start.cfi;
+          if (!location || !location.start) return;
+          var cfi = location.start.cfi;
+
           var p = book.locations.percentageFromCfi(cfi);
 
-          if(p != null)
-          {
+          if (p != null && typeof p === 'number' && !isNaN(p)) {
             var sp = Math.ceil(p * 100) + '%';
             $('#read_progressbar').css('width', sp);
           }
@@ -787,7 +793,6 @@
                   const text = sel.toString().trim();
                   if (text.length < 3) return;
 
-                  console.log("[mouseup] Valid:", text);
                   triggerCustomModal(sel, win, section);
               });
 
@@ -798,7 +803,7 @@
 
                   try {
                       const fullRangeCfi = section.cfiFromRange(range);
-                      console.log("CFI generated:", fullRangeCfi);
+                      // console.log("CFI generated:", fullRangeCfi);
 
                       $('#emojiresults').empty().hide();
                       $('#gifresults').empty().hide();
@@ -843,4 +848,4 @@
 
       </script>
 
-<% end %>
+<% end %> 

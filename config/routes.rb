@@ -105,12 +105,9 @@ Rails.application.routes.draw do
   end
 
   resources :documents do
-      patch 'update_progress'
-      patch 'update_locations'
-  end
-
-  resources :documents do
     member do
+      patch :update_progress
+      patch :update_locations
       patch :update_settings
     end
   end

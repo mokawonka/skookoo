@@ -48,6 +48,8 @@ class HighlightsController < ApplicationController
     # for the user who wants to comment later on
     @reply = Reply.new
 
+
+    ActiveStorage::Current.url_options = { host: request.host, protocol: request.protocol, port: request.port }
     set_meta_tags(
       title: @highlight.fromtitle,
       description: @highlight.quote.truncate(160),
