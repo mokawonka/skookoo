@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "subscriptions/new"
+  get "subscriptions/create"
 
   root 'pages#home'
 
@@ -121,6 +123,10 @@ Rails.application.routes.draw do
   end
 
   resources :expressions
+
+  resources :subscriptions, only: [:new, :create]
+  
+  post '/webhooks/stripe', to: 'webhooks#stripe' 
 
   # Agent API (for AI bots)
   namespace :api do

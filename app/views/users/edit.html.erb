@@ -215,7 +215,7 @@ My settings
       </ul>
     </div>
     <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
-      <%= link_to "Current plan", "#", class: "btn btn-primary btn-lg w-100 disabled", aria: { disabled: true }, tabindex: -1, onclick: "return false;" %>
+      <%= link_to "Current Plan", "#", class: "btn btn-primary btn-lg w-100 disabled", aria: { disabled: true }, tabindex: -1, onclick: "return false;" %>
     </div>
     <style>
       .free-plan:hover { transform: scale(1.05); }
@@ -241,9 +241,12 @@ My settings
         <li class="list-group-item border-0">✓ Data not used for improvements *</li>
       </ul>
     </div>
-    <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
-      <%= link_to "Select", "#", class: "btn btn-primary btn-lg w-100" %>
-    </div>
+   <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
+    <%= button_to "Select", subscriptions_path,
+                  method: :post,
+                  data: { turbo: false },
+                  class: "btn btn-primary btn-lg w-100" %>
+  </div>
     <style>
       .paid-plan:hover { transform: scale(1.05); }
     </style>

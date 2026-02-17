@@ -7,6 +7,9 @@ class User < ApplicationRecord
     has_one_attached :avatar
     has_secure_password
 
+    has_one :subscription, dependent: :destroy
+    after_create :create_default_subscription
+
     attribute :mana, :integer, default: 1
     attribute :darkmode, :boolean, default: false
     attribute :allownotifications, :boolean, default: true
@@ -49,6 +52,14 @@ class User < ApplicationRecord
     end
 
 
+    def plan
+        subscription&.plan || 'janitor'
+    end
+
+    def pomologist?
+        subscription&.active? && plan == 'pomologist'
+    end
+
     def private?
         private_profile
     end
@@ -79,6 +90,10 @@ class User < ApplicationRecord
         # Send a notification using Noticed
         FollowNotifier.with(follower: follower, followed_user: self).deliver_later(self)
         end
+    end
+
+    def create_default_subscription
+        create_subscription(plan: 'janitor', status: 'active')
     end
 
 

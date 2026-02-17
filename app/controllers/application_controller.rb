@@ -3,6 +3,31 @@ class ApplicationController < ActionController::Base
 
     before_action :require_user
 
+    before_action :require_pomologist, only: [:premium_action]
+
+
+    # or home_controller.rb
+    def index  # Or your root action
+        if params[:session_id]
+            session = Stripe::Checkout::Session.retrieve(params[:session_id])
+            if session.payment_status == 'paid'
+            current_user.subscription.update(
+                plan: 'pomologist',
+                status: 'active',
+                stripe_subscription_id: session.subscription,
+                current_period_end: Time.at(session.subscription.current_period_end)
+            )
+            flash[:notice] = 'Upgrade successful!'
+            end
+        end
+    end
+
+
+    def require_pomologist
+        redirect_to subscriptions_new_path, alert: 'Upgrade to Pomologist!' unless current_user.pomologist?
+    end
+
+
     # helpers functions to be used on all controllers
     helper_method :current_user, :logged_in?
     def current_user
