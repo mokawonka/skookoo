@@ -25,6 +25,10 @@ My settings
             Typography
           </a>
 
+          <a class="list-group-item list-group-item-action" id="list-subscription-list" data-bs-toggle="list" href="#list-subscription" role="tab" aria-controls="list-subscription">
+            Subscription
+          </a>
+
         </div>
       </div>
 
@@ -184,6 +188,74 @@ My settings
                 <li><%= link_to 'Source Han Sans Regular', '#', value: 'Source Han Sans Regular', class: "dropdown-item font-choice", style: 'font-family: Source Han Sans Regular' %></li>
                 <li><%= link_to 'Tinos Regular', '#', value: 'Tinos Regular', class: "dropdown-item font-choice", style: 'font-family: Tinos Regular' %></li>
             </ul>
+
+          </div>
+
+
+          <div class="tab-pane fade" id="list-subscription" role="tabpanel" aria-labelledby="list-subscription-list">
+      
+
+<div class="subscription-plans d-flex flex-column flex-md-row justify-content-center align-items-stretch gap-4">
+  <div class="plan-card free-plan d-flex flex-column position-relative overflow-hidden shadow-lg border border-3" style="border-color: #0951a9 !important; border-radius: 1.5rem !important; max-width: 350px; transition: transform 0.3s ease-in-out; min-height: 500px;">
+    <div class="card-header bg-transparent text-center py-4 border-bottom-0">
+      <h3 class="fw-bold mb-1 d-flex align-items-center justify-content-center gap-2">
+        <%= image_tag "simple_cocktail.svg", size: "40x40", class: "img-fluid" %>
+        Janitor
+      </h3>
+      <h4 style="color: #0951a9;">Free</h4>
+    </div>
+    <div class="card-body p-4 flex-grow-1">
+      <p class="text-center text-muted mb-4">Basic plan for entry-level users. Get started with essential features at no cost.</p>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item border-0">✓ Limited access to core tools</li>
+        <li class="list-group-item border-0">✓ Free daily usage quota</li>
+        <li class="list-group-item border-0">✓ Community support forums</li>
+        <li class="list-group-item border-0">✓ Basic analytics dashboard</li>
+        <li class="list-group-item border-0">✓ Data used for service improvements *</li>
+      </ul>
+    </div>
+    <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
+      <%= link_to "Current plan", "#", class: "btn btn-primary btn-lg w-100 disabled", aria: { disabled: true }, tabindex: -1, onclick: "return false;" %>
+    </div>
+    <style>
+      .free-plan:hover { transform: scale(1.05); }
+    </style>
+  </div>
+
+  <div class="plan-card paid-plan d-flex flex-column position-relative overflow-hidden shadow-lg border border-3" style="border-color: #0951a9 !important; border-radius: 1.5rem !important; max-width: 350px; transition: transform 0.3s ease-in-out; background: linear-gradient(to bottom, #f8f9fa, #ffffff); min-height: 500px;">
+    <span class="position-absolute top-0 end-0 m-2 badge bg-primary text-white px-3 py-2 rounded-pill" style="background-color: #0951a9 !important; transform: translateY(-50%);">Recommended</span>
+    <div class="card-header bg-transparent text-center py-4 border-bottom-0">
+      <h3 class="fw-bold mb-1 d-flex align-items-center justify-content-center gap-2">
+        <%= image_tag "rich_cocktail.svg", size: "40x40", class: "img-fluid" %>
+        Pomologist
+      </h3>
+      <h4 style="color: #0951a9;">$7/month</h4>
+    </div>
+    <div class="card-body p-4 flex-grow-1">
+      <p class="text-center text-muted mb-4">Advanced plan for professionals needing premium features and higher limits.</p>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item border-0">✓ Unlimited access to all tools</li>
+        <li class="list-group-item border-0">✓ Priority support and consultations</li>
+        <li class="list-group-item border-0">✓ Advanced customization options</li>
+        <li class="list-group-item border-0">✓ Enhanced security features</li>
+        <li class="list-group-item border-0">✓ Data not used for improvements *</li>
+      </ul>
+    </div>
+    <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
+      <%= link_to "Select", "#", class: "btn btn-primary btn-lg w-100" %>
+    </div>
+    <style>
+      .paid-plan:hover { transform: scale(1.05); }
+    </style>
+  </div>
+</div>
+
+
+
+
+
+
+
 
           </div>
 

@@ -52,6 +52,8 @@ gem "redis", "~> 5.0"
 gem 'grover'
 gem 'meta-tags'
 
+gem 'stripe' 
+
 gem "aws-sdk-s3", require: false
 
 gem 'google-cloud-ai_platform' 
