@@ -57,7 +57,9 @@ class User < ApplicationRecord
     end
 
     def pomologist?
-        subscription&.active? && plan == 'pomologist'
+        subscription.present? &&
+        subscription.plan == 'pomologist' &&
+        %w[active trialing incomplete past_due].include?(subscription.status)
     end
 
     def private?

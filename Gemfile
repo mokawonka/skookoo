@@ -53,6 +53,7 @@ gem 'grover'
 gem 'meta-tags'
 
 gem 'stripe'
+gem 'redis-session-store'
 
 gem "aws-sdk-s3", require: false
 

@@ -1,5 +1,4 @@
 class WebhooksController < ApplicationController
-  skip_before_action :authorize_user!
   skip_before_action :verify_authenticity_token  # In production, verify signature below
 
   def stripe
@@ -18,8 +17,16 @@ class WebhooksController < ApplicationController
 
     case event.type
     when 'checkout.session.completed'
-      subscription = Subscription.find_by(stripe_subscription_id: event.data.object.subscription)
-      subscription&.update(status: 'active', plan: 'pomologist')
+      session = event.data.object
+      user = User.find_by(id: session.metadata['user_id'])
+      if user && user.subscription
+        user.subscription.update!(
+          plan: 'pomologist',
+          status: 'active',
+          stripe_subscription_id: session.subscription,
+          current_period_end: Time.at(session.subscription.current_period_end)
+        )
+      end
     when 'invoice.payment_succeeded'
       # Renewal: Update current_period_end
     when 'invoice.payment_failed'

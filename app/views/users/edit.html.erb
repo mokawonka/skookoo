@@ -207,22 +207,27 @@ My settings
     <div class="card-body p-4 flex-grow-1">
       <p class="text-center text-muted mb-4">Basic plan for entry-level users. Get started with essential features at no cost.</p>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item border-0">✓ Limited access to core tools</li>
-        <li class="list-group-item border-0">✓ Free daily usage quota</li>
-        <li class="list-group-item border-0">✓ Community support forums</li>
-        <li class="list-group-item border-0">✓ Basic analytics dashboard</li>
-        <li class="list-group-item border-0">✓ Data used for service improvements *</li>
+        <li class="list-group-item border-0">✓ React to highlights with likes, emojis and comments.</li>
+        <li class="list-group-item border-0">✓ Upvote/Downvote highlights.</li>
+        <li class="list-group-item border-0">✓ Build a social profile out of your highlights.</li>
+        <li class="list-group-item border-0">✓ Follow your friends and build a network.</li>
       </ul>
     </div>
     <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
-      <%= link_to "Current Plan", "#", class: "btn btn-primary btn-lg w-100 disabled", aria: { disabled: true }, tabindex: -1, onclick: "return false;" %>
+      <% if current_user&.plan == 'janitor' || current_user&.plan.blank? %>
+        <%= link_to "Current Plan", "#", class: "btn btn-primary btn-lg w-100 disabled", aria: { disabled: true }, tabindex: -1, onclick: "return false;" %>
+      <% else %>
+        <%= button_to "Downgrade", subscriptions_downgrade_path, method: :delete, data: { turbo: false, confirm: "Are you sure? You'll lose premium features." }, class: "btn btn-outline-secondary btn-lg w-100" %>
+      <% end %>
     </div>
     <style>
       .free-plan:hover { transform: scale(1.05); }
     </style>
   </div>
 
-  <div class="plan-card paid-plan d-flex flex-column position-relative overflow-hidden shadow-lg border border-3" style="border-color: #0951a9 !important; border-radius: 1.5rem !important; max-width: 350px; transition: transform 0.3s ease-in-out; background: linear-gradient(to bottom, #f8f9fa, #ffffff); min-height: 500px;">
+  <div class="plan-card paid-plan d-flex flex-column position-relative overflow-hidden shadow-lg border border-3" 
+     style="border-color: #0951a9 !important; border-radius: 1.5rem !important; max-width: 350px; transition: transform 0.3s ease-in-out; 
+            background: linear-gradient(135deg, #fffaf0 0%, #fdf6e3 50%, #fffaf0 100%); min-height: 500px;">
     <span class="position-absolute top-0 end-0 m-2 badge bg-primary text-white px-3 py-2 rounded-pill" style="background-color: #0951a9 !important; transform: translateY(-50%);">Recommended</span>
     <div class="card-header bg-transparent text-center py-4 border-bottom-0">
       <h3 class="fw-bold mb-1 d-flex align-items-center justify-content-center gap-2">
@@ -232,21 +237,26 @@ My settings
       <h4 style="color: #0951a9;">$7/month</h4>
     </div>
     <div class="card-body p-4 flex-grow-1">
-      <p class="text-center text-muted mb-4">Advanced plan for professionals needing premium features and higher limits.</p>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item border-0">✓ Unlimited access to all tools</li>
-        <li class="list-group-item border-0">✓ Priority support and consultations</li>
-        <li class="list-group-item border-0">✓ Advanced customization options</li>
-        <li class="list-group-item border-0">✓ Enhanced security features</li>
-        <li class="list-group-item border-0">✓ Data not used for improvements *</li>
+      <p class="text-center text-muted mb-4">Advanced plan for book lovers who need premium features and higher limits.</p>
+      <ul class="list-group list-group-flush" style="background: linear-gradient(135deg, #fffaf0 0%, #fdf6e3 100%); border-radius: 0.75rem; overflow: hidden;">
+        <li class="list-group-item border-0" style="background: transparent;"><span style="color: #d4af37; font-size: 1.2em;">✦</span>  All Janitor's plan features.</li>
+        <li class="list-group-item border-0" style="background: transparent;"><span style="color: #d4af37; font-size: 1.2em;">✦</span>  Private profile.</li>
+        <li class="list-group-item border-0" style="background: transparent;"><span style="color: #d4af37; font-size: 1.2em;">✦</span>  Ability to react to highlights with GIFs.</li>
+        <li class="list-group-item border-0" style="background: transparent;"><span style="color: #d4af37; font-size: 1.2em;">✦</span>  Access to beautiful book background textures.</li>
+        <li class="list-group-item border-0" style="background: transparent;"><span style="color: #d4af37; font-size: 1.2em;">✦</span>  Access to explanations by AI.</li>
+        <li class="list-group-item border-0" style="background: transparent;"><span style="color: #d4af37; font-size: 1.2em;">✦</span>  Imagine your highlights with AI.</li>
       </ul>
     </div>
-   <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
-    <%= button_to "Select", subscriptions_path,
-                  method: :post,
-                  data: { turbo: false },
-                  class: "btn btn-primary btn-lg w-100" %>
-  </div>
+    <div class="card-footer bg-transparent text-center border-top-0 pb-4 mt-auto">
+      <% if current_user&.pomologist? %>
+        <%= link_to "Current Plan", "#", class: "btn btn-primary btn-lg w-100 disabled", aria: { disabled: true }, tabindex: -1, onclick: "return false;" %>
+      <% else %>
+        <%= button_to "Select", subscriptions_path,
+                      method: :post,
+                      data: { turbo: false },
+                      class: "btn btn-primary btn-lg w-100" %>
+      <% end %>
+    </div>
     <style>
       .paid-plan:hover { transform: scale(1.05); }
     </style>

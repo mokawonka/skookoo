@@ -124,9 +124,17 @@ Rails.application.routes.draw do
 
   resources :expressions
 
-  resources :subscriptions, only: [:new, :create]
+  resources :subscriptions, only: [:new, :create] do
+    collection do
+      get :success
+      delete :downgrade
+    end
+  end
+
+  get '/subscriptions/success', to: 'subscriptions#success', as: :subscriptions_success
+  get '/subscriptions/downgrade', to: 'subscriptions#downgrade', as: :subscriptions_downgrade
   
-  post '/webhooks/stripe', to: 'webhooks#stripe' 
+  post '/webhooks/stripe', to: 'webhooks#stripe'
 
   # Agent API (for AI bots)
   namespace :api do
