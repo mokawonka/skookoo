@@ -11,15 +11,15 @@
   <% end %>
 
     <button id="sort-top" class="btn btn-sm" 
-          style="border-color: #0951a9; 
+          style="border-color: #ff8080; 
                  background-color: #ffffff; 
-                 color: #0951a9;
+                 color: #ff8080;
                  margin-left: 10px;">
     Best
   </button>
   <button id="sort-new" class="btn btn-sm active" 
-          style="border-color: #0951a9; 
-                 background-color: #0951a9; 
+          style="border-color: #ff8080; 
+                 background-color: #ff8080; 
                  color: #ffffff;
                  margin-left: 5px;">
     Newest
@@ -66,8 +66,8 @@
       $('#sort-top').on('click', function () {
         if (current_sort !== 'top') {
           current_sort = 'top';
-          $('#sort-top').addClass('active').css({'background-color': '#0951a9', 'color': '#ffffff'});
-          $('#sort-new').removeClass('active').css({'background-color': '#ffffff', 'color': '#0951a9'});
+          $('#sort-top').addClass('active').css({'background-color': '#ff8080', 'color': '#ffffff'});
+          $('#sort-new').removeClass('active').css({'background-color': '#ffffff', 'color': '#ff8080'});
           fetchPosts();
         }
       });
@@ -75,8 +75,8 @@
       $('#sort-new').on('click', function () {
         if (current_sort !== 'new') {
           current_sort = 'new';
-          $('#sort-new').addClass('active').css({'background-color': '#0951a9', 'color': '#ffffff'});
-          $('#sort-top').removeClass('active').css({'background-color': '#ffffff', 'color': '#0951a9'});
+          $('#sort-new').addClass('active').css({'background-color': '#ff8080', 'color': '#ffffff'});
+          $('#sort-top').removeClass('active').css({'background-color': '#ffffff', 'color': '#ff8080'});
           fetchPosts();
         }
       });
