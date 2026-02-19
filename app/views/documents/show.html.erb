@@ -187,6 +187,31 @@
                 </div>
               </div>
 
+              <div class="setting">
+                <label>Font Family</label>
+                    <select id="font-family-select">
+                      <option style="font-family: 'Crimson Pro';" value="Crimson Pro">Crimson Pro</option>
+                      <option style="font-family: 'Fira Sans';" value="Fira Sans">Fira Sans</option>
+                      <option style="font-family: 'Fira Mono';" value="Fira Mono">Fira Mono</option>
+                      <option style="font-family: 'League Spartan Bold';" value="League Spartan Bold">League Spartan Bold</option>
+                      <option style="font-family: 'FredokaOne';" value="FredokaOne">Fredoka One</option>
+                      <option style="font-family: 'Chalkduster';" value="Chalkduster">Chalkduster</option>
+                      <option style="font-family: 'Times New Roman';" value="Times New Roman">Times New Roman</option>
+                      <option style="font-family: 'Arimo Regular';" value="Arimo Regular">Arimo</option>
+                      <option style="font-family: 'Clear Sans Regular';" value="Clear Sans Regular">Clear Sans</option>
+                      <option style="font-family: 'Cousine Regular';" value="Cousine Regular">Cousine</option>
+                      <option style="font-family: 'Droid Sans';" value="Droid Sans">Droid Sans</option>
+                      <option style="font-family: 'Noto Sans Regular';" value="Noto Sans Regular">Noto Sans</option>
+                      <option style="font-family: 'Open Sans Regular';" value="Open Sans Regular">Open Sans</option>
+                      <option style="font-family: 'Permanent Marker';" value="Permanent Marker">Permanent Marker</option>
+                      <option style="font-family: 'Roboto Regular';" value="Roboto Regular">Roboto</option>
+                      <option style="font-family: 'Roboto Slab Regular';" value="Roboto Slab Regular">Roboto Slab</option>
+                      <option style="font-family: 'Special Elite';" value="Special Elite">Special Elite</option>
+                      <option style="font-family: 'Source Han Sans Regular';" value="Source Han Sans Regular">Source Han Sans</option>
+                      <option style="font-family: 'Tinos Regular';" value="Tinos Regular">Tinos</option>
+                    </select>
+              </div>
+
             </div>
           </div>
 
@@ -206,7 +231,8 @@
             fontSize: <%= @document.font_size || 18 %>,
             lineHeight: <%= @document.line_height || 1.6 %>,
             bgColor: "<%= @document.bg_color || '#ffffff' %>",
-            textColor: "<%= @document.text_color || '#111111' %>"
+            textColor: "<%= @document.text_color || '#111111' %>",
+            fontFamily: "<%= @document.font_family || 'Crimson Pro' %>"
           };
 
           // Now sync localStorage to DB values
@@ -222,22 +248,51 @@
           STABLE THEME ENGINE
         ───────────────────────────────────────────── */
 
+        function updateViewerBackground() {
+          if (!window.ebookSettings || !window.ebookSettings.bgColor) return;
+
+          const bgColor = window.ebookSettings.bgColor;
+          const viewer = document.getElementById("viewer");
+
+          if (!viewer) return;
+
+          // Always set these basics
+          viewer.style.backgroundColor = bgColor;
+          viewer.style.backgroundImage = "none";
+          viewer.style.backgroundRepeat = "initial";
+          viewer.style.backgroundSize = "initial";
+          viewer.style.backgroundPosition = "initial";
+
+          // Special case: parchment texture
+          if (bgColor.toLowerCase() === "#f5e8c7") {
+            viewer.style.backgroundImage = `url("<%= asset_path('textures/parchment.jpg') %>")`;
+            viewer.style.backgroundRepeat = "repeat";
+            viewer.style.backgroundSize = "auto";
+            viewer.style.backgroundPosition = "center";
+          }
+
+          viewer.style.minHeight = "100vh";
+          viewer.style.height = "100%";  
+        }
+
         function applyTheme() {
           if (!rendition) return;
 
-          const { fontSize, lineHeight, bgColor, textColor } = window.ebookSettings;
+          const { fontSize, lineHeight, bgColor, textColor, fontFamily } = window.ebookSettings;
 
           const themeStyles = {
             "html": {
-              "min-height": "100% !important",
+              "min-height": "100vh !important",
               "height": "100% !important"
             },
             "body": {
               "min-height": "100vh !important",
+              "height": "100% !important",
               "background-color": bgColor + " !important",
               "color": textColor + " !important",
               "font-size": fontSize + "px !important",
-              "line-height": lineHeight + "em !important"
+              "line-height": lineHeight + "em !important",
+              "font-family": `'${fontFamily}', sans-serif !important`
             }
           };
 
@@ -254,6 +309,12 @@
 
           rendition.themes.register("custom", themeStyles);
           rendition.themes.select("custom");
+
+          // Override font-family on all body children (with !important added by EPUB.js)
+          const fontValue = `'${fontFamily}'`;  // Quote to handle spaces
+          rendition.themes.override("font-family", fontValue, "body *");
+
+          updateViewerBackground(); 
         }
 
 
@@ -263,6 +324,7 @@
           rendition.themes.select("custom");
           loadSettings();
           applyTheme();
+          updateViewerBackground(); 
         });
 
         /* Reapply after each re-render */
@@ -290,7 +352,8 @@
                 font_size: window.ebookSettings.fontSize,
                 line_height: window.ebookSettings.lineHeight,
                 bg_color: window.ebookSettings.bgColor,
-                text_color: window.ebookSettings.textColor
+                text_color: window.ebookSettings.textColor,
+                font_family: window.ebookSettings.fontFamily
               })
             })
             .then(res => res.json())
@@ -383,8 +446,21 @@
 
               saveSettings();
               applyTheme();
+              updateViewerBackground();
             };
           });
+
+          /* ───── Font Family ───── */
+          const fontSelect = document.getElementById("font-family-select");
+          if (fontSelect) {
+            fontSelect.value = window.ebookSettings.fontFamily;
+
+            fontSelect.onchange = (e) => {
+              window.ebookSettings.fontFamily = e.target.value;
+              saveSettings();
+              applyTheme();
+            };
+          }
         }
 
         /* ────── TOC (FULLY RESTORED) ────── */
@@ -828,6 +904,13 @@
                       win.getSelection().removeAllRanges();
                   }
               }
+
+              // Inject external font CSS
+              const contents = view.contents;
+              if (contents) {
+                contents.addStylesheet('<%= asset_path("fontnames.css") %>')
+                  .catch(err => console.error("Failed to load font CSS:", err));
+              }
           });
 
           // loading vocabulary / private
@@ -848,4 +931,4 @@
 
       </script>
 
-<% end %> 
+<% end %>

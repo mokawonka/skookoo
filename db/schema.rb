@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_17_183332) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_18_182426) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -85,6 +85,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_17_183332) do
     t.float "line_height"
     t.string "bg_color"
     t.string "text_color"
+    t.string "font_family", default: "Crimson Pro"
     t.index ["last_accessed_at"], name: "index_documents_on_last_accessed_at"
   end
 

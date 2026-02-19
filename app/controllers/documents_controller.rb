@@ -80,7 +80,8 @@ class DocumentsController < ApplicationController
         font_size: params[:font_size],
         line_height: params[:line_height],
         bg_color: params[:bg_color],
-        text_color: params[:text_color]
+        text_color: params[:text_color],
+        font_family: params[:font_family]
       )
       render json: { status: "ok" }
     else
@@ -145,7 +146,7 @@ class DocumentsController < ApplicationController
   def document_params
       # for whitelisting the parameters for documents to be set
       params.require(:document).permit(:userid, :epubid, :title, :authors, :ispublic, :progress,
-                                       :font_size, :line_height, :bg_color, :text_color, :locations)
+                                       :font_size, :line_height, :bg_color, :text_color, :font_family, :locations)
   end
 
 end

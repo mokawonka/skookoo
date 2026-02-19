@@ -291,6 +291,9 @@
   border-radius: 4px; 
 }
 
+.setting {
+  text-align: center;
+}
 
 /* Settings button (gray) */
 #settings-button {
@@ -329,7 +332,6 @@
   left: 50%;
   width: 100%;
   max-width: 460px;
-  height: 420px;
   background: #ffffff;
   box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
   border-top-left-radius: 20px;
@@ -340,6 +342,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  overflow: hidden !important;
+  height: auto !important; 
 }
 
 .settings-panel.open {
@@ -375,6 +379,8 @@
   display: flex;
   flex-direction: column;
   gap: 28px;
+  overflow: visible !important;
+  max-height: none !important; 
 }
 
 .setting label {
@@ -460,4 +466,48 @@ input[type="range"] {
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
   }
+}
+
+
+#font-family-select {
+  border: 2px solid #0951a9;
+  background-color: #f8f9fa;
+  color: #0951a9;
+  padding: 8px 12px;
+  border-radius: 21px;  /* Increased for more rounded corners on the select "button" */
+  font-size: 16px;
+  cursor: pointer;
+  appearance: none;
+  width: 80%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Style the dropdown options for rounded corners (note: this rounds individual options, but the whole dropdown container's rounding is browser-dependent and may not apply fully) */
+#font-family-select option {
+  background-color: #f8f9fa;
+  color: #0951a9;
+  padding: 8px;
+  border-radius: 21px;  /* Rounds each option in the list menu */
+  text-align: center;
+}
+
+/* Optional: Add a subtle shadow for fancier look */
+#font-family-select {
+  box-shadow: 0 2px 4px rgba(9, 81, 169, 0.1);
+}
+
+/* For better dropdown appearance in some browsers (e.g., Chrome), but full container rounding isn't guaranteed */
+#font-family-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(9, 81, 169, 0.2);
+}
+
+#viewer {
+  width: 100vw;
+  min-height: 100vh;          /* crucial for scrolled mode */
+  height: 100%;               /* if parent is full-height */
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;  /* default fallback before JS runs */
 }
