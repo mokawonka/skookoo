@@ -474,7 +474,7 @@ input[type="range"] {
   background-color: #f8f9fa;
   color: #0951a9;
   padding: 8px 12px;
-  border-radius: 21px;  /* Increased for more rounded corners on the select "button" */
+  border-radius: 21px; 
   font-size: 16px;
   cursor: pointer;
   appearance: none;
@@ -483,31 +483,43 @@ input[type="range"] {
   text-align: center;
 }
 
-/* Style the dropdown options for rounded corners (note: this rounds individual options, but the whole dropdown container's rounding is browser-dependent and may not apply fully) */
 #font-family-select option {
   background-color: #f8f9fa;
   color: #0951a9;
   padding: 8px;
-  border-radius: 21px;  /* Rounds each option in the list menu */
+  border-radius: 21px;  
   text-align: center;
 }
 
-/* Optional: Add a subtle shadow for fancier look */
 #font-family-select {
   box-shadow: 0 2px 4px rgba(9, 81, 169, 0.1);
 }
 
-/* For better dropdown appearance in some browsers (e.g., Chrome), but full container rounding isn't guaranteed */
 #font-family-select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(9, 81, 169, 0.2);
 }
 
 #viewer {
-  width: 100vw;
-  min-height: 100vh;          /* crucial for scrolled mode */
-  height: 100%;               /* if parent is full-height */
+  width: 100%;
+  min-height: 100vh;         
+  height: 100%;              
   margin: 0;
   padding: 0;
-  background-color: #ffffff;  /* default fallback before JS runs */
+  background-color: #ffffff; 
+}
+
+
+#texture-overlay {
+  position: fixed;                
+  inset: 0;                      
+  pointer-events: none;
+  z-index: 5;                  
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  box-shadow: 
+    inset 0 0 120px 40px rgba(0,0,0,0.18),
+    inset 0 0 200px 80px rgba(139,69,19,0.22),
+    inset 0 0 300px 140px rgba(0,0,0,0.12);
+  filter: brightness(0.94) sepia(0.15);
 }

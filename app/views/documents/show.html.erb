@@ -86,6 +86,8 @@
           <div id=content class="p-0">
           
             <div id="viewer" class="scrolled"></div>
+            <div id="texture-overlay"></div>
+
 
             <a id="prev" href="#prev" class="arrow">‹</a>
             <a id="next" href="#next" class="arrow">›</a>
@@ -178,10 +180,22 @@
                 <div class="palette">
                   <button class="color-btn active" data-bg="#ffffff" data-color="#111111" style="background:#ffffff;"></button>
                   <button class="color-btn" data-bg="#f4ecd8" data-color="#3c2f2f" style="background:#f4ecd8;"></button>
-                  <button class="color-btn" 
+                  <button class="color-btn pomologist" 
+                          data-bg="lightblue" 
+                          data-color="#3c2f2f"
+                          data-feature="Light Blue Theme" 
+                          style="background:lightblue;"></button>
+                  <button class="color-btn pomologist" 
                           data-bg="#f5e8c7" 
-                          data-color="#3c2f2f" 
+                          data-color="#3c2f2f"
+                          data-feature="Old Parchment Texture"
                           style="background: #f5e8c7 url('<%= asset_path('textures/parchment.jpg') %>') repeat center / auto;">
+                  </button>
+                  <button class="color-btn pomologist" 
+                          data-bg="#f4ebd3" 
+                          data-color="#3c2f2f"
+                          data-feature="Origami Texture" 
+                          style="background: #f4ebd3 url('<%= asset_path('textures/origami.jpg') %>') repeat center / auto;">
                   </button>
 
                 </div>
@@ -219,7 +233,7 @@
 
       <script>
 
-        var rendition = book.renderTo("viewer", { method: "continuous", flow: "scrolled",  width: "100%" , iframe: true});
+        var rendition = book.renderTo("viewer", {flow: "scrolled",  width: "100%" , iframe: true});
 
         /* ─────────────────────────────────────────────
           GLOBAL SETTINGS
@@ -247,32 +261,42 @@
         /* ─────────────────────────────────────────────
           STABLE THEME ENGINE
         ───────────────────────────────────────────── */
-
         function updateViewerBackground() {
           if (!window.ebookSettings || !window.ebookSettings.bgColor) return;
 
-          const bgColor = window.ebookSettings.bgColor;
+          const bgColor = window.ebookSettings.bgColor.toLowerCase();
           const viewer = document.getElementById("viewer");
+          const overlay = document.getElementById("texture-overlay");
 
-          if (!viewer) return;
+          if (!viewer || !overlay) return;
 
-          // Always set these basics
+          // Reset viewer background
           viewer.style.backgroundColor = bgColor;
           viewer.style.backgroundImage = "none";
           viewer.style.backgroundRepeat = "initial";
           viewer.style.backgroundSize = "initial";
           viewer.style.backgroundPosition = "initial";
 
-          // Special case: parchment texture
-          if (bgColor.toLowerCase() === "#f5e8c7") {
+          // Control vignette via overlay opacity
+          overlay.style.opacity = "0";
+
+          if (bgColor === "#f5e8c7") {
             viewer.style.backgroundImage = `url("<%= asset_path('textures/parchment.jpg') %>")`;
+            viewer.style.backgroundRepeat = "repeat";
+            viewer.style.backgroundSize = "auto";
+            viewer.style.backgroundPosition = "center";
+
+            overlay.style.opacity = "1";   // show overlay
+          }
+          else if (bgColor === "#f4ebd3"){
+            viewer.style.backgroundImage = `url("<%= asset_path('textures/origami.jpg') %>")`;
             viewer.style.backgroundRepeat = "repeat";
             viewer.style.backgroundSize = "auto";
             viewer.style.backgroundPosition = "center";
           }
 
           viewer.style.minHeight = "100vh";
-          viewer.style.height = "100%";  
+          viewer.style.height = "100%";
         }
 
         function applyTheme() {
@@ -283,7 +307,7 @@
           const themeStyles = {
             "html": {
               "min-height": "100vh !important",
-              "height": "100% !important"
+              "height": "100% !important",
             },
             "body": {
               "min-height": "100vh !important",
@@ -296,23 +320,25 @@
             }
           };
 
-          // Add parchment texture if needed
+          // Add texture if needed
             if (bgColor.toLowerCase() === "#f5e8c7") {
-            Object.assign(themeStyles.body, {
-              "background-image": `url("<%= asset_path('textures/parchment.jpg') %>") !important`,
+              Object.assign(themeStyles.body, {
+                "background-image": `url("<%= asset_path('textures/parchment.jpg') %>") !important`,
+                "background-repeat": "repeat !important",
+                "background-size": "auto !important"
+              });
+          } else if (bgColor.toLowerCase() === "#f4ebd3"){
+              Object.assign(themeStyles.body, {
+              "background-image": `url("<%= asset_path('textures/origami.jpg') %>") !important`,
               "background-repeat": "repeat !important",
               "background-size": "auto !important"
             });
-          } else {
+          }else {
             themeStyles.body["background-image"] = "none !important";
           }
 
           rendition.themes.register("custom", themeStyles);
           rendition.themes.select("custom");
-
-          // Override font-family on all body children (with !important added by EPUB.js)
-          const fontValue = `'${fontFamily}'`;  // Quote to handle spaces
-          rendition.themes.override("font-family", fontValue, "body *");
 
           updateViewerBackground(); 
         }
@@ -434,22 +460,6 @@
             };
           }
 
-          /* ───── Background Palette ───── */
-          document.querySelectorAll(".color-btn").forEach(btn => {
-            btn.onclick = () => {
-              document.querySelectorAll(".color-btn")
-                .forEach(b => b.classList.remove("active"));
-              btn.classList.add("active");
-
-              window.ebookSettings.bgColor   = btn.dataset.bg;
-              window.ebookSettings.textColor = btn.dataset.color;
-
-              saveSettings();
-              applyTheme();
-              updateViewerBackground();
-            };
-          });
-
           /* ───── Font Family ───── */
           const fontSelect = document.getElementById("font-family-select");
           if (fontSelect) {
@@ -461,6 +471,59 @@
               applyTheme();
             };
           }
+
+          /* ───── Background Palette ───── */
+          // Normal palette buttons (non-premium)
+          document.querySelectorAll(".color-btn:not(.pomologist)").forEach(btn => {
+            btn.onclick = () => {
+              // your existing change logic
+              document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+              btn.classList.add("active");
+              window.ebookSettings.bgColor = btn.dataset.bg;
+              window.ebookSettings.textColor = btn.dataset.color;
+              saveSettings();
+              applyTheme();
+              updateViewerBackground();
+            };
+          });
+
+          /* ───── Premium teaser for .pomologist buttons ───── */
+          document.querySelectorAll('.color-btn.pomologist').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+              
+              const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
+
+              if (!isPomologist) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const modalEl = document.getElementById('premiumTeaserModal');
+                if (!modalEl) return;
+
+                const featureName = btn.dataset.feature || "This background";
+                const bodyP = modalEl.querySelector('.modal-body p:first-child');
+                if (bodyP) {
+                  bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
+                }
+
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+                return;
+              }
+
+              // PREMIUM USER → apply theme normally
+              document.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+              btn.classList.add("active");
+
+              window.ebookSettings.bgColor = btn.dataset.bg;
+              window.ebookSettings.textColor = btn.dataset.color;
+
+              saveSettings();
+              applyTheme();
+              updateViewerBackground();
+            });
+          });
+
         }
 
         /* ────── TOC (FULLY RESTORED) ────── */
@@ -727,44 +790,65 @@
           }
         }
 
+        function resetScrollToTop() {
+          const viewer = document.getElementById("viewer");
+          if (viewer) { viewer.scrollTop = 0;}
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+          });
+        }
+
+        function goNext() {
+          rendition.next();
+          rendition.once("rendered", () => {
+            resetScrollToTop();
+          });
+        }
+
+        function goPrev() {
+          rendition.prev();
+          rendition.once("rendered", () => {
+            resetScrollToTop();
+          });
+        }
+
+        /* ───── Click Arrows ───── */
         var next = document.getElementById("next");
         next.addEventListener("click", function(e){
           e.preventDefault();
-          var n = rendition.next();
+          goNext();
         }, false);
 
         var prev = document.getElementById("prev");
         prev.addEventListener("click", function(e){
           e.preventDefault();
-          var pr = rendition.prev();
+          goPrev();
         }, false);
 
+        /* ───── Keyboard Arrows ───── */
         var keyListener = function(e){
-          // Left Key
           if ((e.keyCode || e.which) == 37) {
-            var pr = rendition.prev();
+            goPrev();
           }
 
-          // Right Key
           if ((e.keyCode || e.which) == 39) {
-            var n = rendition.next();
-            // n.then(function(){updateprogress();});
+            goNext();
           }
-
         };
+
         rendition.on("keyup", keyListener);
         document.addEventListener("keyup", keyListener, false);
 
         var timeoutHandle;
-            rendition.on('relocated', function(location){
+        rendition.on('relocated', function(location){
           updateProgressbar();
           <% if logged_in? && current_user.id == @document.userid %>
             // wait 7 seconds before updating progress
             window.clearTimeout(timeoutHandle);
             timeoutHandle = window.setTimeout(function(){updateProgressinDB();}, 7000);
           <% end %>
-                });
-
+        });
 
         // loading highlights (berries) / public
         <% @highlights.each do |berry| %>          
