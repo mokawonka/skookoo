@@ -1,3 +1,44 @@
-<div class=centered>
-    <%= render 'shared/plans' %>
+<div style="min-height:100vh; background:linear-gradient(135deg,#f8f9fa,#e9ecef);">
+
+  <!-- Hero Section -->
+  <section style="
+      background:#064a8a;
+      padding:50px 20px 60px 20px;
+      text-align:center;
+      border-bottom-left-radius:40px;
+      border-bottom-right-radius:40px;
+      box-shadow:0 5px 20px rgba(0,0,0,0.1);
+  ">
+    <h1 style="
+        font-size:2.2rem; 
+        font-weight:700; 
+        margin-bottom:10px; 
+        letter-spacing:-0.5px;
+        color:white;
+    ">
+      Choose Your Plan
+    </h1>
+
+    <p style="
+        font-size:1rem; 
+        color:rgba(255,255,255,0.85);
+    ">
+      Unlock premium features and enjoy the full experience.
+    </p>
+  </section>
+
+  <!-- Plans Section -->
+  <section style="margin-top:-40px; padding:40px 20px;">
+    <div style="
+        max-width:1100px;
+        margin:0 auto;
+        background:white;
+        border-radius:20px;
+        padding:35px;
+        box-shadow:0 15px 40px rgba(0,0,0,0.06);
+    ">
+      <%= render 'shared/plans' %>
+    </div>
+  </section>
+
 </div>

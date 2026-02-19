@@ -189,7 +189,26 @@
     });
 
     // look for gifs
-    $('#addgifbutton').click(function(){
+    $('#addgifbutton').click(function(e){
+
+        const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
+
+        if (!isPomologist) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const modalEl = document.getElementById('premiumTeaserModal');
+            const featureName = "Reacting with GIFs";
+            const bodyP = modalEl.querySelector('.modal-body p:first-child');
+            if (bodyP) {
+                bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
+            }
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+
+            return;
+        }
+
        $('#commentform').hide();
         $('#emojiresults').hide();
 
@@ -391,7 +410,26 @@
 
 
     // View Definition
-    $('#definitionbutton').on('click', function(){
+    $('#definitionbutton').on('click', function(e){
+
+        const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
+
+        if (!isPomologist) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const modalEl = document.getElementById('premiumTeaserModal');
+            const featureName = "Explaining with AI";
+            const bodyP = modalEl.querySelector('.modal-body p:first-child');
+            if (bodyP) {
+                bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
+            }
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+
+            return;
+        }
+
         var text = $('#highlight blockquote').text().trim();
         
         $('#definitionModal').modal('show');
@@ -412,7 +450,26 @@
     });
 
 
-    $('#imaginebutton').on('click', function(){
+    $('#imaginebutton').on('click', function(e){
+
+        const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
+
+        if (!isPomologist) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const modalEl = document.getElementById('premiumTeaserModal');
+            const featureName = "Imagining with AI";
+            const bodyP = modalEl.querySelector('.modal-body p:first-child');
+            if (bodyP) {
+                bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
+            }
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+
+            return;
+        }
+
         var text = $('#highlight blockquote').text().trim();
         
         $('#imagineModal').modal('show');
