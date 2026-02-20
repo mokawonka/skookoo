@@ -10,36 +10,244 @@
 }
 
 .list-group{
-  border-radius: 21px !important; 
+  border-radius: 21px !important;
 }
 
 .list-group-item.active{
   background-color: #0951a9 !important;
 }
 
-#allsettings{
-  padding-top: 5em;
-  padding-bottom: 5em;
+.list-group-item {
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
-#list-updaters{
+.list-group-item .menu-icon {
+  width: 32px;
+  height: 32px;
+  background: #f1f4f8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-group-item img {
+  opacity: 0.7;
+}
+
+.list-group-item:hover {
+  background: #f8fafc;
+  transform: translateX(4px);
+}
+
+.list-group-item.active {
+  background: #0951a3;
+  color: white;
+}
+
+.list-group-item.active .menu-icon {
+  background: rgba(255,255,255,0.15);
+}
+
+.list-group-item.active img {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+
+.list-group-item {
+  border: none !important;
+}
+
+.list-group-item:not(:last-child) {
+  border-bottom: none !important;
+}
+
+
+#list-updaters {
   max-width: 400px;
 }
 
-#updaters{
-  padding-top: 1em;
-  padding-left: 1em;
+
+#allsettings {
+  padding: 5em 0;
+  background: #f6f8fb;
+  min-height: 100vh;
 }
 
-.smallinput{
-  min-width: 300px;
-  height: 33px;
-  margin: 7px;
-  padding:0px;
 
-  padding-left:14px;
-  padding-right:14px;
+#updaters {
+  background: white;
+  padding: 2.5em;
+  border-radius: 18px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  min-height: 600px;
 }
+
+
+.updater-title {
+  color: #0951a9;
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 1.8em;
+  margin-bottom: 0.8em;
+  letter-spacing: 0.2px;
+}
+
+
+#updaters hr {
+  border: none;
+  height: 1px;
+  background: #f0f2f5;
+  margin: 2em 0;
+}
+
+
+.smallinput {
+  min-width: 320px;
+  height: 40px;
+  margin: 6px 0;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #e3e6ea;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.smallinput:focus {
+  outline: none;
+  border-color: #0951a9;
+  box-shadow: 0 0 0 3px rgba(9, 81, 169, 0.12);
+}
+
+
+.smallinput[type="submit"],
+button.smallinput {
+  background-color: #0951a9;
+  color: white;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.smallinput[type="submit"]:hover {
+  background-color: #083d82;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(9, 81, 169, 0.2);
+}
+
+
+.btn-danger {
+  border-radius: 10px !important;
+  font-weight: 500;
+}
+
+
+.custom-toggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.custom-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-label {
+  position: relative;
+  width: 52px;
+  height: 28px;
+  background: #e2e5ea;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-label .toggle-slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.custom-toggle input:checked + .toggle-label {
+  background: linear-gradient(135deg, #0951a9, #0a6dd8);
+}
+
+.custom-toggle input:checked + .toggle-label .toggle-slider {
+  transform: translateX(24px);
+}
+
+.toggle-text {
+  font-weight: 500;
+  color: #444;
+  font-size: 14px;
+}
+
+
+.dropdown-toggle.gray {
+  background: #f3f5f8;
+  border: 1px solid #e3e6ea;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.dropdown-toggle.gray:hover {
+  background: #e9edf3;
+}
+
+#fontlist {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border: none;
+}
+
+#fontlist .dropdown-item {
+  padding: 8px 16px;
+  transition: background 0.15s ease;
+}
+
+#fontlist .dropdown-item:hover {
+  background: #f3f6fa;
+}
+
+
+.tab-pane {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+
+  #updaters {
+    padding: 1.5em;
+  }
+
+  .smallinput {
+    min-width: 100%;
+    width: 100%;
+  }
+
+}
+
 
 #nameinput{
   width: 300px;
