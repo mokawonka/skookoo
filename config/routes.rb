@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "merch_orders/new"
+  get "merch_orders/create"
   get "subscriptions/new"
   get "subscriptions/create"
 
@@ -123,6 +125,8 @@ Rails.application.routes.draw do
   end
 
   resources :expressions
+
+  resources :merch_orders, only: [:new, :create, :show]
 
   resources :subscriptions, only: [:new, :create] do
     collection do

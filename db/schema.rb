@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_18_182426) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_20_150914) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -134,6 +134,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_18_182426) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "merch_orders", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "highlight_id", null: false
+    t.string "product_type"
+    t.text "design_text"
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "color"
+    t.integer "quantity"
+    t.index ["highlight_id"], name: "index_merch_orders_on_highlight_id"
+    t.index ["user_id"], name: "index_merch_orders_on_user_id"
+  end
+
   create_table "noticed_events", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "type"
     t.string "record_type"
@@ -206,5 +220,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_18_182426) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "merch_orders", "highlights"
+  add_foreign_key "merch_orders", "users"
   add_foreign_key "subscriptions", "users"
 end

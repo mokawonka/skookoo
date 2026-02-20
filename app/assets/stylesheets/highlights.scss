@@ -1,3 +1,103 @@
-// Place all the styles related to the highlights controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: https://sass-lang.com/
+
+.highlightactions{
+    font-size: 12px;
+    padding-top: 7px;
+    margin-top: 0px;
+}
+
+.highlightactions > span >  a {
+    color: gray;
+    text-decoration: none;
+    padding-right: 1em;
+}
+
+.highlightactions > span >  a:hover {
+    color:#0951a9;
+}
+
+.highlightactions > span > .hshare{
+    padding-right: 1em;
+    cursor: pointer;
+}
+
+.highlightactions > span > .hhook{
+    padding-right: 1em;
+    cursor: pointer;
+}
+
+.highlightactions .hmerch {
+  padding: 0.25em 0.6em;
+  color: #ff8080;         
+  text-decoration: none;    
+  font-weight: 500;
+  padding: 0;               
+  margin: 0;                
+  border: none;             
+  background: none;         
+  cursor: pointer;          
+  transition: color 0.2s ease;
+}
+
+.highlightactions .hmerch:hover {
+  color: #ff4d4d;           
+  text-decoration: none;
+}
+
+.hrating{
+  width: 33px;
+  float:left;
+}
+
+.hrating p{
+    margin-bottom: 0px;
+    margin-top:0px;
+    padding-left: 6px;
+}
+
+.oscore{
+    width: 50px !important;
+    text-align: center !important;
+    margin-left: -14px !important;
+    padding-left: 0px !important;
+    color:#ff8080;
+}
+
+.bscore{
+    width: 50px !important;
+    text-align: center !important;
+    margin-left: -14px !important;
+    padding-left: 0px !important;
+    color:#0951a9;
+}
+
+.hscore{
+    width: 50px !important;
+    text-align: center !important;
+    margin-left: -14px !important;
+    padding-left: 0px !important;
+    color:#808080;
+}
+
+.moscore{
+    color:#ff8080;
+}
+
+.mbscore{
+    color:#0951a9;
+}
+
+.mhscore{
+    color:#808080;
+}
+
+
+#upvote.active {
+    background: orangered;
+    color: white;
+}
+
+#downvote.active {
+    background: rgb(119, 119, 236);
+    color: white;
+}
+  
