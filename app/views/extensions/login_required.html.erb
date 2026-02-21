@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skookoo — Log in</title>
+  <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
+  <style>
+    body { padding: 1.5rem; max-width: 400px; margin: 0 auto; text-align: center; }
+    .skookoo-login-box { padding: 1.5rem; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6; }
+  </style>
+</head>
+<body>
+  <div class="skookoo-login-box">
+    <%= image_tag('berry_icon.png', style: 'width: 48px; height: 48px; margin-bottom: 0.5rem;') %>
+    <h6 class="mb-2">Log in to Skookoo</h6>
+    <p class="text-muted small mb-3">You need to be logged in to react to highlights. Open Skookoo in a new tab, log in, then try again.</p>
+    <%= link_to "Open Skookoo and log in", login_path, class: "btn btn-primary", target: "_blank", rel: "noopener" %>
+  </div>
+</body>
+</html>

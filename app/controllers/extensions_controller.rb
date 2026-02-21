@@ -1,10 +1,17 @@
 class ExtensionsController < ApplicationController
   include HighlightsHelper
 
+  skip_before_action :require_user, only: [:modal]
+
   # Allow extension modal to be embedded in iframes on any page (Chrome extension)
   after_action :allow_embed_in_iframe, only: [:modal]
 
   def modal
+    unless logged_in?
+      render :login_required, layout: false
+      return
+    end
+
     @quote = params[:quote]
     @url = params[:url].to_s
     @title = params[:title].to_s.presence || "Web Page"
