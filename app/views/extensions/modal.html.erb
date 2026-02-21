@@ -1,1 +1,45 @@
-$('#highlight blockquote').text("<%= j @quote %>");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="<%= form_authenticity_token %>">
+  <title>Skookoo — React</title>
+  <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag asset_path('font-awesome.min.css') %>
+  <style>
+    body { padding: 1rem; max-width: 500px; margin: 0 auto; }
+    #highlight blockquote { border-left: 4px solid #0951a9; padding-left: 1rem; margin: 0.5rem 0 1rem 0; color: #333; font-style: italic; }
+    .panel-icon { width: 20px; height: 20px; vertical-align: middle; }
+    .panel-icon-text { margin-left: 4px; }
+  </style>
+</head>
+<body>
+  <div id="highlightmodal">
+    <div class="text-center mb-2">
+      <h6 class="text-muted">
+        <%= image_tag('berry_icon.png', class: 'panel-icon') %> React with Skookoo
+      </h6>
+    </div>
+    <!-- Pre-filled from extension params (createhighlight expects #cfi, #authors, #title) -->
+    <div id="cfi" class="d-none"><%= @cfi %></div>
+    <div id="authors" class="d-none"><%= @fromauthors %></div>
+    <div id="title" class="d-none"><%= @fromtitle %></div>
+
+    <%= render "shared/createhighlight" %>
+  </div>
+
+  <%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
+  <%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
+
+  <script>
+    // Override documentid for extension context (createhighlight uses url.substr for documents)
+    var documentid = "<%= j @docid %>";
+    // Pre-fill the quote (createhighlight's #highlight blockquote starts empty)
+    $(function() {
+      $('#highlight blockquote').text("<%= j @quote %>");
+    });
+  </script>
+</body>
+</html>
