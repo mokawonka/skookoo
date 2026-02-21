@@ -1,6 +1,9 @@
 class ExtensionsController < ApplicationController
   include HighlightsHelper
 
+  # Allow extension modal to be embedded in iframes on any page (Chrome extension)
+  after_action :allow_embed_in_iframe, only: [:modal]
+
   def modal
     @quote = params[:quote]
     @url = params[:url].to_s
@@ -17,6 +20,11 @@ class ExtensionsController < ApplicationController
   end
 
   private
+
+  def allow_embed_in_iframe
+    response.headers.delete("X-Frame-Options")
+    response.headers["Content-Security-Policy"] = "frame-ancestors *"
+  end
 
   def uuid_from_url(url)
     return SecureRandom.uuid if url.blank?
