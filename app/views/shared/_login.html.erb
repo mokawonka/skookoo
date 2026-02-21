@@ -2,7 +2,7 @@
 
     <h4 class=pb-3> Log in </h4>
 
-    <%= form_with(scope: :session, url: login_path) do |f| %>
+    <%= form_with(scope: :session, url: login_path, data: { turbo: false }) do |f| %>
         <div class="form-group">
             <%= f.text_field :username, spellcheck: false, placeholder: "username", required: true, class: "form-control" %>
         </div>
