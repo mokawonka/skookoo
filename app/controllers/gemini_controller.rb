@@ -1,5 +1,4 @@
 class GeminiController < ApplicationController
-  before_action :authorize_user!
 
   def define
     text = params[:text].to_s.strip

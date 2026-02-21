@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
 
     before_action :require_user
 
-    before_action :require_pomologist, only: [:premium_action]
+    # before_action :require_pomologist, only: [:premium_action]
 
 
     # or home_controller.rb
@@ -23,9 +23,9 @@ class ApplicationController < ActionController::Base
     end
 
 
-    def require_pomologist
-        redirect_to subscriptions_new_path, alert: 'Upgrade to Pomologist!' unless current_user.pomologist?
-    end
+    # def require_pomologist
+    #     redirect_to subscriptions_new_path, alert: 'Upgrade to Pomologist!' unless current_user.pomologist?
+    # end
 
 
     # helpers functions to be used on all controllers
@@ -52,16 +52,19 @@ class ApplicationController < ActionController::Base
 
 
     def check_timestamp
-        if logged_in?
+        return unless logged_in?
 
-            @delta = Time.now - Time.parse(current_user.updated_at.to_s)
-            if @delta < 2.seconds
-                respond_to do |format|
-                    format.js {render "layouts/check_timestamp"}
-                end
+        last_action = session[:last_action_at]
+
+        if last_action && Time.current - last_action < 2.seconds
+            respond_to do |format|
+                format.js { render "layouts/check_timestamp" }
+                format.html { redirect_back fallback_location: root_path, alert: "Please retry in 2 seconds" }
             end
-            
+            return
         end
+
+        session[:last_action_at] = Time.current
     end
 
 end

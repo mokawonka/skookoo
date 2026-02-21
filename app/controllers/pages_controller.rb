@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  skip_before_action :require_user, only: [:login, :home, :search]
+  skip_before_action :require_user, only: [:login, :home, :search, :about]
 
   def login
     if logged_in?

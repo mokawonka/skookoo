@@ -1,8 +1,7 @@
 class RepliesController < ApplicationController
 
     skip_before_action :verify_authenticity_token
-    before_action :authorize_user!
-    # before_action :check_timestamp, only: [:create, :update, :update_score , :edit, :destroy]
+    before_action :check_timestamp, only: [:create, :update, :update_score , :edit, :destroy]
   
   
     def index

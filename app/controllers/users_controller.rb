@@ -1,16 +1,7 @@
 class UsersController < ApplicationController
     protect_from_forgery
     skip_before_action :require_user, only: [:new, :create, :show] 
-
-    before_action :authorize_user!, only: [:show_followers, :show_following, :show_replies, :follow, :unfollow, 
-                                           :update_data, :update_profile, :update_votes, :switch_mode, :update_font, 
-                                           :plusonemana, :minusonemana, :plustwomana, :minustwomana]
-    
-    # 3 seconds delay on user post requests to prevent attacks
-    # before_action :check_timestamp, only: [ :create, :follow, :unfollow, 
-    #                                        :update_data, :update_profile, :update_votes,
-    #                                        :switch_mode, :update_font, 
-    #                                        :plusonemana, :minusonemana, :plustwomana, :minustwomana]
+    before_action :check_timestamp, only: [:update, :update_votes, :follow, :unfollow]
 
 
     def new
@@ -465,7 +456,6 @@ class UsersController < ApplicationController
         
         Highlight.where(:userid => session[:user_id]).delete_all
         Document.where(:userid => session[:user_id]).delete_all
-        Idea.where(:userid => session[:user_id]).delete_all
         Expression.where(:userid => session[:user_id]).delete_all
 
 

@@ -1,5 +1,4 @@
 class SubscriptionsController < ApplicationController
-  before_action :authorize_user!
 
   def new
     # Render your pricing partial (e.g., in views/subscriptions/new.html.erb)

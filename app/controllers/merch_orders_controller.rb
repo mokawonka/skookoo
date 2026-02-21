@@ -1,6 +1,5 @@
 class MerchOrdersController < ApplicationController
-  before_action :authorize_user!
-
+  
   def new
     @merch_order = MerchOrder.new(highlight_id: params[:highlight_id])
     @highlight = Highlight.find(params[:highlight_id]) if params[:highlight_id]
@@ -12,7 +11,7 @@ class MerchOrdersController < ApplicationController
     @merch_order = current_user.merch_orders.build(merch_order_params)
 
     if @merch_order.save
-      redirect_to merch_order_path(@merch_order), notice: "Order placed!"
+      redirect_to merch_order_path(@merch_order), notice: "Pre-order placed!"
     else
       render :new, status: :unprocessable_entity
     end
