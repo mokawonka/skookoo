@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skookoo — Extension token</title>
+  <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
+  <style>
+    body { padding: 2rem; max-width: 480px; margin: 0 auto; }
+    .token-box { background: #f8f9fa; padding: 1rem; border-radius: 8px; font-family: monospace; word-break: break-all; font-size: 0.9rem; }
+    .token-box input { width: 100%; border: none; background: transparent; }
+  </style>
+</head>
+<body>
+  <div class="text-center">
+    <%= image_tag('berry_icon.png', style: 'width: 48px; height: 48px; margin-bottom: 1rem;') %>
+    <h5>Connect extension</h5>
+    <p class="text-muted small mb-3">Copy this token and paste it in the extension settings. Valid for 24 hours.</p>
+    <div class="token-box mb-3">
+      <input type="text" id="extension-token" value="<%= @token %>" readonly onclick="this.select()">
+    </div>
+    <button type="button" class="btn btn-primary" id="copy-btn">Copy token</button>
+    <p class="text-muted small mt-3">Then add the token in the extension popup or options.</p>
+  </div>
+  <script>
+    document.getElementById('copy-btn').onclick = function() {
+      var input = document.getElementById('extension-token');
+      input.select();
+      navigator.clipboard.writeText(input.value).then(function() {
+        this.textContent = 'Copied!';
+        setTimeout(function() { document.getElementById('copy-btn').textContent = 'Copy token'; }, 2000);
+      }.bind(this));
+    };
+  </script>
+</body>
+</html>

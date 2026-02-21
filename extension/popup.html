@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { width: 320px; padding: 16px; font-family: system-ui, sans-serif; }
+    h3 { margin: 0 0 12px; font-size: 16px; }
+    input { width: 100%; padding: 8px; margin-bottom: 12px; box-sizing: border-box; }
+    button { padding: 8px 16px; background: #0951a9; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #074088; }
+    .status { margin-top: 12px; font-size: 12px; color: #666; }
+    .hint { font-size: 12px; color: #666; margin-top: 8px; }
+    a { color: #0951a9; }
+  </style>
+</head>
+<body>
+  <h3>Skookoo Highlighter</h3>
+  <p class="hint">Get a token from Skookoo (when logged in) and paste it below:</p>
+  <input type="password" id="token" placeholder="Paste your token here">
+  <button id="save">Save token</button>
+  <p class="status" id="status"></p>
+  <script src="popup.js"></script>
+</body>
+</html>
