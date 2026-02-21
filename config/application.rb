@@ -1,6 +1,7 @@
 require_relative "boot"
 
 require "rails/all"
+require_relative "../lib/extension_frame_middleware"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -21,6 +22,7 @@ module Skookoo
     # config.active_storage.resolve_model_to_route = :rails_storage_proxy
     config.active_storage.resolve_model_to_route = :rails_storage_redirect
 
-
+    # Allow /extension_modal to be embedded in iframes (Chrome extension)
+    config.middleware.use ExtensionFrameMiddleware
   end
 end
