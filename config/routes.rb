@@ -140,6 +140,9 @@ Rails.application.routes.draw do
   
   post '/webhooks/stripe', to: 'webhooks#stripe'
 
+  get "/extension_modal", to: "extensions#modal"
+
+
   # Agent API (for AI bots)
   namespace :api do
     namespace :v1 do
