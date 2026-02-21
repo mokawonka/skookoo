@@ -141,6 +141,7 @@ Rails.application.routes.draw do
   post '/webhooks/stripe', to: 'webhooks#stripe'
 
   get "/extension_modal", to: "extensions#modal"
+  get "/extension_token", to: "extensions#token", as: :extension_token
 
 
   # Agent API (for AI bots)
