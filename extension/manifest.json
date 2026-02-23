@@ -3,11 +3,11 @@
   "name": "Skookoo Highlighter",
   "version": "1.0",
   "description": "Highlight text and react with Skookoo.",
-  "permissions": ["activeTab", "storage", "scripting"],
-  "host_permissions": ["http://localhost:3000"],
+  "permissions": ["activeTab", "scripting", "contextMenus", "storage", "tabs"],
+  "host_permissions": ["http://localhost:3000/*"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Skookoo token"
+    "default_title": "Skookoo"
   },
   "background": {
     "service_worker": "background.js"

@@ -17,6 +17,8 @@ else
   # When used on lemonde.fr etc., extension shows "log in" — test that in production.
   Rails.application.config.session_store :redis_session_store,
     key: '_skookoo_session',
+    same_site: :lax,
+    secure: false,
     redis: {
       db: 0,
       expire_after: 120.minutes,

@@ -3,43 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="csrf-token" content="<%= form_authenticity_token %>">
   <title>Skookoo — React</title>
   <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag asset_path('font-awesome.min.css') %>
   <style>
-    body { padding: 1rem; max-width: 500px; margin: 0 auto; }
-    #highlight blockquote { border-left: 4px solid #0951a9; padding-left: 1rem; margin: 0.5rem 0 1rem 0; color: #333; font-style: italic; }
+    body { 
+      padding: 1rem; 
+      max-width: 500px; 
+      margin: 0 auto; 
+      background: transparent;
+    }
+    #highlight blockquote { 
+      border-left: 4px solid #0951a9; 
+      padding-left: 1rem; 
+      margin: 0.5rem 0 1rem 0; 
+      color: #333; 
+      font-style: italic; 
+    }
     .panel-icon { width: 20px; height: 20px; vertical-align: middle; }
     .panel-icon-text { margin-left: 4px; }
   </style>
 </head>
 <body>
-  <div id="highlightmodal">
-    <div class="text-center mb-2">
-      <h6 class="text-muted">
-        <%= image_tag('berry_icon.png', class: 'panel-icon') %> React with Skookoo
-      </h6>
+
+  <% if @expired %>
+    <!-- ==================== EXPIRED UI ==================== -->
+    <div class="text-center p-5 bg-light rounded shadow position-fixed top-50 start-50 translate-middle" 
+         style="max-width: 90%; width: 420px;">
+      <h5 class="text-danger mb-3">Session expired</h5>
+      <p class="text-muted mb-4">Your session has expired.<br>Please reconnect to continue.</p>
+      <button class="btn btn-primary px-4" onclick="window.parent.postMessage({ action: 'skookooReconnect' }, '*')">
+        Reconnect to Skookoo
+      </button>
     </div>
-    <!-- Pre-filled from extension params (createhighlight expects #cfi, #authors, #title) -->
-    <div id="cfi" class="d-none"><%= @cfi %></div>
-    <div id="authors" class="d-none"><%= @fromauthors %></div>
-    <div id="title" class="d-none"><%= @fromtitle %></div>
 
-    <%= render "shared/createhighlight" %>
-  </div>
+  <% else %>
+    <!-- ==================== NORMAL MODAL ==================== -->
+    <div id="highlightmodal">
+      <div class="text-center mb-2">
+        <h6 class="text-muted">
+          <%= image_tag('berry_icon.png', class: 'panel-icon') %> React with Skookoo
+        </h6>
+      </div>
 
-  <%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
-  <%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
+      <div id="cfi" class="d-none"><%= @cfi %></div>
+      <div id="authors" class="d-none"><%= @fromauthors %></div>
+      <div id="title" class="d-none"><%= @fromtitle %></div>
 
-  <script>
-    // Override documentid for extension context (createhighlight uses url.substr for documents)
-    var documentid = "<%= j @docid %>";
-    // Pre-fill the quote (createhighlight's #highlight blockquote starts empty)
-    $(function() {
-      $('#highlight blockquote').text("<%= j @quote %>");
-    });
-  </script>
+      <%= render "shared/createhighlight" %>
+    </div>
+  <% end %>
+
+  <!-- Scripts only for normal modal -->
+  <% unless @expired %>
+    <%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
+    <%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
+
+    <script>
+      var documentid = "<%= j @docid %>";
+
+      $(function() {
+        $('#highlight blockquote').text("<%= j @quote %>");
+      });
+    </script>
+  <% end %>
+
 </body>
 </html>
