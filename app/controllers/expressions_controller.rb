@@ -1,56 +1,76 @@
 class ExpressionsController < ApplicationController
-    skip_before_action :verify_authenticity_token  
-  
-    def index
-        myuserid = session[:user_id]
+  skip_before_action :verify_authenticity_token  
+  skip_before_action :require_user, if: -> { params[:token].present? }  # Add this to skip session auth for token
 
-        #retrieving all expressions owned by user
-        @expressions = Expression.where(:userid => myuserid)
-        @pagy, @records = pagy(@expressions, items: 7)
+  def index
+    user = current_user
+    if user.blank?
+      redirect_to login_path
+      return
+    end
 
-    end
-  
-    def new
-      @expression = Expression.new
-    end
-  
-    def create
-
-        @expression = Expression.new(expression_params)
-        @expression.userid = session[:user_id]
-  
-        respond_to do |format|
-  
-          if @expression.save
-              format.js
-              flash.now[:notice] = "Added to Vocabulary"
-          else
-
-            format.js
-            flash.now[:notice] = ""
-            @expression.errors.full_messages.each do |message|
-                flash.now[:notice] =  flash.now[:notice] + ' - ' + message
-            end
-    
-          end
-  
-        end
-  
-    end
-  
-  
-    def destroy
-      Expression.find(params[:id]).destroy!
-      flash.now[:notice] = "Expression deleted successfully"
-      redirect_to expressions_path
-    end
-  
-  
-    private
-  
-    def expression_params
-        params.require(:expression).permit(:userid, :docid, :cfi, :content, :definition)
-    end
-  
+    @expressions = Expression.where(userid: user.id)
+    @pagy, @records = pagy(@expressions, items: 7)
   end
+
+
+
+  def new
+    @expression = Expression.new
+  end
+
+
+
+  def create
+    token = params[:token].presence
+    user = token.present? ? user_from_token(token) : current_user
+
+    if user.blank?
+      respond_to do |format|
+        format.json { render json: { error: "Authentication required" }, status: :unauthorized }
+        format.js   { render js: "alert('Please log in.');" }
+      end
+      return
+    end
+
+    @expression = Expression.new(expression_params)
+    @expression.userid = user.id
+
+    respond_to do |format|
+      if @expression.save
+        if token.present?
+          format.json { render json: { success: true, message: "Added to Vocabulary" } }
+        else
+          flash.now[:notice] = "Added to Vocabulary"
+          format.js 
+        end
+      else
+        flash.now[:alert] = @expression.errors.full_messages.join(", ")
+
+        format.json { render json: { error: flash.now[:alert] }, status: :unprocessable_entity }
+        format.js   { render js: "alert('Failed: #{j flash.now[:alert]}');" }
+      end
+    end
+  end
+
+
   
+  def destroy
+    @expression = Expression.find(params[:id])
+    if @expression.userid != current_user.id
+      flash.now[:alert] = "Unauthorized"
+      redirect_to expressions_path
+      return
+    end
+
+    @expression.destroy!
+    flash.now[:notice] = "Expression deleted successfully"
+    redirect_to expressions_path
+  end
+
+  private
+
+  def expression_params
+    params.require(:expression).permit(:userid, :docid, :cfi, :content, :definition)
+  end
+end

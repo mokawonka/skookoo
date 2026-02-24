@@ -124,6 +124,7 @@
         <button id="railslikebutton" type=submit>Ok</button>
     </form>
 
+
     <div id="gifresults" class="flex-container"></div>
     <div id="emojiresults" class="flex-container"></div>
 
@@ -138,7 +139,7 @@
 
 
     <div class=text-center>
-        <!-- All these field are filled beforehand in document/show on rendition/selected -->
+        <!-- All these field are filled beforehand in document/show on rendition/selected or in modal.html.erb for extension iframe -->
         <div id="cfi" class=d-none></div>
         <div id="authors" class=d-none></div>
         <div id="title" class=d-none></div>
@@ -179,14 +180,6 @@
 
     });
 
-    // adding comments
-    $('#commentbutton').click(function(){
-        $('#gifform').hide();
-        $('#gifresults').hide();
-        $('#emojiresults').hide();
-
-        $('#commentform').show();
-    });
 
     // look for gifs
     $('#addgifbutton').click(function(e){
@@ -320,68 +313,316 @@
 
     // JS / Rails form fillings / submissions
     // --------------------------------------
-    var url = window.location.href;
-    var documentid = url.substr(url.lastIndexOf("documents/")+10, 36);
+
+    function getDocumentId() {
+        // In iframe → always use the URL param
+        if (window.location.pathname.includes('/extension_modal')) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('docid') || '';
+        }
+
+        // On main site → use path parsing (old behavior)
+        const url = window.location.href;
+        const idx = url.lastIndexOf("documents/");
+        if (idx !== -1) {
+            return url.substr(idx + 10, 36);
+        }
+        return '';
+    }
+
+    var documentid = getDocumentId();
+
 
     $("#commentbutton").click(function(){
-        $('#ccfi').text($('#cfi').text());
-        $('#cquote').text($('#highlight').text());
+        $('#gifform').hide();
+        $('#gifresults').hide();
+        $('#emojiresults').hide();
+
+        // Fill hidden fields (common for both contexts)
+        $('#ccfi').val($('#cfi').text());
+        $('#cquote').val($('#highlight blockquote').text().trim()); // trim to avoid blank
         $('#cdocid').val(documentid);
         $('#cfromauthors').val($('#authors').text());
         $('#cfromtitle').val($('#title').text());
-        // form submission is made wysiwygly by the user
+
+        $('#commentform').show();
+    });
+
+    // Intercept submitcomment click/submit for iframe
+    $("#commentform").on('submit', function(e) {
+        e.preventDefault();
+
+        const isIframe = window.self !== window.top;
+
+        if (isIframe) {
+
+            const form = $('#commentform');
+
+            const comment = form.find('.form-control').val().trim();
+            if (!comment) {
+                alert("Comment can't be blank");
+                return;
+            }
+
+            const token = $('#auth-token').val() || '';
+
+            const payload = {
+            highlight: {
+                quote: $('#cquote').val(),
+                cfi: $('#ccfi').val(),
+                docid: $('#cdocid').val(),
+                fromauthors: $('#cfromauthors').val(),
+                fromtitle: $('#cfromtitle').val(),
+                comment: comment
+            },
+            token: token
+            };
+
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: payload,
+            dataType: 'json',
+            success: function(response) {
+            if (response.success) {
+                $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+            }
+            },
+            error: function(xhr) {
+            let msg = 'Failed to add comment';
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+                msg += ': ' + xhr.responseJSON.error;
+            }
+            alert(msg);
+            }
+        });
+        } else { $('#submitcomment').click();  }
     });
 
 
-    $('#highlightmodal').on("click", '#gifaddbutton' , function(){
+    $('#highlightmodal').on('click', '#gifaddbutton', function(e) {
+        e.preventDefault();
 
-        $('#gcfi').text($('#cfi').text());
-        $('#gquote').text($('#highlight').text());
-        $('#gdocid').val(documentid);
-        $('#gfromauthors').val($('#authors').text());
-        $('#gfromtitle').val($('#title').text());
-        // because form is hidden
-        $('#railsgifbutton').click();  
+        const isIframe = window.self !== window.top;
+
+        if (isIframe) {
+
+            const gifid = $('#gifid').val();
+            if (!gifid) {
+                alert("No GIF selected");
+                return;
+            }
+
+            const token = $('#auth-token').val() || '';
+
+            const payload = {
+            highlight: {
+                quote: $('#highlight blockquote').text().trim(),
+                cfi: $('#cfi').text(),
+                docid: documentid,
+                fromauthors: $('#authors').text(),
+                fromtitle: $('#title').text(),
+                gifid: gifid
+            },
+            token: token
+            };
+
+            $.ajax({
+            url: "/highlights",
+            type: 'POST',
+            data: payload,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Failed to add GIF';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                msg += ': ' + xhr.responseJSON.error;
+                }
+                alert(msg);
+            }
+            });
+        } else {
+            // Main site → fill hidden fields + native submit
+            $('#gcfi').val($('#cfi').text());
+            $('#gquote').val($('#highlight blockquote').text().trim());
+            $('#gdocid').val(documentid);
+            $('#gfromauthors').val($('#authors').text());
+            $('#gfromtitle').val($('#title').text());
+            $('#gifid').val(gifid);
+
+            $('#railsgifbutton').click();
+        }
     });
 
 
-    $("#likebutton").click(function(){
 
-        $('#lcfi').text($('#cfi').text());
-        $('#lquote').text($('#highlight').text());
-        $('#ldocid').val(documentid);
-        $('#llike').val(1); // set it to true
-        $('#lfromauthors').val($('#authors').text());
-        $('#lfromtitle').val($('#title').text());
-        // because form is hidden
-        $('#railslikebutton').click();
+    $("#likebutton").on('click', function(e) {
+        e.preventDefault();
 
+        const isIframe = window.self !== window.top;
+
+        if (isIframe) {
+            // Extension/iframe
+            const token = $('#auth-token').val() || '';
+
+            const payload = {
+            highlight: {
+                quote:   $('#highlight blockquote').text().trim(),
+                cfi:     $('#cfi').text(),
+                docid:   documentid,
+                fromauthors: $('#authors').text(),
+                fromtitle:   $('#title').text(),
+                liked:   1
+            },
+            token:   token
+            };
+
+            $.ajax({
+            url:      "/highlights",
+            type:     'POST',
+            data:     payload,
+            dataType: 'json',
+            success:  function(response) {
+                $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+            },
+            error: function(xhr) {
+                let msg = 'Failed to like';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                msg += ': ' + xhr.responseJSON.error;
+                }
+                alert(msg);
+            }
+            });
+        } else {
+            // Main site
+            $('#lcfi').val($('#cfi').text());
+            $('#lquote').val($('#highlight blockquote').text().trim());
+            $('#ldocid').val(documentid);
+            $('#lfromauthors').val($('#authors').text());
+            $('#lfromtitle').val($('#title').text());
+            $('#llike').val(1);
+
+            $('#railslikebutton').click();
+        }
     });
 
 
-    $('#highlightmodal').on("click", '#emojiaddbutton' , function(){
+    $('#highlightmodal').on('click', '#emojiaddbutton', function(e) {
+        e.preventDefault();
 
-        $('#ecfi').text($('#cfi').text());
-        $('#equote').text($('#highlight').text());
-        $('#edocid').val(documentid);
-        $('#efromauthors').val($('#authors').text());
-        $('#efromtitle').val($('#title').text());
-        // emoji id is already filling hidden input field
+        const isIframe = window.self !== window.top;
 
-        // because form is hidden
-        $('#railsemojibutton').click();
+        if (isIframe) {
+
+            const emojiid = $('#emojiid').val();
+            if (!emojiid) {
+                alert("No emoji selected");
+                return;
+            }
+
+            const token = $('#auth-token').val() || '';
+
+            const payload = {
+            highlight: {
+                quote: $('#highlight blockquote').text().trim(),
+                cfi: $('#cfi').text(),
+                docid: documentid,
+                fromauthors: $('#authors').text(),
+                fromtitle: $('#title').text(),
+                emojiid: emojiid
+            },
+            token: token
+            };
+
+            $.ajax({
+            url: "/highlights",
+            type: 'POST',
+            data: payload,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Failed to add emoji';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                msg += ': ' + xhr.responseJSON.error;
+                }
+                alert(msg);
+            }
+            });
+        } else {
+            // Main site → fill hidden fields + native submit
+            $('#ecfi').val($('#cfi').text());
+            $('#equote').val($('#highlight blockquote').text().trim());
+            $('#edocid').val(documentid);
+            $('#efromauthors').val($('#authors').text());
+            $('#efromtitle').val($('#title').text());
+            // emojiid already filled earlier
+
+            $('#railsemojibutton').click();
+        }
     });
 
 
-    $("#vocabbutton").click(function(){
+    $("#vocabbutton").on('click', function(e) {
+        e.preventDefault();
 
-        $('#vcontent').text($('#highlight').text());
-        $('#vcfi').text($('#cfi').text());
-        $('#vdefinition').text($('#definition-content').text());
-        $('#vdocid').val(documentid);
+        const isIframe = window.self !== window.top;
 
-        // because form is hidden
-        $('#railsvocabbutton').click();
+        const content = $('#highlight blockquote').text().trim();
+        const definition = $('#definition-result').text().trim();
+        if (!definition) {
+            alert("No definition generated");
+            return;
+        }
+
+        if (isIframe) {
+            // Iframe/extension → manual AJAX with token
+            const token = $('#auth-token').val() || '';
+
+            const payload = {
+            expression: {
+                content: content,
+                definition: definition,
+                cfi: $('#cfi').text(),
+                docid: documentid
+            },
+            token: token
+            };
+
+            $.ajax({
+            url: "/expressions",
+            type: 'POST',
+            data: payload,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                $('#highlightmodal').html('<div class="centered">Added to Vocabulary</div>');
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Failed to add to vocabulary';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                msg += ': ' + xhr.responseJSON.error;
+                }
+                alert(msg);
+            }
+            });
+        } else {
+            // Main site → fill hidden fields + native submit
+            $('#vcontent').val(content);
+            $('#vdefinition').val(definition);
+            $('#vcfi').val($('#cfi').text());
+            $('#vdocid').val(documentid);
+
+            $('#railsvocabbutton').click();
+        }
     });
 
     // copy highlighted text to clipboard
@@ -410,7 +651,7 @@
 
 
     // View Definition
-    $('#definitionbutton').on('click', function(e){
+    $('#definitionbutton').on('click', function(e) {
 
         const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
 
@@ -422,7 +663,7 @@
             const featureName = "Explaining with AI";
             const bodyP = modalEl.querySelector('.modal-body p:first-child');
             if (bodyP) {
-                bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
+            bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
             }
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
@@ -431,14 +672,26 @@
         }
 
         var text = $('#highlight blockquote').text().trim();
-        
+
+        if (text.length < 1) {
+            alert("No text selected");
+            return;
+        }
+
         $('#definitionModal').modal('show');
-        
+
         $('#loading-spinner').removeClass('d-none');
         $('#definition-result').addClass('d-none');
         $('#vocabbutton').prop('disabled', true);
 
-        $.post('/gemini/define', { text: text }, function(data){
+        const payload = { text: text };
+
+        const isIframe = window.self !== window.top;
+        if (isIframe) {
+            payload.token = $('#auth-token').val() || '';
+        }
+
+        $.post('/gemini/define', payload, function(data){
             $('#loading-spinner').addClass('d-none');
             $('#definition-result').html(data.html).removeClass('d-none');
             $('#vocabbutton').prop('disabled', false);
@@ -450,7 +703,7 @@
     });
 
 
-    $('#imaginebutton').on('click', function(e){
+    $('#imaginebutton').on('click', function(e) {
 
         const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
 
@@ -462,7 +715,7 @@
             const featureName = "Imagining with AI";
             const bodyP = modalEl.querySelector('.modal-body p:first-child');
             if (bodyP) {
-                bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
+            bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
             }
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
@@ -471,13 +724,21 @@
         }
 
         var text = $('#highlight blockquote').text().trim();
-        
+
+
         $('#imagineModal').modal('show');
-        
+
         $('#imagine-loading').removeClass('d-none');
         $('#imagine-result').addClass('d-none');
 
-        $.post('/gemini/imagine', { text: text }, function(data){
+        const payload = { text: text };
+
+        const isIframe = window.self !== window.top;
+        if (isIframe) {
+            payload.token = $('#auth-token').val() || '';
+        }
+
+        $.post('/gemini/imagine', payload, function(data){
             $('#imagine-loading').addClass('d-none');
             $('#imagine-result').html(data.html).removeClass('d-none');
         }).fail(function(){

@@ -43,7 +43,6 @@ class DocumentsController < ApplicationController
         @target_highlight = @highlights.find_by(cfi: params[:cfi])
       end 
       @vocabs = Expression.where(:docid => @document.id)
-      
     else
       if !@document.ispublic
         redirect_to document_not_public_path and return

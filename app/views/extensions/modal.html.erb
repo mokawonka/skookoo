@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Skookoo — React</title>
   <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  <%= stylesheet_link_tag "actiontext" %>
   <%= stylesheet_link_tag asset_path('font-awesome.min.css') %>
   <style>
     body { 
@@ -13,19 +13,28 @@
       max-width: 500px; 
       margin: 0 auto; 
       background: transparent;
+      font-family: 'League Spartan Bold';
     }
     #highlight blockquote { 
       border-left: 4px solid #0951a9; 
       padding-left: 1rem; 
       margin: 0.5rem 0 1rem 0; 
       color: #333; 
-      font-style: italic; 
     }
     .panel-icon { width: 20px; height: 20px; vertical-align: middle; }
     .panel-icon-text { margin-left: 4px; }
   </style>
 </head>
+
+<%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
+<%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
+<%= javascript_importmap_tags %>
+
+
+
 <body>
+    <input type="hidden" id="auth-token" value="<%= params[:token] %>">
+
 
   <% if @expired %>
     <!-- ==================== EXPIRED UI ==================== -->
@@ -41,31 +50,46 @@
   <% else %>
     <!-- ==================== NORMAL MODAL ==================== -->
     <div id="highlightmodal">
-      <div class="text-center mb-2">
+
+      <button id="close-modal-btn" style="position: absolute; top: 10px; right: 15px; z-index: 1000; 
+                                        background: #fff; border: 2px solid #0951a9; border-radius: 50%; 
+                                        width: 36px; height: 36px; font-size: 28px; font-weight: bold; color: #0951a9; 
+                                        cursor: pointer; line-height: 32px; padding: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        ×
+      </button>
+      <div class="text-center mb-5">
         <h6 class="text-muted">
           <%= image_tag('berry_icon.png', class: 'panel-icon') %> React with Skookoo
         </h6>
       </div>
 
-      <div id="cfi" class="d-none"><%= @cfi %></div>
-      <div id="authors" class="d-none"><%= @fromauthors %></div>
-      <div id="title" class="d-none"><%= @fromtitle %></div>
-
       <%= render "shared/createhighlight" %>
+
     </div>
+
+    <%= render "shared/premiumteaser" %>
   <% end %>
 
   <!-- Scripts only for normal modal -->
   <% unless @expired %>
-    <%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
-    <%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
 
     <script>
-      var documentid = "<%= j @docid %>";
 
-      $(function() {
-        $('#highlight blockquote').text("<%= j @quote %>");
-      });
+    $('#emojiresults').empty().hide();
+    $('#gifresults').empty().hide();
+    $('#gifsearch').val('');
+    $('#cfi').html("<%= j @cfi %>");
+    $('#highlight').find('blockquote').html("<%= j @quote %>");
+    $('#authors').html('<%= j @fromauthors %>');
+    $('#title').html('<%= j @fromtitle %>');
+
+    $('#gifform').hide();
+    $('#commentform').hide();
+
+    document.getElementById('close-modal-btn').addEventListener('click', function() {
+         window.parent.postMessage({ action: 'closeSkookooModal' }, '*');
+    });
+    
     </script>
   <% end %>
 

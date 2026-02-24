@@ -60,12 +60,36 @@ function handleMouseUp() {
 
 function requestOpenModal(quote) {
   currentQuote = quote;
-  chrome.runtime.sendMessage({
-    action: "requestOpenModal",
-    quote: quote,
-    origin: window.location.origin
-  }).catch(err => {
-    console.error("Messaging error:", err);
+
+  try {
+    chrome.runtime.sendMessage({
+      action: "requestOpenModal",
+      quote: quote,
+      origin: window.location.origin
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.warn("[CONTENT] Send message failed:", chrome.runtime.lastError.message);
+        // Optional: try to re-inject or notify user
+        return;
+      }
+      console.log("[CONTENT] Message sent OK");
+    });
+  } catch (err) {
+    console.error("[CONTENT] Messaging crashed:", err);
+    // Optional: show a message to user to reload extension/page
+    alert("Extension context error. Try reloading the page or extension.");
+  }
+}
+
+function generateUUID() {
+  if (crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback (very rare in 2025+ Chrome)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
   });
 }
 
@@ -73,6 +97,7 @@ function openSkookooModal(quote, token) {
   const pageUrl = encodeURIComponent(window.location.href);
   const pageTitle = encodeURIComponent(document.title || "Web Page");
   const quoteEnc = encodeURIComponent(quote);
+  const docid = generateUUID(); 
 
   const existing = document.getElementById("skookoo-iframe");
   if (existing) existing.remove();
@@ -80,7 +105,7 @@ function openSkookooModal(quote, token) {
   const iframe = document.createElement("iframe");
   iframe.id = "skookoo-iframe";
   iframe.className = "skookoo-iframe";
-  iframe.src = `${MODAL_ORIGIN}${MODAL_PATH}?quote=${quoteEnc}&url=${pageUrl}&title=${pageTitle}&token=${encodeURIComponent(token)}`;
+  iframe.src = `${MODAL_ORIGIN}${MODAL_PATH}?quote=${quoteEnc}&url=${pageUrl}&title=${pageTitle}&docid=${docid}&token=${encodeURIComponent(token)}`;
 
   iframe.style.position = "fixed";
   iframe.style.top = "50%";
@@ -89,7 +114,8 @@ function openSkookooModal(quote, token) {
   iframe.style.width = "90%";
   iframe.style.maxWidth = "600px";
   iframe.style.height = "80vh";
-  iframe.style.border = "2px solid #0951a9";
+  iframe.style.border = "3px solid #0951a9";
+  iframe.style.borderRadius = "21px";
   iframe.style.boxShadow = "0 15px 40px rgba(0,0,0,0.5)";
   iframe.style.zIndex = "2147483647";
   iframe.style.background = "#fff";
@@ -113,75 +139,83 @@ function openSkookooModal(quote, token) {
   }, 100);
 }
 
+
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("[CONTENT] Received from background:", request.action, request);
+  try {
+    console.log("[CONTENT] Received from background:", request.action, request);
 
-  if (request.action === "openSkookooModal") {
-    console.log("[CONTENT] Opening modal with token length:", request.token?.length || 0);
-    if (request.quote || request.selectedText) {
-      openSkookooModal(request.quote || request.selectedText, request.token);
-    }
-    return false;
-  }
-
-  if (request.action === "openConnectWindow") {
-    console.log("[CONTENT] Opening connect popup:", request.connectUrl);
-
-    const connectWin = window.open(
-      request.connectUrl,
-      "skookoo_connect",
-      "width=600,height=700,menubar=no,toolbar=no,location=no,status=no"
-    );
-
-    if (!connectWin || connectWin.closed) {
-      console.error("[CONTENT] Popup blocked");
+    if (request.action === "openSkookooModal") {
+      console.log("[CONTENT] Opening modal with token length:", request.token?.length || 0);
+      if (request.quote || request.selectedText) {
+        openSkookooModal(request.quote || request.selectedText, request.token);
+      }
       return false;
     }
 
-    const messageHandler = (event) => {
-      console.log("[CONTENT] postMessage received:", event.origin, event.data);
+    if (request.action === "openConnectWindow") {
+        console.log("[CONTENT] Opening connect popup:", request.connectUrl);
 
-      // Accept localhost variations
-      if (!event.origin.includes("localhost:3000") && !event.origin.includes("127.0.0.1:3000")) {
-        console.warn("[CONTENT] Origin mismatch:", event.origin);
-        return;
-      }
+        const connectWin = window.open(
+          request.connectUrl,
+          "skookoo_connect",
+          "width=600,height=700,menubar=no,toolbar=no,location=no,status=no"
+        );
 
-      if (event.data?.type === "SKOOKOO_TOKEN" && event.data.token) {
-        console.log("[CONTENT] VALID TOKEN RECEIVED – forwarding", event.data.token.length);
+        if (!connectWin || connectWin.closed) {
+          console.error("[CONTENT] Popup blocked");
+          return false;
+        }
 
-        chrome.runtime.sendMessage({
-          action: "tokenFromConnect",
-          token: event.data.token,
-          quote: request.quote || currentQuote || ""
-        }, (res) => {
-          if (chrome.runtime.lastError) {
-            console.error("[CONTENT] Forward failed:", chrome.runtime.lastError.message);
-          } else {
-            console.log("[CONTENT] Token forwarded");
+        const messageHandler = (event) => {
+          console.log("[CONTENT] postMessage received:", event.origin, event.data);
+
+          // Accept localhost variations
+          if (!event.origin.includes("localhost:3000") && !event.origin.includes("127.0.0.1:3000")) {
+            console.warn("[CONTENT] Origin mismatch:", event.origin);
+            return;
           }
-        });
 
-        connectWin.close();
-        window.removeEventListener("message", messageHandler);
+          if (event.data?.type === "SKOOKOO_TOKEN" && event.data.token) {
+            console.log("[CONTENT] VALID TOKEN RECEIVED – forwarding", event.data.token.length);
+
+            chrome.runtime.sendMessage({
+              action: "tokenFromConnect",
+              token: event.data.token,
+              quote: request.quote || currentQuote || ""
+            }, (res) => {
+              if (chrome.runtime.lastError) {
+                console.error("[CONTENT] Forward failed:", chrome.runtime.lastError.message);
+              } else {
+                console.log("[CONTENT] Token forwarded");
+              }
+            });
+
+            connectWin.close();
+            window.removeEventListener("message", messageHandler);
+          }
+        };
+
+        window.addEventListener("message", messageHandler);
+
+        const checkClosed = setInterval(() => {
+          if (connectWin.closed) {
+            console.log("[CONTENT] Connect window closed");
+            window.removeEventListener("message", messageHandler);
+            clearInterval(checkClosed);
+          }
+        }, 500);
+
+        return false;
       }
-    };
 
-    window.addEventListener("message", messageHandler);
-
-    const checkClosed = setInterval(() => {
-      if (connectWin.closed) {
-        console.log("[CONTENT] Connect window closed");
-        window.removeEventListener("message", messageHandler);
-        clearInterval(checkClosed);
-      }
-    }, 500);
-
-    return false;
+  } catch (err) {
+    console.error("[CONTENT] Listener crashed:", err);
   }
 
   return false;
 });
+
 
 // Handle reconnect from iframe
 window.addEventListener("message", (event) => {
@@ -208,6 +242,13 @@ window.addEventListener("message", (event) => {
         quote: currentQuote || "reconnect"
       });
     });
+  }
+});
+
+window.addEventListener("message", (event) => {
+  if (event.data?.action === "closeSkookooModal") {
+    const iframe = document.getElementById("skookoo-iframe");
+    if (iframe) iframe.remove();
   }
 });
 

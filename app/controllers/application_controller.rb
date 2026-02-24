@@ -3,9 +3,6 @@ class ApplicationController < ActionController::Base
 
     before_action :require_user
 
-    # before_action :require_pomologist, only: [:premium_action]
-
-
     # or home_controller.rb
     def index  # Or your root action
         if params[:session_id]
@@ -23,15 +20,16 @@ class ApplicationController < ActionController::Base
     end
 
 
-    # def require_pomologist
-    #     redirect_to subscriptions_new_path, alert: 'Upgrade to Pomologist!' unless current_user.pomologist?
-    # end
-
-
     # helpers functions to be used on all controllers
     helper_method :current_user, :logged_in?
     def current_user
+        if params[:token].present?
+            @current_user ||= user_from_token(params[:token])
+        end
+
         @current_user ||= User.find_by_id(session[:user_id]) if session[:user_id]
+
+        @current_user
     end
 
     
@@ -65,6 +63,38 @@ class ApplicationController < ActionController::Base
         end
 
         session[:last_action_at] = Time.current
+    end
+
+    private
+    
+    
+    def user_from_token(token = nil)
+        token = params[:token].to_s
+        return nil if token.blank?
+
+        verifier = ActiveSupport::MessageVerifier.new(Rails.application.secret_key_base)
+
+        begin
+            data = verifier.verify(token)
+            Rails.logger.info "Token verified - full data: #{data.inspect}"
+
+            # Handle exp as string or integer (verifier can return string)
+            exp_raw = data[:exp] || data['exp']
+            exp = exp_raw.to_i
+            if exp.zero? || exp < Time.current.to_i
+                Rails.logger.warn "Token expired or invalid exp! raw exp: #{exp_raw.inspect}, parsed: #{exp}"
+                return nil
+            end
+
+            # Handle user_id as string or integer
+            user_id = (data[:user_id] || data['user_id']).to_s
+            user = User.find_by(id: user_id)
+            Rails.logger.info "User found: #{user&.id || 'not found'} (looked for id: #{user_id})"
+            user
+        rescue => e
+            Rails.logger.error "Token verification FAILED: #{e.class} - #{e.message}"
+            nil
+        end
     end
 
 end

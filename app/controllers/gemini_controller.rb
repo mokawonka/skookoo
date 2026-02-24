@@ -1,6 +1,18 @@
 class GeminiController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: [:define, :imagine]
+  skip_before_action :require_user, if: -> { params[:token].present? }
 
+
+  
   def define
+    token = params[:token].presence
+    user = token.present? ? user_from_token(token) : current_user
+
+    if user.blank?
+      render json: { html: "<p class='text-danger'>Authentication required. Please log in.</p>" }
+      return
+    end
+
     text = params[:text].to_s.strip
 
     if text.blank?
@@ -21,7 +33,16 @@ class GeminiController < ApplicationController
 
 
 
+
   def imagine
+    token = params[:token].presence
+    user = token.present? ? user_from_token(token) : current_user
+
+    if user.blank?
+      render json: { html: "<p class='text-danger'>Authentication required. Please log in.</p>" }
+      return
+    end
+
     text = params[:text].to_s.strip
 
     if text.blank?
@@ -29,7 +50,6 @@ class GeminiController < ApplicationController
       return
     end
 
-    # Much better prompt for Imagen
     improved_prompt = "Create a beautiful, high-quality, cinematic image inspired by this text: \"#{text}\". 
                       Style: vibrant colors, detailed, artistic, dramatic lighting, professional photography, 
                       highly detailed."

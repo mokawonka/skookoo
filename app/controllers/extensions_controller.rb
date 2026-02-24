@@ -1,5 +1,5 @@
 class ExtensionsController < ApplicationController
-  include HighlightsHelper
+  include HighlightsHelper 
 
   skip_before_action :require_user, only: [:modal, :connect]
   after_action :allow_embed_in_iframe, only: [:modal]
@@ -30,15 +30,13 @@ class ExtensionsController < ApplicationController
       return
     end
 
-    @current_user = user
+    current_user = user
+    
     @quote   = params[:quote]&.to_s || ""
-    @url     = params[:url]&.to_s.presence || "https://example.com"
-    @title   = params[:title].presence || "Web Page"
+    @cfi     = params[:url]&.to_s.presence || "https://example.com"
+    @fromauthors = "Web page"
+    @fromtitle   = params[:title].presence || "Web Page"
 
-    @docid       = uuid_from_url(@url) rescue SecureRandom.uuid
-    @cfi         = @url
-    @fromauthors = "Web"
-    @fromtitle   = @title
 
     @giphyApiKey = Rails.env.production? ? ENV["GIPHY_API_KEY"].to_s : "Vsa6RyTveLS9mFOQVsTPmE8vndGnKc6G"
 
@@ -47,10 +45,18 @@ class ExtensionsController < ApplicationController
 
   private
 
-  def allow_embed_in_iframe
-    response.headers.delete("X-Frame-Options")
-    response.headers["Content-Security-Policy"] = "frame-ancestors *"
-  end
+def allow_embed_in_iframe
+  response.headers.delete("X-Frame-Options")
+  
+  # Allow Giphy images, scripts, etc. in iframe
+  response.headers["Content-Security-Policy"] = [
+    "frame-ancestors *",
+    "img-src 'self' data: https://*.giphy.com https://media.giphy.com",
+    "script-src 'self' 'unsafe-inline' https://*.giphy.com",
+    "connect-src 'self' https://api.giphy.com",
+    "style-src 'self' 'unsafe-inline'"
+  ].join("; ")
+end
   
 
 
@@ -62,37 +68,6 @@ class ExtensionsController < ApplicationController
     }
     Rails.logger.info "Payload before generate: #{payload.inspect}"
     verifier.generate(payload)
-  end
-
-
-
-  def user_from_token
-    token = params[:token].to_s
-    return nil if token.blank?
-
-    verifier = ActiveSupport::MessageVerifier.new(Rails.application.secret_key_base)
-
-    begin
-      data = verifier.verify(token)
-      Rails.logger.info "Token verified - full data: #{data.inspect}"
-
-      # Handle exp as string or integer (verifier can return string)
-      exp_raw = data[:exp] || data['exp']
-      exp = exp_raw.to_i
-      if exp.zero? || exp < Time.current.to_i
-        Rails.logger.warn "Token expired or invalid exp! raw exp: #{exp_raw.inspect}, parsed: #{exp}"
-        return nil
-      end
-
-      # Handle user_id as string or integer
-      user_id = (data[:user_id] || data['user_id']).to_s
-      user = User.find_by(id: user_id)
-      Rails.logger.info "User found: #{user&.id || 'not found'} (looked for id: #{user_id})"
-      user
-    rescue => e
-      Rails.logger.error "Token verification FAILED: #{e.class} - #{e.message}"
-      nil
-    end
   end
 
 

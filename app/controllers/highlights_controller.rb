@@ -2,6 +2,7 @@ class HighlightsController < ApplicationController
   skip_before_action :require_user, only: [:show]
   skip_before_action :verify_authenticity_token
   before_action :check_timestamp , only: [:create, :destroy, :update_score]
+  skip_before_action :require_user, if: -> { params[:token].present? }
 
   
   def new
@@ -9,29 +10,48 @@ class HighlightsController < ApplicationController
   end
 
 
+  
   def create
-    @highlight = Highlight.new(highlight_params)
-    @highlight.userid = session[:user_id]
-    @highlight.score += 1
-
-    respond_to do |format|
-
-      if @highlight.save
-        format.js
-        flash.now[:notice] = "Highlight added successfully"
-        current_user.votes[@highlight.id] = "1"
-        current_user.save
-      else
-        format.js
-        flash.now[:notice] = ""
-        @highlight.errors.full_messages.each do |message|
-          flash.now[:notice] =  flash.now[:notice] + ' - ' + message
-        end
+    token = params[:token].presence
+    user = token.present? ? user_from_token(token) : current_user  
+    
+    if user.blank?
+      respond_to do |format|
+        format.json { render json: { error: "Authentication required" }, status: :unauthorized }
+        format.js   { render js: "alert('Please reconnect or log in.');" }
+        format.html { redirect_to login_path, alert: "Please log in" }
       end
+      return
+    end  
+    @highlight = Highlight.new(highlight_params)
+    @highlight.userid = user.id
+    @highlight.score += 1  
+    
+    respond_to do |format|
+      if @highlight.save
+        user.votes ||= {}
+        user.votes[@highlight.id] = "1"
+        user.save  
+        
+        flash.now[:success] = "Highlight added successfully"
 
+        if token.present?
+          format.json { render json: { success: true, message: flash.now[:success] } }
+        else
+          format.js   # Renders create.js.erb
+          format.html { redirect_to document_path(@highlight.docid), notice: flash.now[:success] }
+        end
+      else
+        flash.now[:alert] = @highlight.errors.full_messages.join(", ")
+
+        format.json { render json: { error: flash.now[:alert] }, status: :unprocessable_entity }
+        format.js   { render js: "alert('Failed: #{j flash.now[:alert]}');" }
+        format.html { redirect_back fallback_location: root_path, alert: flash.now[:alert] }
+      end  
     end
-
   end
+
+
 
 
   def show
