@@ -7,23 +7,79 @@
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
   <%= stylesheet_link_tag "actiontext" %>
   <%= stylesheet_link_tag asset_path('font-awesome.min.css') %>
-  <style>
-    body { 
-      padding: 1rem; 
-      max-width: 500px; 
-      margin: 0 auto; 
-      background: transparent;
-      font-family: 'League Spartan Bold';
-    }
-    #highlight blockquote { 
-      border-left: 4px solid #0951a9; 
-      padding-left: 1rem; 
-      margin: 0.5rem 0 1rem 0; 
-      color: #333; 
-    }
-    .panel-icon { width: 20px; height: 20px; vertical-align: middle; }
-    .panel-icon-text { margin-left: 4px; }
-  </style>
+  
+<style>
+  body { 
+    padding: 1rem; 
+    max-width: 500px; 
+    margin: 0 auto; 
+    background: transparent;
+    font-family: 'League Spartan Bold', sans-serif;
+  }
+
+  #highlight {
+    position: relative;
+    margin: 1.5rem 0;
+  }
+
+  #highlight blockquote {
+    position: relative;
+    border-left: 4px solid #0951a9;
+    padding: 0.75rem 1.5rem 0.75rem 2.5rem; 
+    margin: 0;
+    color: #0951a9;
+    background: rgba(9, 81, 169, 0.03);      
+    border-radius: 0 8px 8px 0;
+    quotes: "“" "”" "‘" "’";                
+  }
+
+  #highlight blockquote::before,
+  #highlight blockquote::after {
+    position: absolute;
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #0951a9;
+    opacity: 0.25;
+    line-height: 1;
+  }
+
+  #highlight blockquote::before {
+    content: open-quote;
+    left: 0.6rem;
+    top: -0.6rem;
+  }
+
+  #highlight blockquote::after {
+    content: close-quote;
+    right: 0.6rem;
+    bottom: -1.2rem;
+  }
+
+  #highlight blockquote p,
+  #highlight blockquote div {
+    margin: 0;
+    padding: 0;
+  }
+
+  .iframe-icon {
+    vertical-align: middle;
+  }
+
+  #close-modal-btn{
+    position: absolute; top: 16px; right: 16px; z-index: 1000;
+    width: 48px; height: 48px; 
+    background: rgba(9, 81, 169, 0.08);
+    border: none; border-radius: 50%; 
+    font-size: 32px; font-weight: 600; 
+    color: #0951a9; 
+    cursor: pointer; line-height: 1; 
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    transition: all 0.25s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+</style>
 </head>
 
 <%= javascript_include_tag asset_path('jquery-3.6.0.min.js') %>
@@ -51,16 +107,11 @@
     <!-- ==================== NORMAL MODAL ==================== -->
     <div id="highlightmodal">
 
-      <button id="close-modal-btn" style="position: absolute; top: 10px; right: 15px; z-index: 1000; 
-                                        background: #fff; border: 2px solid #0951a9; border-radius: 50%; 
-                                        width: 36px; height: 36px; font-size: 28px; font-weight: bold; color: #0951a9; 
-                                        cursor: pointer; line-height: 32px; padding: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-        ×
-      </button>
+      <button id="close-modal-btn"> × </button>
       <div class="text-center mb-5">
-        <h6 class="text-muted">
-          <%= image_tag('berry_icon.png', class: 'panel-icon') %> React with Skookoo
-        </h6>
+        <h3 class="text-muted">
+          <%= image_tag('berry_icon.png', size: "32x32", class: "iframe-icon") %> React with
+        </h3>
       </div>
 
       <%= render "shared/createhighlight" %>

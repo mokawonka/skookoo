@@ -33,6 +33,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.action === "requestOpenModal") {
     handleOpenModal(tabId, request.quote);
+    sendResponse({ success: true });
     return true;
   }
 

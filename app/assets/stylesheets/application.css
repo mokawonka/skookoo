@@ -241,6 +241,7 @@ textarea {
     color: #444444;
     font-size: 18px;
     text-align: justify;
+    text-align-last: center;
     /* max-height: 500px; */
     /* overflow-y: scroll; */
     /* scroll-behavior: smooth; */

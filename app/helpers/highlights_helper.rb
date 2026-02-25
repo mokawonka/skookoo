@@ -1,5 +1,19 @@
 module HighlightsHelper
 
+    def web_page_highlight?(highlight)
+      highlight.cfi.present? && !highlight.cfi.start_with?("epubcfi")
+    end
+
+    def highlight_source_path(highlight)
+      if web_page_highlight?(highlight)
+        # For web pages, use the stored cfi (which is actually the URL)
+        highlight.cfi
+      else
+        # For books, link to document with cfi param
+        document_path(highlight.docid) + "?cfi=#{CGI.escape(highlight.cfi)}" if highlight.docid.present?
+      end
+    end
+
    def emoji_filenames
     if Rails.env.development? || Rails.env.test?
       # In dev/test: read from source folder

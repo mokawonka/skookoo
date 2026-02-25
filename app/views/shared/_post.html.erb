@@ -25,6 +25,9 @@
     </div>
 
     <% poster = User.find_by_id(highlight.userid).username %>
+    <% document = Document.find_by_id(highlight.docid) %>
+    <% replies = Reply.where(:highlightid => highlight.id).where(:recipientid => nil).where(:deleted => false) %>
+
     <small class=hposter>Submitted <%=time_ago_in_words(highlight.created_at)%> ago by <%=link_to poster, user_path(poster)%> </small>  
     <br>
     <%= link_to highlight.quote, highlight_path(highlight), class: "hquote addReadMore showlesscontent" %> - 
@@ -34,7 +37,6 @@
     <div class=hactions>
 
         <%
-            replies = Reply.where(:highlightid => highlight.id).where(:recipientid => nil).where(:deleted => false)
             text = replies.length > 0 ? replies.length.to_s : ""
 
             if replies.length > 1
@@ -47,10 +49,15 @@
 
         <span><a href="" id="share-<%=highlight.id%>">share</a></span>
 
+        <span>
+            <% if web_page_highlight?(highlight) %>
+                <%= link_to "view web page",  highlight.cfi + "?sk_highlight=" + CGI.escape(highlight.quote),
+                                                target: "_blank", rel: "noopener noreferrer" %>
+            <% elsif document != nil %>
+              <%= link_to "view in book", highlight_source_path(highlight) %>
+            <% end %>
+        </span>
 
-        <% if Document.find_by_id(highlight.docid) != nil %>
-            <span><%= link_to 'view in book', document_path(highlight.docid) + '?cfi=' + highlight.cfi %></span>
-        <% end %>
 
         <script>
             $("#share-<%=highlight.id%>").on('click', function(e){

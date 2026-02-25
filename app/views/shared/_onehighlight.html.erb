@@ -15,11 +15,14 @@
       <div class="highlightactions">
         <span><a class="hshare">share</a></span>
 
-        <% if document != nil %>
-            <span class=gray>
-              <%= link_to 'view in book', document_path(highlight.docid) + '?cfi=' + highlight.cfi %>
-            </span>
-        <% end %>
+        <span class=gray>
+            <% if web_page_highlight?(highlight) %>
+                <%= link_to "view web page",  highlight.cfi + "?sk_highlight=" + CGI.escape(highlight.quote),
+                            target: "_blank", rel: "noopener noreferrer" %>
+            <% elsif document != nil %>
+              <%= link_to "view in book", highlight_source_path(highlight) %>
+            <% end %>
+        </span>
 
         <% if logged_in? %>
 

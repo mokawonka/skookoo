@@ -3,12 +3,8 @@
   "name": "Skookoo Highlighter",
   "version": "1.0",
   "description": "Highlight text and react with Skookoo.",
-  "permissions": ["activeTab", "scripting", "contextMenus", "storage", "tabs"],
+  "permissions": ["activeTab", "scripting", "storage", "contextMenus", "tabs"],
   "host_permissions": ["http://localhost:3000/*"],
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "Skookoo"
-  },
   "background": {
     "service_worker": "background.js"
   },
@@ -16,7 +12,19 @@
     {
       "matches": ["<all_urls>"],
       "js": ["content.js"],
-      "css": ["style.css"]
+      "css": ["style.css"],
+      "run_at": "document_start", 
+    "all_frames": true 
     }
-  ]
+  ],
+  "icons": {
+    "72": "icon72.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Skookoo",
+    "default_icon": {
+      "72": "icon72.png"
+    }
+  }
 }

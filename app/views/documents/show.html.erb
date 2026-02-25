@@ -602,47 +602,22 @@
         /* Run safely */
         document.addEventListener("turbo:load", initializeAll);
 
-        var locationsPromise;
-
         book.ready.then(function() {
-          var stored = '<%= raw @document.locations %>';  // Raw JSON string or nil
+          const stored = '<%= raw @document.locations %>';  // Raw JSON string or empty
 
-          if (stored) {
-            locationsPromise = new Promise((resolve, reject) => {
-              try {
-                book.locations.load(stored);
-                resolve();
-              } catch (err) {
-                reject(err);
-              }
-            }).catch(err => {
-              console.error("Locations load failed:", err);
-              return book.locations.generate(1500);
-            });
+          if (stored && stored.trim() !== '') {
+            try {
+              book.locations.load(stored);
+              console.log("Loaded existing locations from DB");
+            } catch (err) {
+              console.error("Failed to load stored locations:", err);
+              // Optional: fallback to generate ONLY if really needed (rare)
+              // book.locations.generate(1500);
+            }
           } else {
-            console.log("No stored locations—generating now.");
-            locationsPromise = book.locations.generate(1500);
+            console.log("No stored locations found.");
           }
 
-          return locationsPromise.then(() => {
-            if (!stored || !book.locations.cfis || book.locations.cfis.length === 0) {
-              const jsonLocations = book.locations.save();
-              fetch("<%= update_locations_document_path(@document) %>", {
-                method: "PATCH",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
-                },
-                body: JSON.stringify({
-                  document: { locations: jsonLocations }
-                })
-              }).catch(err => console.error("Failed to save generated locations:", err));
-            }
-          });
-        }).then(function() {
-          // Changed: Wait for locationsPromise to resolve before display/restore
-          return locationsPromise;
-        }).then(function() {
           var url = window.location.href;
 
           function getCfiFromUrl() {
@@ -665,25 +640,19 @@
             }
 
             try {
-              // First, let EPUB.js do its native navigation
               await rendition.display(highlightCfi);
 
-              // Wait for the content to actually render (critical for bfcache restores)
               await new Promise(resolve => {
                 const onRendered = () => {
                   rendition.off("rendered", onRendered);
                   resolve();
                 };
                 rendition.on("rendered", onRendered);
-
-                // Safety fallback
-                setTimeout(resolve, 900);
+                setTimeout(resolve, 900); // safety
               });
 
-              // Small extra delay for layout to settle (especially on back navigation)
               await new Promise(r => setTimeout(r, 300));
 
-              // Now do precise scroll + centering
               let range = null;
               for (let content of rendition.getContents()) {
                 try {
@@ -693,30 +662,26 @@
               }
 
               if (range && range.startContainer) {
-                // Force reflow
                 void range.startContainer.parentElement.offsetHeight;
-
                 const rect = range.getBoundingClientRect();
                 const targetTop = rect.top + window.scrollY 
                                   - (window.innerHeight * 0.38) 
                                   + (rect.height / 2) 
-                                  - 120;   // your offset
+                                  - 120;
 
                 window.scrollTo({
                   top: Math.max(0, targetTop),
                   behavior: "smooth"
                 });
               }
-
             } catch (err) {
-              console.error("goToHighlight failed, falling back:", err);
-              rendition.display(highlightCfi);   // safe fallback
+              console.error("goToHighlight failed:", err);
+              rendition.display(highlightCfi);
             }
           }
 
-
           <% if logged_in? && current_user.id == @document.userid %>
-            // === Owner: Restore reading progress (only when no highlight link) ===
+            // Owner: Restore reading progress (only when no highlight link)
             if (url.indexOf('cfi') == -1) {
               var saved_percentage = '<%= @document.progress %>';
               var cfi = book.locations.cfiFromPercentage(saved_percentage);
@@ -726,18 +691,18 @@
               $('#read_progressbar').css('width', sp);
             }
           <% else %>
-            // === Non-owner: Default display when no highlight link ===
+            // Non-owner: Default display when no highlight link
             if (url.indexOf('cfi') == -1) {
               rendition.display();
             }
           <% end %>
 
-          // === Common logic for everyone: Handle highlight link (cfi in URL) ===
+          // Common: Handle highlight link (cfi in URL)
           if (url.indexOf('cfi') != -1) {
             var highlightCfi = getCfiFromUrl();
 
             if (highlightCfi) {
-              scrollToHighlight(highlightCfi, 120);
+              scrollToHighlight(highlightCfi);
 
               <% if @target_highlight %>
                 rendition.annotations.add("highlight", highlightCfi, {}, 
@@ -768,12 +733,10 @@
                   "fill-opacity": "0.2"
                 });
               <% end %>
-
             } else {
               rendition.display();
             }
           }
-
         });
 
 

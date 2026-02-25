@@ -61,23 +61,43 @@ function handleMouseUp() {
 function requestOpenModal(quote) {
   currentQuote = quote;
 
+  // ✅ Check extension context
+  if (!chrome?.runtime?.id) {
+    console.warn("[CONTENT] Extension context missing. Reloading page.");
+    location.reload();
+    return;
+  }
+
   try {
-    chrome.runtime.sendMessage({
-      action: "requestOpenModal",
-      quote: quote,
-      origin: window.location.origin
-    }, (response) => {
-      if (chrome.runtime.lastError) {
-        console.warn("[CONTENT] Send message failed:", chrome.runtime.lastError.message);
-        // Optional: try to re-inject or notify user
-        return;
+    chrome.runtime.sendMessage(
+      {
+        action: "requestOpenModal",
+        quote: quote,
+        origin: window.location.origin
+      },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.warn(
+            "[CONTENT] Send failed:",
+            chrome.runtime.lastError.message
+          );
+
+          // If extension was reloaded, refresh content script
+          if (chrome.runtime.lastError.message.includes("context invalidated")) {
+            location.reload();
+          }
+
+          return;
+        }
+
+        console.log("[CONTENT] Message sent OK");
       }
-      console.log("[CONTENT] Message sent OK");
-    });
+    );
   } catch (err) {
     console.error("[CONTENT] Messaging crashed:", err);
-    // Optional: show a message to user to reload extension/page
-    alert("Extension context error. Try reloading the page or extension.");
+
+    // Force recovery
+    location.reload();
   }
 }
 
@@ -259,3 +279,138 @@ document.addEventListener("mousedown", (e) => {
     removeFloatButton();
   }
 });
+
+
+(function() {
+  // Run immediately when script injects
+  processHighlightParams();
+
+  // Re-run on navigation (history.pushState, back/forward)
+  let lastUrl = location.href;
+  new MutationObserver(() => {
+    const url = location.href;
+    if (url !== lastUrl) {
+      lastUrl = url;
+      processHighlightParams();
+    }
+  }).observe(document, { subtree: true, childList: true });
+
+  // Also listen for popstate (back/forward)
+  window.addEventListener('popstate', processHighlightParams);
+
+  function processHighlightParams() {
+    const params = new URLSearchParams(window.location.search);
+    const quoteToHighlight = params.get("sk_highlight");
+
+    if (quoteToHighlight) {
+      const targetQuote = decodeURIComponent(quoteToHighlight).trim();
+      console.log("[CONTENT] Processing highlight quote:", targetQuote.substring(0, 50) + "...");
+
+      // Delay slightly to ensure DOM is ready (safe)
+      setTimeout(() => {
+        highlightAndScrollToQuote(targetQuote);
+      }, 500); // 500ms delay – adjust if needed (100-1000ms)
+    }
+  }
+
+
+function highlightAndScrollToQuote(searchText) {
+  if (!searchText || searchText.length < 5) return;
+
+  const normalize = str =>
+    str.replace(/\s+/g, ' ').trim().toLowerCase();
+
+  const target = normalize(searchText);
+
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode(node) {
+        if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+
+        const parentTag = node.parentNode?.tagName;
+        if (["SCRIPT", "STYLE", "NOSCRIPT"].includes(parentTag)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    }
+  );
+
+  let fullText = "";
+  const nodes = [];
+  let node;
+
+  while ((node = walker.nextNode())) {
+    const raw = node.nodeValue;
+    const normalized = normalize(raw);
+
+    nodes.push({
+      node,
+      start: fullText.length,
+      rawLength: raw.length,
+      normalizedLength: normalized.length,
+      rawText: raw
+    });
+
+    fullText += normalized + " "; // ✅ critical fix
+  }
+
+  const matchStart = fullText.indexOf(target);
+  if (matchStart === -1) {
+    console.warn("[CONTENT] No match found");
+    return;
+  }
+
+  const matchEnd = matchStart + target.length;
+
+  let startObj = null;
+  let endObj = null;
+
+  for (const obj of nodes) {
+    const nodeStart = obj.start;
+    const nodeEnd = obj.start + obj.normalizedLength;
+
+    if (!startObj && matchStart >= nodeStart && matchStart < nodeEnd) {
+      startObj = obj;
+    }
+
+    if (!endObj && matchEnd > nodeStart && matchEnd <= nodeEnd) {
+      endObj = obj;
+      break;
+    }
+  }
+
+  if (!startObj || !endObj) {
+    console.warn("[CONTENT] Could not map nodes");
+    return;
+  }
+
+  const range = document.createRange();
+
+  const startOffset = matchStart - startObj.start;
+  const endOffset = matchEnd - endObj.start;
+
+  range.setStart(startObj.node, startOffset);
+  range.setEnd(endObj.node, endOffset);
+
+  const mark = document.createElement("mark");
+  mark.className = "skookoo-highlight";
+
+  // ✅ safer than surroundContents for large ranges
+  const extracted = range.extractContents();
+  mark.appendChild(extracted);
+  range.insertNode(mark);
+
+  mark.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+  mark.classList.add("skookoo-pulse");
+  setTimeout(() => mark.classList.remove("skookoo-pulse"), 8000);
+}
+
+})();
