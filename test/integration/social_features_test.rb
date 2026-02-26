@@ -21,7 +21,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "follow public user flow" do
     # Login as testuser
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -53,7 +53,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "follow private user flow" do
     # Login as testuser
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -75,7 +75,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
     
     # Login as private user and approve request
     delete session_path(session[:user_id])
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @private_user.username, 
         password: "password" 
@@ -102,7 +102,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "reject follow request flow" do
     # Login as testuser and request to follow private user
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -114,7 +114,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
     
     # Login as private user and reject request
     delete session_path(session[:user_id])
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @private_user.username, 
         password: "password" 
@@ -140,7 +140,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
     @other_user.save!
     
     # Login and unfollow
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -159,7 +159,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "self-follow prevention" do
     # Login as user
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -177,7 +177,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "highlight and reply interaction flow" do
     # Login as other user
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @other_user.username, 
         password: "password" 
@@ -220,7 +220,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "voting system flow" do
     # Login as other user
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @other_user.username, 
         password: "password" 
@@ -277,7 +277,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "private profile access restrictions" do
     # Login as regular user
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -297,7 +297,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
     # Since notifications use background jobs, we'd need to mock or test differently
     
     # Login as testuser
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 

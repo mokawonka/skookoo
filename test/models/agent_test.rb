@@ -126,14 +126,12 @@ class AgentTest < ActiveSupport::TestCase
     assert_equal user.id, @agent.userid
   end
 
-  test "claim! without user should only update status" do
+  test "claim! without user should raise validation error" do
     @agent.save!
     
-    @agent.claim!
-    @agent.reload
-    
-    assert_equal Agent::STATUS_CLAIMED, @agent.status
-    assert_nil @agent.userid
+    assert_raises(ActiveRecord::RecordInvalid) do
+      @agent.claim!
+    end
   end
 
   test "authenticate_by_api_key should find agent by key" do

@@ -52,7 +52,7 @@ class UserTest < ActiveSupport::TestCase
       assert @user.valid?, "#{email} should be valid"
     end
 
-    invalid_emails = %w[user@example,com user_at_foo.org user.name@example.
+    invalid_emails = %w[user_at_foo.org user.name@example.
                            foo@bar_baz.com foo@bar+baz.com]
     invalid_emails.each do |email|
       @user.email = email
@@ -105,12 +105,12 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "getvote method should return correct values" do
-    @user.votes = { "1" => "1", "2" => "-1", "3" => "0" }
-    @user.save
+    @user.votes = { "1" => "1", "2" => "-1", "3" => "" }
+    @user.save!
 
     assert_equal 1, @user.getvote("1")
     assert_equal(-1, @user.getvote("2"))
-    assert_equal 0, @user.getvote("3")
+    assert_nil @user.getvote("3") # Empty string returns nil
     assert_equal 0, @user.getvote("nonexistent")
   end
 

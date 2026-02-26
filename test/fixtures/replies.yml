@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  userid: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  highlightid: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  content: This is a test reply that is at least ten characters long.
+  score: 1
+  edited: false
+  deleted: false
+
+two:
+  userid: <%= ActiveRecord::FixtureSet.identify(:two) %>
+  highlightid: <%= ActiveRecord::FixtureSet.identify(:two) %>
+  content: This is another test reply that is also at least ten characters.
+  score: 2
+  edited: true
+  deleted: false

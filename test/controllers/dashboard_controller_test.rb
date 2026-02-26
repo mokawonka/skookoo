@@ -2,7 +2,7 @@ require "test_helper"
 
 class DashboardControllerTest < ActionDispatch::IntegrationTest
   test "should get mydocuments" do
-    get dashboard_mydocuments_url
+    get "/dashboard/mydocuments"
     assert_response :success
   end
 end

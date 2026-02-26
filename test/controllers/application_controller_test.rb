@@ -208,7 +208,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
   private
 
   def log_in_as(user)
-    post sessions_path, params: { session: { 
+    post "/login", params: { session: { 
       username: user.username, 
       password: 'password' 
     }}

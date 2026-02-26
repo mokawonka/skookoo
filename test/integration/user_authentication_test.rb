@@ -36,7 +36,7 @@ class UserAuthenticationTest < ActionDispatch::IntegrationTest
     assert_match "logged out", flash[:notice]
     
     # Login again
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: "newuser", 
         password: "password123" 
@@ -50,7 +50,7 @@ class UserAuthenticationTest < ActionDispatch::IntegrationTest
 
   test "failed login flow" do
     # Try to login with wrong password
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "wrongpassword" 
@@ -62,7 +62,7 @@ class UserAuthenticationTest < ActionDispatch::IntegrationTest
     assert_match "Invalid username or password", flash[:alert]
     
     # Try to login with wrong username
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: "wronguser", 
         password: "password" 
@@ -124,7 +124,7 @@ class UserAuthenticationTest < ActionDispatch::IntegrationTest
 
   test "session persistence across requests" do
     # Login
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -148,7 +148,7 @@ class UserAuthenticationTest < ActionDispatch::IntegrationTest
 
   test "user profile access flow" do
     # Login
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: @user.username, 
         password: "password" 
@@ -198,7 +198,7 @@ class UserAuthenticationTest < ActionDispatch::IntegrationTest
     )
     
     # Login as other user
-    post sessions_path, params: { 
+    post "/login", params: { 
       session: { 
         username: other_user.username, 
         password: "password" 

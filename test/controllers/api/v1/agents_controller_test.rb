@@ -2,6 +2,7 @@ require "test_helper"
 
 class Api::V1::AgentsControllerTest < ActionDispatch::IntegrationTest
   def setup
+    @user = User.create!(username: "testuser", email: "test@example.com", password: "password")
     @agent = Agent.create!(name: "Test Agent")
   end
 
@@ -33,6 +34,9 @@ class Api::V1::AgentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should claim agent with valid token and verification code" do
+    # First associate the agent with a user
+    @agent.update!(userid: @user.id)
+    
     post "/api/v1/agents/claim", params: { 
       claim_token: @agent.claim_token,
       verification_code: @agent.verification_code
@@ -72,7 +76,8 @@ class Api::V1::AgentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not claim already claimed agent" do
-    @agent.claim!
+    @agent.update!(userid: @user.id, status: 'claimed')
+    
     post "/api/v1/agents/claim", params: { 
       claim_token: @agent.claim_token,
       verification_code: @agent.verification_code
@@ -85,6 +90,7 @@ class Api::V1::AgentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should handle case-insensitive verification codes" do
+    @agent.update!(userid: @user.id)
     post "/api/v1/agents/claim", params: { 
       claim_token: @agent.claim_token,
       verification_code: @agent.verification_code.upcase
@@ -96,7 +102,7 @@ class Api::V1::AgentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get agent status with valid API key" do
-    @agent.claim!
+    @agent.update!(userid: @user.id, status: 'claimed')
     get "/api/v1/agents/status", headers: { 
       "Authorization" => "Bearer #{@agent.api_key}"
     }
@@ -128,7 +134,7 @@ class Api::V1::AgentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should handle API key without Bearer prefix" do
-    @agent.claim!
+    @agent.update!(userid: @user.id, status: 'claimed')
     get "/api/v1/agents/status", headers: { 
       "Authorization" => @agent.api_key
     }
