@@ -23,13 +23,7 @@ class ApplicationController < ActionController::Base
     # helpers functions to be used on all controllers
     helper_method :current_user, :logged_in?
     def current_user
-        # Check Authorization header for Bearer token first
-        if authorization_header.present?
-            token = extract_token_from_header
-            @current_user ||= user_from_token(token) if token.present?
-        end
 
-        # Fall back to params token
         if params[:token].present?
             @current_user ||= user_from_token(params[:token])
         end
@@ -49,14 +43,8 @@ class ApplicationController < ActionController::Base
     def require_user
 
         if !logged_in?
-            respond_to do |format|
-                format.html { 
-                    flash[:alert] = "You must be logged in to perform that action."
-                    redirect_to login_path 
-                }
-                format.json { render json: { error: "Authentication required" }, status: :unauthorized }
-                format.any { render json: { error: "Authentication required" }, status: :unauthorized }
-            end
+            flash[:alert] = "You must be logged in to perform that action."
+            redirect_to login_path 
         end
     
     end
@@ -84,19 +72,10 @@ class ApplicationController < ActionController::Base
     end
 
     private
-    
-    def authorization_header
-        request.headers['Authorization']
-    end
-    
-    def extract_token_from_header
-            return nil unless authorization_header.present?
-            token = authorization_header.split(' ').last
-            token == 'Bearer' ? nil : token
-        end
+
     
     def user_from_token(token = nil)
-        token = token.to_s
+        token = params[:token].to_s
         return nil if token.blank?
 
         verifier = ActiveSupport::MessageVerifier.new(Rails.application.secret_key_base)

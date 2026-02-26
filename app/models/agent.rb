@@ -9,9 +9,9 @@ class Agent < ApplicationRecord
   before_validation :generate_credentials, on: :create
 
   validates :name, presence: true
-  validates :api_key, uniqueness: true, allow_nil: true
-  validates :claim_token, uniqueness: true, allow_nil: true
-  validates :verification_code, presence: true, allow_nil: true
+  validates :api_key, uniqueness: true, presence: true
+  validates :claim_token, uniqueness: true, presence: true
+  validates :verification_code, presence: true
   validates :status, presence: true, inclusion: { in: [STATUS_PENDING_CLAIM, STATUS_CLAIMED] }
   validates :userid, presence: true, if: :claimed?
 
