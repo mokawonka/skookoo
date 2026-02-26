@@ -118,9 +118,11 @@ Rails.application.routes.draw do
   end
 
   resources :highlights do
+      patch 'update_score'
   end
   
   resources :replies do
+      patch 'update_score'
   end
 
   resources :expressions
