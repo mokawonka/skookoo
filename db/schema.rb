@@ -81,10 +81,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_150914) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "last_accessed_at"
-    t.integer "font_size"
-    t.float "line_height"
-    t.string "bg_color"
-    t.string "text_color"
+    t.integer "font_size", default: 18
+    t.float "line_height", default: 1.6
+    t.string "bg_color", default: "#ffffff"
+    t.string "text_color", default: "#111111"
     t.string "font_family", default: "Crimson Pro"
     t.index ["last_accessed_at"], name: "index_documents_on_last_accessed_at"
   end
@@ -106,7 +106,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_150914) do
     t.string "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "definition"
+    t.string "definition", limit: 1000
   end
 
   create_table "highlights", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -121,15 +121,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_20_150914) do
     t.string "comment"
     t.string "gifid"
     t.string "emojiid"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  create_table "ideas", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "userid"
-    t.uuid "docid"
-    t.string "cfi"
-    t.string "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

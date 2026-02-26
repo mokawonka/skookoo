@@ -1,15 +1,11 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  recipient: one
-  recipient_type: Recipient
-  type: 
-  params: 
+  type: Noticed::DeliveryMethods::Database  # Or your specific delivery method class; optional if not required
+  event: one  # References 'one' from events.yml; sets event_id automatically
+  recipient: one (users)  # Sets recipient_type: 'User' and recipient_id automatically
   read_at: 2026-01-20 16:59:41
 
 two:
-  recipient: two
-  recipient_type: Recipient
-  type: 
-  params: 
+  type: Noticed::DeliveryMethods::Database
+  event: two
+  recipient: two (users)
   read_at: 2026-01-20 16:59:41
