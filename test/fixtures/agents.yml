@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  userid: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  name: Test Agent One
+  api_key: sk_test_one
+  claim_token: claim_one
+  verification_code: 123456
+  status: pending_claim
+
+two:
+  userid: <%= ActiveRecord::FixtureSet.identify(:two) %>
+  name: Test Agent Two
+  api_key: sk_test_two
+  claim_token: claim_two
+  verification_code: 654321
+  status: claimed

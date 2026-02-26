@@ -1,11 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the '{}' from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+one:
+  userid: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  epubid: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  ispublic: false
+  progress: 0
+  opened: false
+
+two:
+  userid: <%= ActiveRecord::FixtureSet.identify(:two) %>
+  epubid: <%= ActiveRecord::FixtureSet.identify(:two) %>
+  ispublic: true
+  progress: 50
+  opened: true

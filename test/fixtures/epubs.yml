@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: Test Book One
+  authors: Test Author One
+  lang: en
+  publisher: Test Publisher
+  published: 2023
+  isbn: 1234567890
+  identifier: test-one-identifier
+  description: This is a test book for testing purposes
+
+two:
+  title: Test Book Two
+  authors: Test Author Two
+  lang: fr
+  publisher: Another Publisher
+  published: 2024
+  isbn: 0987654321
+  identifier: test-two-identifier
+  description: This is another test book for testing purposes

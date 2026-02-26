@@ -2,16 +2,16 @@
 
 one:
   user: one
-  plan: MyString
-  status: 1
-  stripe_customer_id: MyString
-  stripe_subscription_id: MyString
-  current_period_end: 2026-02-17 19:33:32
+  plan: janitor
+  status: active
+  stripe_customer_id: cus_test_one
+  stripe_subscription_id: sub_test_one
+  current_period_end: <%= 1.month.from_now %>
 
 two:
   user: two
-  plan: MyString
-  status: 1
-  stripe_customer_id: MyString
-  stripe_subscription_id: MyString
-  current_period_end: 2026-02-17 19:33:32
+  plan: pomologist
+  status: trialing
+  stripe_customer_id: cus_test_two
+  stripe_subscription_id: sub_test_two
+  current_period_end: <%= 1.month.from_now %>

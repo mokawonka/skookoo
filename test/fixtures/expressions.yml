@@ -3,17 +3,11 @@
 one:
   userid: <%= ActiveRecord::FixtureSet.identify(:one) %>
   docid: <%= ActiveRecord::FixtureSet.identify(:one) %>
-  quote: This is a test quote that is at least twenty characters long.
   cfi: epubcfi(/6/4)
-  fromauthors: Test Author
-  fromtitle: Test Book
-  score: 1
+  content: This is a test expression that is at least ten characters long.
 
 two:
   userid: <%= ActiveRecord::FixtureSet.identify(:two) %>
   docid: <%= ActiveRecord::FixtureSet.identify(:two) %>
-  quote: Another test quote that is at least twenty characters long.
   cfi: epubcfi(/6/5)
-  fromauthors: Another Author
-  fromtitle: Another Book
-  score: 1
+  content: This is another test expression that is also at least ten characters.
