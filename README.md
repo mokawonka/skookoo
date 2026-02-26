@@ -24,6 +24,25 @@ This application requires Ruby 3.2.6 and Rails 7.2. Follow these instructions to
 # Install dependencies with apt
 sudo apt update
 sudo apt install build-essential rustc libssl-dev libyaml-dev zlib1g-dev libgmp-dev git
+
+# Install PostgreSQL for database
+sudo apt install postgresql postgresql-contrib -y
+sudo -u postgres createuser --superuser $USER
+
+# Install Redis for caching and background jobs
+sudo apt install redis
+
+# Install Vips for image processing 
+sudo apt install libvips -y
+
+# Install Node.js for asset pipeline and JavaScript runtime
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt update
+sudo apt install -y nodejs
+
+# Install Puppeteer for OpenGraph image generation
+npm install
+sudo apt install chromium-browser -y
 ```
 
 #### 2. Install Mise Version Manager
@@ -52,11 +71,22 @@ gem install rails -v "~> 7.2"
 git clone <repository-url>
 cd skookoo
 
-# Install dependencies
+# Install Ruby dependencies
 bundle install
+
+# Install Node.js dependencies
+npm install
 
 # Setup database
 rails db:create db:migrate
+
+# Start Redis server
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+
+# Start PostgreSQL (usually starts automatically)
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 
 # Start the development server
 rails server
