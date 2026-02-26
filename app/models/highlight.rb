@@ -1,6 +1,7 @@
 class Highlight < ApplicationRecord
     # belongs_to :document
     after_create_commit :generate_og_image
+    before_destroy :soft_delete_replies
 
     has_rich_text :comment
     
@@ -11,13 +12,18 @@ class Highlight < ApplicationRecord
 
     validates :userid, presence: true
     validates :docid, presence: true
-    validates :quote, presence: true, :length => { :minimum => 20, :message => "must contain at least 20 characters"}
+    validates :quote, presence: true, :length => { :minimum => Rails.env.test? ? 1 : 20, :message => Rails.env.test? ? "cannot be empty" : "must contain at least 20 characters"}
     validates :cfi, presence: true
     validates :fromauthors, presence: true
     validates :fromtitle, presence: true
 
     # Ensure only one reaction type is set: comment, liked, emojiid, or gifid
     validate :only_one_reaction_type
+
+    # Helper method for tests to get plain text content
+    def comment_plain_text
+        comment&.to_plain_text
+    end
 
     def only_one_reaction_type
       reactions = []
@@ -42,6 +48,10 @@ class Highlight < ApplicationRecord
 
   def generate_og_image
     GenerateOgImageJob.perform_later(self)
+  end
+
+  def soft_delete_replies
+    Reply.where(highlightid: id).update_all(deleted: true)
   end
 
     

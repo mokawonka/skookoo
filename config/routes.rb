@@ -1,8 +1,4 @@
 Rails.application.routes.draw do
-  get "merch_orders/new"
-  get "merch_orders/create"
-  get "subscriptions/new"
-  get "subscriptions/create"
 
   root 'pages#home'
 
@@ -137,6 +133,11 @@ Rails.application.routes.draw do
       delete :downgrade
     end
   end
+
+  get "merch_orders/new"
+  get "merch_orders/create"
+  get "subscriptions/new"
+  get "subscriptions/create"
 
   get '/subscriptions/success', to: 'subscriptions#success', as: :subscriptions_success
   get '/subscriptions/downgrade', to: 'subscriptions#downgrade', as: :subscriptions_downgrade

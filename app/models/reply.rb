@@ -10,6 +10,11 @@ class Reply < ApplicationRecord
     validates :highlightid, presence: true    
     validates :content, presence: true, :length => { :minimum => 1, :message => "cannot be empty"}
 
+    # Helper method for tests to get plain text content
+    def content_plain_text
+        content&.to_plain_text
+    end
+
 
     def getsubreplies
 

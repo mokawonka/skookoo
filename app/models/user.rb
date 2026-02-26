@@ -11,6 +11,7 @@ class User < ApplicationRecord
 
     has_one :subscription, dependent: :destroy
     after_create :create_default_subscription
+    before_destroy :soft_delete_replies
 
     attribute :mana, :integer, default: 1
     attribute :darkmode, :boolean, default: false
@@ -98,6 +99,10 @@ class User < ApplicationRecord
 
     def create_default_subscription
         create_subscription(plan: 'janitor', status: 'active')
+    end
+
+    def soft_delete_replies
+        Reply.where(userid: id).update_all(deleted: true)
     end
 
 
