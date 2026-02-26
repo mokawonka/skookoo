@@ -71,7 +71,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil session[:return_to]
   end
 
-  test "should redirect to return_to URL if present" do
+  test "should redirect to return_to URL from referer if present" do
     post "/login", params: { session: { 
       username: @user.username, 
       password: 'password' 
