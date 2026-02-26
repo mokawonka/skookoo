@@ -3,13 +3,17 @@
 one:
   user: one
   highlight: one
-  product_type: MyString
-  design_text: MyText
-  status: MyString
+  product_type: tshirt
+  design_text: Test design
+  status: pending
+  color: black
+  quantity: 1
 
 two:
   user: two
   highlight: two
-  product_type: MyString
-  design_text: MyText
-  status: MyString
+  product_type: mug
+  design_text: Another design
+  status: completed
+  color: white
+  quantity: 2

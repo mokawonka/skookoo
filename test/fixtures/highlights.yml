@@ -1,11 +1,19 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-# This model initially had no columns defined. If you add columns to the
-# model remove the '{}' from the fixture names and add the columns immediately
-# below each fixture, per the syntax in the comments below
-#
-one: {}
-# column: value
-#
-two: {}
-# column: value
+one:
+  user: one
+  docid: 1
+  quote: This is a test quote that is at least twenty characters long.
+  cfi: epubcfi(/6/4)
+  fromauthors: Test Author
+  fromtitle: Test Book
+  score: 1
+
+two:
+  user: two
+  docid: 2
+  quote: Another test quote that is at least twenty characters long.
+  cfi: epubcfi(/6/5)
+  fromauthors: Another Author
+  fromtitle: Another Book
+  score: 1
