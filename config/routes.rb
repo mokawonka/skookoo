@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
   post "login", to: "sessions#create"
   post "logout", to: "sessions#destroy"
+  delete "logout", to: "sessions#destroy"
 
   patch 'documents/:id/update_progress', to: 'documents#update_progress'
   patch 'documents/:id/update_locations', to: 'documents#update_locations'
@@ -62,6 +63,10 @@ Rails.application.routes.draw do
   post 'users/:id/minusonemana', to: 'users#minusonemana'
   post 'users/:id/plustwomana', to: 'users#plustwomana'
   post 'users/:id/minustwomana', to: 'users#minustwomana'
+
+  get 'users/:id/show_following', to: 'users#show_following'
+  get 'users/:id/show_followers', to: 'users#show_followers'
+  get 'users/:id/show_replies', to: 'users#show_replies'
 
 
   patch 'highlights/:id/update_score', to: 'highlights#update_score'
@@ -117,11 +122,9 @@ Rails.application.routes.draw do
   end
 
   resources :highlights do
-    patch 'update_score'
   end
   
   resources :replies do
-    patch 'update_score'
   end
 
   resources :expressions

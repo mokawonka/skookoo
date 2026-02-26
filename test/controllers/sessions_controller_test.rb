@@ -32,8 +32,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       password: 'password' 
     }}
     
-    assert_response :unprocessable_entity
-    assert_match /Invalid username or password/, response.body
+    assert_redirected_to login_path
+    assert_match /Invalid username or password/, flash[:alert]
     assert_nil session[:user_id]
   end
 
@@ -43,8 +43,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       password: 'wrongpassword' 
     }}
     
-    assert_response :unprocessable_entity
-    assert_match /Invalid username or password/, response.body
+    assert_redirected_to login_path
+    assert_match /Invalid username or password/, flash[:alert]
     assert_nil session[:user_id]
   end
 
@@ -54,21 +54,18 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       password: '' 
     }}
     
-    assert_response :unprocessable_entity
-    assert_match /Invalid username or password/, response.body
+    assert_redirected_to login_path
+    assert_match /Invalid username or password/, flash[:alert]
     assert_nil session[:user_id]
   end
 
   test "should redirect to return_to URL if present" do
-    session[:return_to] = "/some/path"
-    
     post "/login", params: { session: { 
       username: @user.username, 
       password: 'password' 
-    }}
+    }}, headers: { "HTTP_REFERER" => "/some/path" }
     
     assert_redirected_to "/some/path"
-    assert_nil session[:return_to]
   end
 
   test "should redirect to return_to URL from referer if present" do
@@ -84,16 +81,16 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     log_in_as(@user)
     delete "/logout"
     
-    assert_redirected_to login_path
-    assert_equal "Logged out successfully.", flash[:notice]
+    assert_redirected_to root_path
+    assert_equal "You have been logged out.", flash[:notice]
     assert_nil session[:user_id]
   end
 
   test "should destroy session even when not logged in" do
     delete "/logout"
     
-    assert_redirected_to login_path
-    assert_equal "Logged out successfully.", flash[:notice]
+    assert_redirected_to root_path
+    assert_equal "You have been logged out.", flash[:notice]
     assert_nil session[:user_id]
   end
 

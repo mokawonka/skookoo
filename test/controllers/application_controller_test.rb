@@ -3,11 +3,14 @@ require "test_helper"
 class ApplicationControllerTest < ActionDispatch::IntegrationTest
   def setup
     @user = User.create!(username: "testuser", email: "test@example.com", password: "password")
+    @epub = Epub.create!(title: "Test Book", authors: "Test Author", lang: "en")
+    @document = Document.create!(userid: @user.id, epubid: @epub.id)
   end
 
   test "should get index without session_id" do
     get "/"
     assert_response :success
+    assert_select "h1", false  # Pages controller doesn't have h1, just highlights
   end
 
   test "should handle Stripe session with successful payment" do
@@ -90,13 +93,13 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
   test "check_timestamp should allow requests with sufficient time gap" do
     log_in_as(@user)
     
-    # First request
-    get root_path
+    # Test on a controller that actually uses check_timestamp
+    get new_highlight_path
     assert_response :success
     
     # Wait and make second request (in real scenario)
     # For testing, we'll just ensure the method doesn't crash
-    get root_path
+    get new_highlight_path
     assert_response :success
   end
 
@@ -106,7 +109,16 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     # Simulate rapid requests by setting last_action_at
     session[:last_action_at] = 1.second.ago
     
-    get root_path, xhr: true
+    # Test on a controller that actually uses check_timestamp
+    post highlights_path, params: { 
+      highlight: { 
+        docid: @document.id,
+        quote: "Another test quote that is at least twenty characters long.",
+        cfi: "epubcfi(/6/5)",
+        fromauthors: "Test Author",
+        fromtitle: "Test Book"
+      }
+    }, xhr: true
     # Should render the timestamp check template
     assert_response :success
   end

@@ -70,7 +70,7 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
           fromauthors: "Test Author",
           fromtitle: "Test Book"
         }
-      }
+      }, as: :json
     end
     
     assert_response :unauthorized
@@ -89,7 +89,7 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
           fromauthors: "Test Author",
           fromtitle: "Test Book"
         }
-      }
+      }, as: :json
     end
     
     assert_response :unauthorized
