@@ -59,7 +59,7 @@
 }
 
 mark.skookoo-highlight {
-  background-color: #fff176 !important;
+  background-color: #75b3ff !important;
   color: #000 !important;
   padding: 2px 4px;
   border-radius: 3px;
@@ -75,7 +75,7 @@ mark.skookoo-highlight {
 }
 
 @keyframes skookoo-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 241, 118, 0.7); }
+  0% { box-shadow: 0 0 0 0 rgba(158, 210, 255, 0.7); }
   70% { box-shadow: 0 0 0 12px rgba(255, 241, 118, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 241, 118, 0); }
 }
