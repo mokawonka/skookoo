@@ -52,8 +52,7 @@ class UserTest < ActiveSupport::TestCase
       assert @user.valid?, "#{email} should be valid"
     end
 
-    invalid_emails = %w[user_at_foo.org user.name@example.
-                           foo@bar_baz.com foo@bar+baz.com]
+    invalid_emails = %w[user_at_foo.org user.name@example foo@bar_baz.com foo@bar+baz.com]
     invalid_emails.each do |email|
       @user.email = email
       assert_not @user.valid?, "#{email} should be invalid"

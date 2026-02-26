@@ -27,6 +27,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     
     assert_equal @user.id, session[:user_id]
     # current_user should work through session
+    assert_equal @user.id, @controller.current_user&.id
   end
 
   test "current_user should return user from token" do
@@ -35,6 +36,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     
     assert_equal @user.id, session[:user_id]
     # Token authentication should work
+    assert_equal @user.id, @controller.current_user&.id
   end
 
   test "current_user should prefer token over session" do
@@ -45,13 +47,14 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     get "/", params: { token: token }
     
     # Token should override session
-    assert_equal other_user.id, session[:user_id]
+    assert_equal other_user.id, @controller.current_user&.id
   end
 
   test "current_user should return nil with invalid token" do
     get "/", params: { token: "invalid_token" }
     
     assert_nil session[:user_id]
+    assert_nil @controller.current_user
   end
 
   test "current_user should return nil with expired token" do
@@ -67,6 +70,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     
     assert_not_nil session[:user_id]
     # User should be logged in
+    assert_equal true, @controller.logged_in?
   end
 
   test "logged_in? should return false when user is not logged in" do
@@ -74,6 +78,7 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     
     assert_nil session[:user_id]
     # User should not be logged in
+    assert_equal false, @controller.logged_in?
   end
 
   test "require_user should allow access when logged in" do
@@ -120,9 +125,11 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
   test "should handle Bearer token prefix" do
     token = generate_token_for(@user)
     
-    get "/", params: { token: token }
+    # Test with Bearer prefix in Authorization header
+    get "/", headers: { "Authorization" => "Bearer #{token}" }
     
-    assert_equal @user.id, session[:user_id]
+    # Should work with Bearer prefix
+    assert_equal @user.id, @controller.current_user&.id
   end
 
   private

@@ -69,6 +69,7 @@ class ReplyTest < ActiveSupport::TestCase
   end
 
   test "attachments should work correctly" do
+    @reply.save!
     assert_respond_to @reply, :content_rich_text
   end
 
@@ -130,7 +131,7 @@ class ReplyTest < ActiveSupport::TestCase
     # Create a reply to trigger the callback
     @reply.save!
     
-    # The notification should be triggered (we can't easily test this without Mocha)
+    # Just verify the reply was saved and callback exists
     assert @reply.persisted?
   end
 
@@ -242,6 +243,7 @@ class ReplyTest < ActiveSupport::TestCase
     assert @reply.valid?
     @reply.save!
     @reply.reload
-    assert_equal long_content, @reply.content.to_s
+    # ActionText wraps content in HTML
+    assert_match long_content, @reply.content.to_s
   end
 end

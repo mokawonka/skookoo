@@ -15,8 +15,14 @@ class AgentTest < ActiveSupport::TestCase
   end
 
   test "api_key should be present" do
+    @agent.save!  # Save to generate the api_key
+    original_api_key = @agent.api_key
     @agent.api_key = ""
     assert_not @agent.valid?
+    
+    # Test that it's valid with the generated key
+    @agent.api_key = original_api_key
+    assert @agent.valid?
   end
 
   test "api_key should be unique" do
@@ -27,8 +33,14 @@ class AgentTest < ActiveSupport::TestCase
   end
 
   test "claim_token should be present" do
+    @agent.save!  # Save to generate the claim_token
+    original_claim_token = @agent.claim_token
     @agent.claim_token = ""
     assert_not @agent.valid?
+    
+    # Test that it's valid with the generated token
+    @agent.claim_token = original_claim_token
+    assert @agent.valid?
   end
 
   test "claim_token should be unique" do
@@ -39,13 +51,25 @@ class AgentTest < ActiveSupport::TestCase
   end
 
   test "verification_code should be present" do
+    @agent.save!  # Save to generate the verification_code
+    original_verification_code = @agent.verification_code
     @agent.verification_code = ""
     assert_not @agent.valid?
+    
+    # Test that it's valid with the generated code
+    @agent.verification_code = original_verification_code
+    assert @agent.valid?
   end
 
   test "status should be present" do
+    @agent.save!  # Save to set default status
+    original_status = @agent.status
     @agent.status = ""
     assert_not @agent.valid?
+    
+    # Test that it's valid with the default status
+    @agent.status = original_status
+    assert @agent.valid?
   end
 
   test "status should be included in valid statuses" do
@@ -60,6 +84,7 @@ class AgentTest < ActiveSupport::TestCase
   end
 
   test "userid should be present when claimed" do
+    @agent.save!  # Save first to set all generated fields
     @agent.status = Agent::STATUS_CLAIMED
     @agent.userid = nil
     assert_not @agent.valid?
