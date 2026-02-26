@@ -1,15 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  user: one
-  epubid: 1
+  userid: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  epubid: <%= ActiveRecord::FixtureSet.identify(:one) %>
   ispublic: false
   progress: 0
   opened: false
 
 two:
-  user: two
-  epubid: 2
+  userid: <%= ActiveRecord::FixtureSet.identify(:two) %>
+  epubid: <%= ActiveRecord::FixtureSet.identify(:two) %>
   ispublic: true
   progress: 50
   opened: true

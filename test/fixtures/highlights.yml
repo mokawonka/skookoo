@@ -1,8 +1,8 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  user: one
-  docid: 1
+  userid: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  docid: <%= ActiveRecord::FixtureSet.identify(:one) %>
   quote: This is a test quote that is at least twenty characters long.
   cfi: epubcfi(/6/4)
   fromauthors: Test Author
@@ -10,8 +10,8 @@ one:
   score: 1
 
 two:
-  user: two
-  docid: 2
+  userid: <%= ActiveRecord::FixtureSet.identify(:two) %>
+  docid: <%= ActiveRecord::FixtureSet.identify(:two) %>
   quote: Another test quote that is at least twenty characters long.
   cfi: epubcfi(/6/5)
   fromauthors: Another Author
