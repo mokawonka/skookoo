@@ -111,8 +111,6 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  end
-
   test "helper methods should be available" do
     get root_path
     
