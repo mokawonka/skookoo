@@ -3,7 +3,7 @@
 one:
   userid: <%= ActiveRecord::FixtureSet.identify(:one) %>
   highlightid: <%= ActiveRecord::FixtureSet.identify(:one) %>
-  content: This is a test reply that is at least ten characters long.
+  recipientid: <%= ActiveRecord::FixtureSet.identify(:two) %>
   score: 1
   edited: false
   deleted: false
@@ -11,7 +11,7 @@ one:
 two:
   userid: <%= ActiveRecord::FixtureSet.identify(:two) %>
   highlightid: <%= ActiveRecord::FixtureSet.identify(:two) %>
-  content: This is another test reply that is also at least ten characters.
+  recipientid: <%= ActiveRecord::FixtureSet.identify(:one) %>
   score: 2
   edited: true
   deleted: false
