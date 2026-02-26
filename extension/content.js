@@ -114,10 +114,17 @@ function generateUUID() {
 }
 
 function openSkookooModal(quote, token) {
-  const pageUrl = encodeURIComponent(window.location.href);
+  // Parse the current URL
+  const urlObj = new URL(window.location.href);
+
+  // Remove the sk_highlight parameter if it exists
+  urlObj.searchParams.delete("sk_highlight");
+
+  // Encode the cleaned URL
+  const pageUrl = encodeURIComponent(urlObj.toString());
   const pageTitle = encodeURIComponent(document.title || "Web Page");
   const quoteEnc = encodeURIComponent(quote);
-  const docid = generateUUID(); 
+  const docid = generateUUID();
 
   const existing = document.getElementById("skookoo-iframe");
   if (existing) existing.remove();
