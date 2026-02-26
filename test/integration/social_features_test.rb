@@ -19,14 +19,19 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "follow public user flow" do
-    # Login as testuser
+  def log_in_as(user)
     post "/login", params: { 
       session: { 
-        username: @user.username, 
+        username: user.username, 
         password: "password" 
       }
     }
+    assert_redirected_to root_path
+  end
+
+  test "follow public user flow" do
+    # Login as testuser
+    log_in_as(@user)
     
     # Visit other user's profile
     get user_path(@other_user.username)
@@ -53,12 +58,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
 
   test "follow private user flow" do
     # Login as testuser
-    post "/login", params: { 
-      session: { 
-        username: @user.username, 
-        password: "password" 
-      }
-    }
+    log_in_as(@user)
     
     # Try to follow private user
     post follow_user_path(@private_user), xhr: true
@@ -74,13 +74,7 @@ class SocialFeaturesTest < ActionDispatch::IntegrationTest
     assert_not_includes @private_user.followers, @user.id
     
     # Login as private user and approve request
-    delete session_path(session[:user_id])
-    post "/login", params: { 
-      session: { 
-        username: @private_user.username, 
-        password: "password" 
-      }
-    }
+    log_in_as(@private_user)
     
     # Show follow requests
     get show_follow_requests_user_path(@private_user), xhr: true

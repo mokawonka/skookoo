@@ -100,7 +100,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should update data via JS" do
     log_in_as(@user)
-    patch update_data_user_path(@user), params: { user: { 
+    patch "/users/#{@user.id}/update_data", params: { user: { 
       darkmode: true,
       font: "Arial"
     }}, xhr: true
@@ -113,7 +113,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should update profile via JS" do
     log_in_as(@user)
-    patch update_profile_user_path(@user), params: { user: { 
+    patch "/users/#{@user.id}/update_profile", params: { user: { 
       bio: "New bio",
       location: "New location"
     }}, xhr: true
@@ -142,7 +142,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     @user.save!
     
     # Toggle upvote to remove
-    patch update_votes_user_path(@user), params: { 
+    patch "/users/#{@user.id}/update_votes", params: { 
       user: { "123" => "1" }
     }, xhr: true
     
@@ -152,7 +152,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should update font via JS" do
     log_in_as(@user)
-    patch update_font_user_path(@user), params: { font: "Times New Roman" }, xhr: true
+    patch "/users/#{@user.id}/update_font", params: { font: "Times New Roman" }, xhr: true
     
     assert_response :success
     @user.reload
@@ -161,7 +161,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should update hooked highlight via JS" do
     log_in_as(@user)
-    patch update_hooked_user_path(@user), params: { 
+    patch "/users/#{@user.id}/hook", params: { 
       user: { hooked: "123" }
     }, xhr: true
     
@@ -174,7 +174,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     log_in_as(@user)
     original_mana = @user.mana
     
-    post plusonemana_user_path(@user), xhr: true
+    post "/users/#{@user.id}/plusonemana", xhr: true
     assert_response :success
     
     @user.reload
@@ -185,7 +185,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     log_in_as(@user)
     original_mana = @user.mana
     
-    post minusonemana_user_path(@user), xhr: true
+    post "/users/#{@user.id}/minusonemana", xhr: true
     assert_response :success
     
     @user.reload
@@ -196,7 +196,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     log_in_as(@user)
     original_mana = @user.mana
     
-    post plustwomana_user_path(@user), xhr: true
+    post "/users/#{@user.id}/plustwomana", xhr: true
     assert_response :success
     
     @user.reload
@@ -207,7 +207,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     log_in_as(@user)
     original_mana = @user.mana
     
-    post minustwomana_user_path(@user), xhr: true
+    post "/users/#{@user.id}/minustwomana", xhr: true
     assert_response :success
     
     @user.reload
@@ -218,7 +218,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     log_in_as(@user)
     @user.update!(darkmode: false)
     
-    post switch_mode_user_path(@user), xhr: true
+    patch "/users/#{@user.id}/switch_mode", xhr: true
     assert_response :success
     
     @user.reload
@@ -315,12 +315,12 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     @other_user.pending_follow_requests = [@user.id]
     @other_user.save!
     
-    get show_follow_requests_user_path(@other_user), xhr: true
+    get "/users/#{@other_user.id}/show_follow_requests", xhr: true
     assert_response :success
   end
 
   test "should show user replies via JS" do
-    get show_replies_user_path(@user), xhr: true
+    get "/users/#{@user.id}/show_replies", xhr: true
     assert_response :success
   end
 
@@ -328,15 +328,15 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     @user.following = [@other_user.id]
     @user.save!
     
-    get show_following_user_path(@user), xhr: true
+    get "/users/#{@user.id}/show_following", xhr: true
     assert_response :success
   end
 
   test "should show followers via JS" do
-    @user.followers = [@other_user.id]
-    @user.save!
+    @other_user.followers = [@user.id]
+    @other_user.save!
     
-    get show_followers_user_path(@user), xhr: true
+    get "/users/#{@other_user.id}/show_followers", xhr: true
     assert_response :success
   end
 
