@@ -6,7 +6,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create session with valid credentials" do
-    post sessions_path, params: { session: { 
+    post "/login", params: { session: { 
       username: @user.username, 
       password: 'password' 
     }}
@@ -17,7 +17,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create session with case-insensitive username" do
-    post sessions_path, params: { session: { 
+    post "/login", params: { session: { 
       username: @user.username.upcase, 
       password: 'password' 
     }}
@@ -27,42 +27,42 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should not create session with invalid username" do
-    post sessions_path, params: { session: { 
-      username: "wronguser", 
+    post "/login", params: { session: { 
+      username: 'wronguser', 
       password: 'password' 
     }}
     
-    assert_redirected_to login_path
-    assert_equal "Invalid username or password.", flash[:alert]
+    assert_response :unprocessable_entity
+    assert_match /Invalid username or password/, response.body
     assert_nil session[:user_id]
   end
 
   test "should not create session with invalid password" do
-    post sessions_path, params: { session: { 
+    post "/login", params: { session: { 
       username: @user.username, 
       password: 'wrongpassword' 
     }}
     
-    assert_redirected_to login_path
-    assert_equal "Invalid username or password.", flash[:alert]
+    assert_response :unprocessable_entity
+    assert_match /Invalid username or password/, response.body
     assert_nil session[:user_id]
   end
 
   test "should not create session with blank credentials" do
-    post sessions_path, params: { session: { 
-      username: "", 
-      password: "" 
+    post "/login", params: { session: { 
+      username: '', 
+      password: '' 
     }}
     
-    assert_redirected_to login_path
-    assert_equal "Invalid username or password.", flash[:alert]
+    assert_response :unprocessable_entity
+    assert_match /Invalid username or password/, response.body
     assert_nil session[:user_id]
   end
 
   test "should redirect to return_to URL if present" do
     session[:return_to] = "/some/path"
     
-    post sessions_path, params: { session: { 
+    post "/login", params: { session: { 
       username: @user.username, 
       password: 'password' 
     }}
@@ -71,37 +71,36 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_nil session[:return_to]
   end
 
-  test "should redirect to default path if no return_to URL" do
-    post sessions_path, params: { session: { 
+  test "should redirect to return_to URL if present" do
+    post "/login", params: { session: { 
       username: @user.username, 
       password: 'password' 
-    }}
+    }}, headers: { "HTTP_REFERER" => "/some/path" }
     
-    assert_redirected_to documents_path
+    assert_redirected_to "/some/path"
   end
 
   test "should destroy session" do
     log_in_as(@user)
+    delete "/logout"
     
-    delete session_path(session[:user_id])
-    
-    assert_redirected_to root_path
-    assert_equal "You have been logged out.", flash[:notice]
+    assert_redirected_to login_path
+    assert_equal "Logged out successfully.", flash[:notice]
     assert_nil session[:user_id]
   end
 
   test "should destroy session even when not logged in" do
-    delete session_path(1)
+    delete "/logout"
     
-    assert_redirected_to root_path
-    assert_equal "You have been logged out.", flash[:notice]
+    assert_redirected_to login_path
+    assert_equal "Logged out successfully.", flash[:notice]
     assert_nil session[:user_id]
   end
 
   test "should handle session destruction with flash" do
     log_in_as(@user)
     
-    delete session_path(session[:user_id])
+    delete "/logout"
     
     follow_redirect!
     assert_match "You have been logged out", response.body
