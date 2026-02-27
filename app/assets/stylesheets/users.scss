@@ -662,3 +662,43 @@ button.smallinput {
   font-weight: 500;
   color: #555;
 }
+
+
+#cover-container {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#edit-cover-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+#avatarprofile {
+  position: relative;
+  margin-top: -60px;
+  text-align: center;
+}
+
+.avatar_profile {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid white;
+}

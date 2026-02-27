@@ -2,7 +2,14 @@ require "test_helper"
 
 class AgentTest < ActiveSupport::TestCase
   def setup
-    @agent = Agent.new(name: "Test Agent")
+    @user = User.create!(username: "testuser", email: "test@example.com", password: "password")
+    @agent = Agent.new(
+      name: "Test Agent",
+      api_key: "skookoo_test_key_123",
+      claim_token: "test_claim_token_456",
+      verification_code: "skookoo-123456",
+      status: "pending_claim"
+    )
   end
 
   test "should be valid" do
@@ -76,9 +83,13 @@ class AgentTest < ActiveSupport::TestCase
     valid_statuses = [Agent::STATUS_PENDING_CLAIM, Agent::STATUS_CLAIMED]
     valid_statuses.each do |status|
       @agent.status = status
+      if status == Agent::STATUS_CLAIMED
+        @agent.userid = @user&.id  # Set userid when claimed
+      else
+        @agent.userid = nil  # Clear userid when pending
+      end
       assert @agent.valid?, "#{status} should be valid"
     end
-
     @agent.status = "invalid_status"
     assert_not @agent.valid?
   end
@@ -89,7 +100,7 @@ class AgentTest < ActiveSupport::TestCase
     @agent.userid = nil
     assert_not @agent.valid?
 
-    user = User.create!(username: "testuser", email: "test@example.com", password: "password")
+    user = User.create!(username: "userid_test_user", email: "userid_test@example.com", password: "password")
     @agent.userid = user.id
     assert @agent.valid?
   end
@@ -141,14 +152,14 @@ class AgentTest < ActiveSupport::TestCase
   end
 
   test "claim! should update status and userid" do
-    @agent.save!
-    user = User.create!(username: "testuser", email: "test@example.com", password: "password")
+    @agent.save!  # Save first to set all generated fields
+    claiming_user = User.create!(username: "claiming_user", email: "claim@example.com", password: "password")
     
-    @agent.claim!(user)
+    @agent.claim!(claiming_user)
     @agent.reload
     
     assert_equal Agent::STATUS_CLAIMED, @agent.status
-    assert_equal user.id, @agent.userid
+    assert_equal claiming_user.id, @agent.userid
   end
 
   test "claim! without user should raise validation error" do
@@ -186,7 +197,7 @@ class AgentTest < ActiveSupport::TestCase
     claimed_agent = Agent.create!(name: "Claimed Agent")
     pending_agent = Agent.create!(name: "Pending Agent")
     
-    user = User.create!(username: "testuser", email: "test@example.com", password: "password")
+    user = User.create!(username: "different_user", email: "different@example.com", password: "password")
     claimed_agent.claim!(user)
     
     claimed_agents = Agent.claimed
@@ -198,7 +209,7 @@ class AgentTest < ActiveSupport::TestCase
     claimed_agent = Agent.create!(name: "Claimed Agent")
     pending_agent = Agent.create!(name: "Pending Agent")
     
-    user = User.create!(username: "testuser", email: "test@example.com", password: "password")
+    user = User.create!(username: "pending_test_user", email: "pending_test@example.com", password: "password")
     claimed_agent.claim!(user)
     
     pending_agents = Agent.pending_claim
@@ -208,7 +219,7 @@ class AgentTest < ActiveSupport::TestCase
 
   test "associations should work correctly" do
     @agent.save!
-    user = User.create!(username: "testuser", email: "test@example.com", password: "password")
+    user = User.create!(username: "assoc_test_user", email: "assoc_test@example.com", password: "password")
     
     @agent.claim!(user)
     @agent.reload

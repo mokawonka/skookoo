@@ -5,12 +5,14 @@ class User < ApplicationRecord
     has_many :agents, foreign_key: :userid, dependent: :nullify
     has_many :merch_orders, dependent: :destroy
 
-
     has_one_attached :avatar
+    has_one_attached :cover_image
+
     has_secure_password
 
     has_one :subscription, dependent: :destroy
     after_create :create_default_subscription
+
     before_destroy :soft_delete_replies
 
     attribute :mana, :integer, default: 1
