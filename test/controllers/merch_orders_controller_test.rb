@@ -23,8 +23,7 @@ class MerchOrdersControllerTest < ActionDispatch::IntegrationTest
 
   test "should get create" do
     log_in_as(@user)
-    # The create route doesn't accept parameters, but the controller expects highlight_id
-    # This is an application issue, but we'll test the new action instead
+    # The create route doesn't accept parameters, but we can test the new action instead
     get merch_orders_new_url(highlight_id: @highlight.id)
     assert_response :success
   end

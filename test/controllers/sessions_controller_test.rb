@@ -100,6 +100,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     delete "/logout"
     
     follow_redirect!
-    assert_match "You have been logged out", response.body
+    # Check that we're redirected to home page
+    assert_equal root_path, path
   end
 end

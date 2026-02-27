@@ -153,33 +153,31 @@ class ApiWorkflowsTest < ActionDispatch::IntegrationTest
   end
 
   test "cross-model API workflow" do
-    # Test workflow that involves multiple models through API
-    agent = Agent.create!(name: "Workflow Agent")
-    agent.claim!(@user)  # Pass the user to satisfy userid validation
-    
-    # Create highlight with user token
-    token = generate_token_for(@user)
-    post highlights_path, params: { 
-      token: token,
+    # Create highlight via API
+    post "/api/v1/highlights", params: { 
       highlight: { 
         docid: @document.id,
         quote: "Cross-model API quote that is at least twenty characters long.",
-        cfi: "epubcfi(/6/4)",
-        fromauthors: "Test Author",
-        fromtitle: "Test Book"
-      }
-    }
+        cfi: "epubcfi(/6/13)",
+        fromauthors: "API Author",
+        fromtitle: "API Book"
+      },
+      token: @token 
+    }, as: :json
     
     assert_response :success
-    highlight = Highlight.last
     
-    # Create reply via API (if endpoint exists)
-    # This would depend on the actual API implementation
+    highlight_data = JSON.parse(response.body)
+    highlight_id = highlight_data['highlight']['id']
     
-    # Test agent status after user activity
-    get "/api/v1/agents/status", headers: { 
-      "Authorization" => "Bearer #{agent.api_key}"
-    }
+    # Create reply via API
+    post "/api/v1/replies", params: { 
+      reply: { 
+        highlightid: highlight_id,
+        content: "API reply content"
+      },
+      token: @token 
+    }, as: :json
     
     assert_response :success
   end

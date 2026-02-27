@@ -118,6 +118,7 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should show highlight with replies" do
+    log_in_as(@user)
     reply = Reply.create!(
       userid: @user.id,
       highlightid: @highlight.id,

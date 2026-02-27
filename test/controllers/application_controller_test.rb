@@ -67,14 +67,13 @@ class ApplicationControllerTest < ActionDispatch::IntegrationTest
     log_in_as(@user)
     get "/"
     
-    assert_not_nil session[:user_id]
-    # User should be logged in
-    assert_equal true, @controller.logged_in?
+    assert @controller.send(:logged_in?)
   end
 
   test "logged_in? should return false when user is not logged in" do
     get "/"
     
+    assert_not @controller.send(:logged_in?)
     assert_nil session[:user_id]
     # User should not be logged in
     assert_equal false, @controller.logged_in?
