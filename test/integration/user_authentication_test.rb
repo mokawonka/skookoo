@@ -30,7 +30,7 @@ class UserAuthenticationTest < ActionDispatch::IntegrationTest
     assert_select "a[href='/logout']"
     
     # Logout
-    delete session_path(session[:user_id])
+    delete "/logout"
     follow_redirect!
     assert_equal root_path, path
     assert_match "logged out", flash[:notice]

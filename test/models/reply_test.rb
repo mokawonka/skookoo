@@ -126,7 +126,8 @@ class ReplyTest < ActiveSupport::TestCase
 
   test "after_create_commit should notify recipient" do
     # Test that the callback exists
-    assert Reply._create_callbacks.find { |callback| callback.kind == :after_commit }
+    callbacks = Reply._create_callbacks.select { |callback| callback.kind == :after_commit }
+    assert_not_empty callbacks, "Expected after_create_commit callback to exist"
     
     # Create a reply to trigger the callback
     @reply.save!

@@ -93,11 +93,12 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
 
   test "should not create highlight with invalid attributes" do
     log_in_as(@user)
+    # In test mode, quote minimum length is 1, so empty quote should fail
     assert_no_difference('Highlight.count') do
       post "/highlights", params: { 
         highlight: { 
           docid: @document.id,
-          quote: "Short quote",
+          quote: "",  # Empty quote should fail
           cfi: "epubcfi(/6/5)",
           fromauthors: "Test Author",
           fromtitle: "Test Book"
@@ -199,7 +200,7 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
         fromtitle: "Test Book",
         comment: "This is a comment"
       }
-    }
+    }, xhr: true
     
     assert_response :success
     
@@ -213,7 +214,7 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
         fromtitle: "Test Book",
         liked: true
       }
-    }
+    }, xhr: true
     
     assert_response :success
   end
@@ -230,7 +231,7 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
         fromauthors: "Test Author",
         fromtitle: "Test Book"
       }
-    }
+    }, xhr: true
     
     assert_response :success
     
@@ -243,7 +244,7 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
         fromauthors: "Test Author",
         fromtitle: "Test Book"
       }
-    }
+    }, xhr: true
     
     assert_response :success
     # Should render the rate limit template
@@ -263,15 +264,6 @@ class HighlightsControllerTest < ActionDispatch::IntegrationTest
     }, headers: { "HTTP_X_REQUESTED_WITH" => nil }
     
     assert_redirected_to document_path(@document.id)
-  end
-
-  private
-
-  def log_in_as(user)
-    post "/login", params: { session: { 
-      username: user.username, 
-      password: 'password' 
-    }}
   end
 
   def generate_token_for(user)

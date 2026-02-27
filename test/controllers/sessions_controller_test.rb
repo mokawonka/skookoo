@@ -102,13 +102,4 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_match "You have been logged out", response.body
   end
-
-  private
-
-  def log_in_as(user)
-    post "/login", params: { session: { 
-      username: user.username, 
-      password: 'password' 
-    }}
-  end
 end
