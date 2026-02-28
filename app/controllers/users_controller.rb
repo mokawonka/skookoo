@@ -56,6 +56,11 @@ class UsersController < ApplicationController
             @avatar_filepath = @user.avatar.variant(resize_to_limit:[400, 400])
         end
 
+        @background_filepath = "default-background.png"
+        if @user.background.attached?
+            @background_filepath = @user.background.variant(resize_to_limit:[400, 400])
+        end
+
         @totalH = Highlight.where(userid: @user.id).count
         @totalR = Reply.where(deleted: false).where(userid: @user.id).count
 
@@ -471,7 +476,7 @@ class UsersController < ApplicationController
 
         def user_params
             params.require(:user).permit(:email, :name, :username, :password, :password_confirmation, 
-                                         :avatar, :mana, :votes, :darkmode, :font, 
+                                         :avatar, :background, :mana, :votes, :darkmode, :font, 
                                          :allownotifications, :emailnotifications, :private_profile,
                                          :hooked, :following, :followers, :bio, :location)
         end

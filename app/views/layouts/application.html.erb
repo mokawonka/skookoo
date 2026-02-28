@@ -15,9 +15,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet"/>
-  <script src="https://unpkg.com/cropperjs/dist/cropper.js"></script>
-
+  <%= stylesheet_link_tag asset_path('cropper.min.css') %>
   <%= stylesheet_link_tag asset_path('font-awesome.min.css') %>
   <%= stylesheet_link_tag 'posts_postprocessing', media: 'all', 'data-turbo-track': 'reload' %>
   <%= stylesheet_link_tag asset_path('bootstrap.min.css') %>
@@ -25,6 +23,7 @@
   <%= javascript_include_tag asset_path('bootstrap.bundle.min.js') %>
   <%= javascript_include_tag asset_path('jszip.min.js') %>
   <%= javascript_include_tag asset_path('epub.js') %>
+  <%= javascript_include_tag asset_path('cropper.min.js') %>
   <%= javascript_include_tag asset_path('he.js') %>
   <%= javascript_include_tag asset_path('sha3.min.js') %>
   <%= javascript_include_tag 'posts_postprocessing', 'data-turbo-track': 'reload' %>
@@ -91,7 +90,7 @@
                 <% else %>
                   <div class="text-center py-5 text-muted">
                     <div class="mb-3">
-                      <i class="fa fa-bell-slash fs-1"></i>
+                      <i class="fa-solid fa-bell-slash"></i>
                     </div>
                     <p class="mb-1">No notifications yet</p>
                   </div>

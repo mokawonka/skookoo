@@ -6,7 +6,7 @@ class User < ApplicationRecord
     has_many :merch_orders, dependent: :destroy
 
     has_one_attached :avatar
-    has_one_attached :cover_image
+    has_one_attached :background
 
     has_secure_password
 
