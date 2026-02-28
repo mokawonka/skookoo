@@ -16,17 +16,7 @@ class ActiveSupport::TestCase
     post "/login", params: { session: { 
       username: user.username, 
       password: 'password' 
-    },
-      authenticity_token: form_authenticity_token
-    }
+    }}
     follow_redirect!
   end
-
-
-  private
-
-  def form_authenticity_token
-    session[:_csrf_token] ||= SecureRandom.base64(32)
-  end
-
 end
