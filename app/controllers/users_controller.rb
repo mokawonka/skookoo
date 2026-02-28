@@ -58,7 +58,7 @@ class UsersController < ApplicationController
 
         @background_filepath = "default-background.png"
         if @user.background.attached?
-            @background_filepath = @user.background.variant(resize_to_limit:[400, 400])
+            @background_filepath = @user.background.variant(resize_to_limit:[1920, 1080])
         end
 
         @totalH = Highlight.where(userid: @user.id).count

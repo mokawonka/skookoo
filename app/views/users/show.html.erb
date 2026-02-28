@@ -1,6 +1,6 @@
 <div id="presentation">
 
-<div id="bannerprofile" class="position-relative">
+<div id="bannerprofile">
 
   <%= image_tag(@background_filepath, class: "banner_profile", id: 'banner') %>
 
@@ -11,41 +11,41 @@
     <%= render 'changebackground', user: current_user %>
   <% end %>
 
-</div>
-
-
 <div id=avatarprofile>
 
     <%= image_tag(@avatar_filepath , class: "avatar_profile", id: 'avatar') %>
 
-    <% if logged_in? %>
-        
-        <% if current_user == @user %>
+    <% if logged_in? && current_user == @user %>
         <!-- Owner sees Edit button -->
         <div id=editavatar class="d-none" >
             <%= render 'changeavatar', user: current_user %>
         </div>
-        <button id=editbutton class='btn'>Edit profile</button>
-
-        <% else %>
-        <!-- Visitor sees one of these 3 states -->
-        <% if @user.private? && @user.has_pending_follow_request_from?(current_user) %>
-            <!-- Pending follow request -->
-            <%= link_to 'Requested', '#', class: 'btn disabled', id: 'followbutton' %>
-        
-        <% elsif current_user.following.include?(@user.id) %>
-            <!-- Already approved follower -->
-            <%= link_to 'Unfollow', user_unfollow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
-        
-        <% else %>
-            <!-- Normal Follow button (public or private but no request yet) -->
-            <%= link_to 'Follow', user_follow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
-        <% end %>
-        <% end %>
-        
     <% end %>
 
 </div>
+
+<% if logged_in? %>
+
+<div id="profile-action-btn">
+    <% if current_user == @user %>
+    <!-- Owner sees Edit button -->
+    <button id="editbutton" class="btn">Edit profile</button>
+    <% else %>
+    <!-- Visitor sees Follow / Unfollow / Requested -->
+    <% if @user.private? && @user.has_pending_follow_request_from?(current_user) %>
+        <%= link_to 'Requested', '#', class: 'btn disabled', id: 'followbutton' %>
+    <% elsif current_user.following.include?(@user.id) %>
+        <%= link_to 'Unfollow', user_unfollow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
+    <% else %>
+        <%= link_to 'Follow', user_follow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
+    <% end %>
+    <% end %>
+</div>
+
+<% end %>
+
+</div>
+
 
 <div id="infoprofile">
     <span id=nameprofile><%= @user.name %></span>
@@ -289,7 +289,7 @@
 
         if (bannerContainer) {
             const w = bannerContainer.offsetWidth;
-            const h = 200;
+            const h = bannerContainer.offsetHeight;
             if (w > 0 && h > 0) {
                 aspect = w / h;
             }

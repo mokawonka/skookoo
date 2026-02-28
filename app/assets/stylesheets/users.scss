@@ -419,7 +419,6 @@ button.smallinput {
 #presentation{
   padding-left: 1em;
   padding-right: 1em;
-  padding-top: 1em;
   padding-bottom: 2em;
 }
 
@@ -465,6 +464,7 @@ button.smallinput {
 
 #infoprofile{
   margin-left: 10px;
+  margin-right: 10px;
   margin-bottom: 20px;
 }
 
@@ -539,23 +539,46 @@ button.smallinput {
   margin-right: 1em;
 }
 
-#followbutton{
-  background-color: #0951a9 !important;
-  border-color: #0951a9 !important;
-  color: white !important;
-  float: right !important;
-  margin-top: 90px !important;
-  text-decoration: none;
+#profile-action-btn {
+  position: absolute;
+  right: 24px;
+  top: 100%;                         
+  margin-top: 12px;                    
+  z-index: 8;
+  transform: translateY(0);           
 }
 
-#editbutton{
+#editbutton,
+#followbutton {
   background-color: #0951a9 !important;
   border-color: #0951a9 !important;
   color: white !important;
-  float: right !important;
-  margin-top: 90px !important;
-  text-decoration: none;
+  text-decoration: none !important;
+  white-space: nowrap;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1px solid #0951a9;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+  transition: all 0.18s ease;
+  min-width: 110px;
+  text-align: center;
+  line-height: 1.45;
 }
+
+#editbutton:hover,
+#followbutton:hover:not(.disabled) {
+  background-color: #0a6dd8 !important;
+  border-color: #0a6dd8 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(9,81,169,0.28);
+}
+
+#followbutton.disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 
 #followbodymodal{
   min-height: 400px !important;
@@ -642,40 +665,43 @@ button.smallinput {
 }
 
 
-#avatarprofile{
-  min-height: 150px;
-  position: relative;
-  margin-top: -75px;
-  margin-left: 10px;
-  margin-bottom: 10px;
+:root {
+  --avatar-size: clamp(90px, 10vw, 140px);
+  --banner-height: clamp(140px, 20vw, 260px);
 }
-
-.avatar_profile{
-  border-radius: 100%;
-  border: solid 4px white;
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  object-position: center;
-}
-
 
 #bannerprofile {
   width: 100%;
-  height: 200px; 
-  overflow: hidden;
+  height: var(--banner-height);
+  position: relative;
+  overflow: visible;
   border-radius: 21px 21px 0 0;
+  margin-bottom: calc(var(--avatar-size) / 2 + 20px);
 }
 
 .banner_profile {
-  object-fit: cover;
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
+#avatarprofile {
+  position: absolute;
+  bottom: calc(-1 * var(--avatar-size) / 2);
+  left: 20px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  z-index: 5;
+}
 
-#editbanner {
-  z-index: 10;
+.avatar_profile {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: clamp(2px, 0.4vw, 4px) solid white;
+  object-fit: cover;
+  background: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .cropper-view-box {
