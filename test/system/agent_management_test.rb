@@ -171,7 +171,8 @@ class AgentManagementTest < ApplicationSystemTestCase
     assert_text "Timestamp"
   end
 
-  test "agent rate limiting display"    log_in_as(@user)
+  test "agent rate limiting display" do
+    log_in_as(@user)
     visit "/dashboard/agents/rate-limits"
     
     # Should show rate limiting information
