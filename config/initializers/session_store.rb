@@ -11,7 +11,7 @@ if Rails.env.production?
       host: ENV.fetch("REDIS_HOST", "localhost"),
       port: ENV.fetch("REDIS_PORT", "6379").to_i
     }
-else
+elsif Rails.env.Development?
   # Development: default cookies so login works.
   # Extension only gets session when used ON localhost (e.g. highlight on your Skookoo site).
   # When used on lemonde.fr etc., extension shows "log in" — test that in production.
@@ -25,5 +25,11 @@ else
       host: 'localhost',
       port: 6379
     }
+else
+    Rails.application.config.session_store :cookie_store,
+    key: '_skookoo_test_session',
+    secure: false,
+    same_site: :lax,
+    httponly: true
 end
 

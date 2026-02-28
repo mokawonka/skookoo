@@ -33,6 +33,8 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
 
+  config.session_store :cookie_store, key: '_skookoo_test_session', secure: false
+
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
 
