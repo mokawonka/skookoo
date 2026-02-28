@@ -2,11 +2,14 @@ name: CI
 
 on:
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     services:
       postgres:
@@ -15,20 +18,39 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
         options: >-
-          --health-cmd="pg_isready"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
+      CI: "true"
+      HOST: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
+
+      - name: Setup Ruby and cache gems
+        uses: ruby/setup-ruby@v1
         with:
+          ruby-version: .ruby-version
           bundler-cache: true
-      - run: bin/rails db:prepare
-      - run: bin/rails test
+
+      - name: Install system dependencies (if you need nokogiri, etc.)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev
+
+      - name: Prepare database
+        run: |
+          bin/rails db:create --trace
+          bin/rails db:schema:load --trace
+          # bin/rails db:fixtures:load   # if you use fixtures
+          # bin/rails db:seed           # if you have important seed data
+
+      - name: Run all tests
+        run: bin/rails test:all 
