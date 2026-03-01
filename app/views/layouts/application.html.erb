@@ -167,22 +167,24 @@
     <div id=all class="container-fluid">
 
       <% if flash.any? %>
-        <div class="container text-center mt-3">
-          <% flash.each do |type, message| %>
-            <% color = case type
-              when 'notice'  then 'success'
-              when 'alert'   then 'danger'
-              when 'error'   then 'danger'
-              when 'warning' then 'warning'
-              when 'info'    then 'info'
-              else 'secondary'
+        <div id="flash-container" class="position-fixed top-0 start-50 translate-middle-x w-100" style="z-index: 1050; pointer-events: none;">
+          <div class="d-flex flex-column align-items-center mt-3">
+            <% flash.each do |type, message| %>
+              <% color = case type
+                when 'notice'  then 'success'
+                when 'alert'   then 'danger'
+                when 'error'   then 'danger'
+                when 'warning' then 'warning'
+                when 'info'    then 'info'
+                else 'secondary'
               end %>
 
-            <div class="alert alert-<%= color %> alert-dismissible fade show" role="alert">
-              <%= message %>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          <% end %>
+              <div class="alert alert-<%= color %> alert-dismissible fade show" role="alert" style="pointer-events: auto; min-width: 300px;">
+                <%= message %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% end %>
+          </div>
         </div>
       <% end %>
 

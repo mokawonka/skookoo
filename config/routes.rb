@@ -52,8 +52,6 @@ Rails.application.routes.draw do
   patch 'users/:id/hook', to: 'users#update_hooked'
   patch 'users/:id/switch_mode', to: 'users#switch_mode'
   patch 'users/:id/update_votes', to: 'users#update_votes'
-  patch 'users/:id/update_data', to: 'users#update_data'
-  patch 'users/:id/update_profile', to: 'users#update_profile'
 
   post 'users/:id/plusonemana', to: 'users#plusonemana'
   post 'users/:id/minusonemana', to: 'users#minusonemana'
@@ -95,8 +93,6 @@ Rails.application.routes.draw do
     patch 'switch_mode'
 
     patch 'update_votes'
-    patch 'update_profile'
-    patch 'update_data'
   end
 
   resources :users do
@@ -106,7 +102,7 @@ Rails.application.routes.draw do
       post   :approve_follow_request
       post   :reject_follow_request
       get    :show_follow_requests
-      get :download_data
+      get    :download_data
     end
   end
 

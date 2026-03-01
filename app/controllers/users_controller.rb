@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
     protect_from_forgery
     skip_before_action :require_user, only: [:new, :create, :show] 
-    before_action :check_timestamp, only: [:update, :update_votes, :follow, :unfollow]
+    before_action :check_timestamp, only: [:update_votes, :follow, :unfollow]
 
 
     def new
@@ -90,59 +90,13 @@ class UsersController < ApplicationController
         @user = User.find(params[:id])
 
         if @user.update(user_params)
-            flash.now[:notice] = "Changes saved"
-            render :edit
+            redirect_back fallback_location: user_path(@user), notice: "Changes saved"
         else
-            flash.now[:alert] = ""
-            @user.errors.full_messages.each do |message|
-                flash.now[:alert] =  flash.now[:alert] + ' - ' + message
-            end
-
-            render :edit
+            redirect_back fallback_location: user_path(@user),
+                        alert: @user.errors.full_messages.to_sentence
         end
     end
-
-
-    def update_data
-        @user = User.find(params[:id])
-
-        respond_to do |format|
-
-            if @user.update(user_params)
-                flash.now[:notice] = "Changes saved"
-                format.js
-            else
-                flash.now[:alert] = ""
-                @user.errors.full_messages.each do |message|
-                    flash.now[:alert] =  flash.now[:alert] + ' - ' + message
-                end
-                format.js
-            end
-        end
-
-    end
-
-
-    def update_profile
-        @user = User.find(params[:id])
-
-        respond_to do |format|
-
-            if @user.update(user_params)
-                flash.now[:notice] = "Changes saved"
-                format.js
-            else
-                flash.now[:alert] = ""
-                @user.errors.full_messages.each do |message|
-                    flash.now[:alert] =  flash.now[:alert] + ' - ' + message
-                end
-
-                format.js
-            end
-        end
-
-    end
-
+    
 
     def update_votes
         
