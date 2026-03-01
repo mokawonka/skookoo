@@ -219,12 +219,17 @@
     $("nav .pagination").addClass("justify-content-center");
 
       document.addEventListener("turbo:load", function () {
-        const alerts = document.querySelectorAll("#flash-container .alert");
-
+         const alerts = document.querySelectorAll("#flash-container .alert");
+        if (!alerts.length) return;
         alerts.forEach(function(alert) {
           setTimeout(function() {
-            const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-            bsAlert.close();
+            if (!alert || !alert.parentNode) return;
+            alert.classList.remove("show");
+            setTimeout(function() {
+              if (alert && alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+              }
+            }, 150);
           }, 3000);
         });
       });
