@@ -445,6 +445,66 @@ class UsersController < ApplicationController
 
 
 
+    def download_data
+        return head :forbidden unless current_user == User.find(params[:id])
+
+        user = current_user
+
+        highlights = Highlight.where(:userid => user.id)
+        replies    = Reply.where(:userid => user.id)
+
+        respond_to do |format|
+
+            format.json do
+            json_data = {
+                user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+                },
+                highlights: highlights.map do |h|
+                {
+                    highlight_id: h.id,
+                    document_id: h.docid,
+                    document_title: h.fromtitle,
+                    document_author: h.fromauthors,
+                    quote: h.quote,
+                    cfi: h.cfi,
+                    created_at: h.created_at
+                }
+                end,
+                replies: replies.map do |r|
+                {
+                    reply_id: r.id,
+                    highlight_id: r.highlightid,
+                    content: r.content,
+                    created_at: r.created_at
+                }
+                end
+                }.to_json
+
+                send_data json_data,
+                            filename: "skookoo_data_#{Date.today}.json",
+                            type: "application/json",
+                            disposition: "attachment"
+            end
+
+
+
+            format.pdf do
+                pdf = UserDataPdf.new(user, highlights, replies)
+
+                send_data pdf.render,
+                            filename: "skookoo_data_#{Date.today}.pdf",
+                            type: "application/pdf",
+                            disposition: "attachment"
+            end
+
+        end
+    end
+
+
+
     def destroy
 
         Reply.where(:userid => session[:user_id]).each do |mr|

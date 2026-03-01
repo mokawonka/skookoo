@@ -106,6 +106,7 @@ Rails.application.routes.draw do
       post   :approve_follow_request
       post   :reject_follow_request
       get    :show_follow_requests
+      get :download_data
     end
   end
 

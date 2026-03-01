@@ -57,7 +57,9 @@ gem 'redis-session-store'
 
 gem "aws-sdk-s3", require: false
 
-gem 'google-cloud-ai_platform' 
+gem 'google-cloud-ai_platform'
+
+gem 'prawn'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
