@@ -95,7 +95,15 @@ class EpubsController < ApplicationController
       @epub = Epub.new(epub_params)
 
       # === File type validation ===
-      unless @epub.epub_file.attached? && @epub.epub_file.content_type == "application/epub+zip"
+      unless @epub.epub_file.attached? &&
+       (
+         @epub.epub_file.content_type.in?(%w[
+           application/epub+zip
+           application/zip
+           application/octet-stream
+         ]) &&
+         File.extname(@epub.epub_file.filename.to_s).downcase == ".epub"
+       )
         respond_to do |format|
           format.js do
             render inline: <<-JS

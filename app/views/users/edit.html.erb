@@ -9,7 +9,7 @@ My settings
       <div class="col-md-3">
         <div class="list-group" id="list-updaters" role="tablist">
 
-          <a class="list-group-item list-group-item-action d-flex align-items-center gap-3 active" 
+          <a class="list-group-item list-group-item-action d-flex align-items-center gap-3" 
              id="list-account-list" data-bs-toggle="list" href="#list-account" role="tab" aria-controls="list-account">
             <span class="menu-icon">
               <%= image_tag 'default-avatar.svg', size: '20x20' %>
@@ -73,7 +73,7 @@ My settings
       <div class="col-md-9">
         <div class="tab-content" id="updaters">
 
-          <div class="tab-pane fade show active" id="list-account" role="tabpanel" aria-labelledby="list-account-list">
+          <div class="tab-pane fade" id="list-account" role="tabpanel" aria-labelledby="list-account-list">
 
             <p class='updater-title'>Change my username</p>
             <%= form_with model: current_user, url: user_path(current_user), method: :patch, local: true do |form| %>
@@ -336,6 +336,30 @@ document.addEventListener("turbo:load", function () {
     }
 
   });
+
+
+    // 🔹 Restore active tab
+  const savedTab = localStorage.getItem("activeSettingsTab");
+  if (savedTab) {
+    const triggerEl = document.querySelector(
+      `.list-group-item[href="${savedTab}"]`
+    );
+    if (triggerEl) {
+      const tab = new bootstrap.Tab(triggerEl);
+      tab.show();
+    }
+  }
+
+  // 🔹 Save active tab when changed
+  document.querySelectorAll('#list-updaters a[data-bs-toggle="list"]')
+    .forEach(function(tabEl) {
+      tabEl.addEventListener('shown.bs.tab', function (event) {
+        localStorage.setItem(
+          "activeSettingsTab",
+          event.target.getAttribute("href")
+        );
+      });
+    });
 
 });
 
