@@ -1,17 +1,148 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Skookoo</title>
   <style>
-    body { font-family: sans-serif; padding: 16px; width: 320px; text-align: center; }
-    h3 { margin-top: 0; }
-    p { color: #555; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      width: 340px;
+      font-family: 'League Spartan', system-ui, sans-serif; 
+      background: linear-gradient(135deg, #f8fafc, #eef2ff);
+      color: #1e293b;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    h3 {
+      margin: 0 0 18px 0;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      transition: all 0.3s ease;
+    }
+
+    /* Modern toggle switch */
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #cbd5e1;
+      transition: 0.3s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      top: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, #0951a9, #0d3a7a);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #64748b;
+      margin: 8px 0;
+    }
+
+    a {
+      color: #4f46e5;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
   </style>
 </head>
+
 <body>
-  <h3>Skookoo Highlighter</h3>
-  <p>Highlight any text on a page and click "React with Skookoo" to open the reaction popup.</p>
-  <p>You must be logged in to <a href="http://localhost:3000" target="_blank">Skookoo</a> for it to work.</p>
+  <div class="card">
+    <h3> Skookoo Highlighter</h3>
+
+    <div class="toggle-row">
+      <div class="status">
+        <div class="dot" id="statusDot"></div>
+        <span id="statusText">Enabled</span>
+      </div>
+
+      <label class="switch">
+        <input type="checkbox" id="toggleSwitch" checked />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <p>
+      Highlight text on any page and click 
+      <strong>React with Skookoo</strong> to open the reaction popup.
+    </p>
+
+    <p>
+      You must be logged in to 
+      <a href="http://localhost:3000" target="_blank">Skookoo</a>.
+    </p>
+  </div>
+
+  <script src="popup.js"></script>
 </body>
 </html>

@@ -341,26 +341,18 @@ document.addEventListener("turbo:load", function () {
   //  Restore active tab
   const tabs = document.querySelectorAll('#list-updaters a[data-bs-toggle="list"]');
   if (!tabs.length) return;
-
   const savedTab = localStorage.getItem("activeSettingsTab");
-
   let tabToActivate;
-
   if (savedTab) {
     tabToActivate = document.querySelector(
       `.list-group-item[href="${savedTab}"]`
     );
   }
-
-  // If no saved tab or it no longer exists → use first tab
   if (!tabToActivate) {
     tabToActivate = tabs[0];
   }
-
   const tab = new bootstrap.Tab(tabToActivate);
   tab.show();
-
-  // Save tab when user switches
   tabs.forEach(function(tabEl) {
     tabEl.addEventListener('shown.bs.tab', function (event) {
       localStorage.setItem(

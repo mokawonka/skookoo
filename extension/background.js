@@ -1,5 +1,47 @@
 const MODAL_ORIGIN = "http://localhost:3000";
 
+
+function updateExtensionIcon(enabled) {
+  const path = enabled
+    ? {
+        16: "icons/icon16.png",
+        48: "icons/icon48.png",
+        128: "icons/icon128.png",
+      }
+    : {
+        16: "icons/icon16-gray.png",
+        48: "icons/icon48-gray.png",
+        128: "icons/icon128-gray.png",
+      };
+
+  chrome.action.setIcon({ path });
+}
+
+// Run when extension is installed or updated
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.get(["enabled"], (result) => {
+    const isEnabled = result.enabled !== false;
+    updateExtensionIcon(isEnabled);
+  });
+});
+
+// Run when browser starts
+chrome.runtime.onStartup.addListener(() => {
+  chrome.storage.local.get(["enabled"], (result) => {
+    const isEnabled = result.enabled !== false;
+    updateExtensionIcon(isEnabled);
+  });
+});
+
+// React instantly to toggle changes
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.enabled) {
+    updateExtensionIcon(changes.enabled.newValue);
+  }
+});
+
+
+
 // Context menu – idempotent
 if (chrome.contextMenus) {
   chrome.contextMenus.create({
@@ -10,7 +52,6 @@ if (chrome.contextMenus) {
     if (chrome.runtime.lastError) {
       // silent on duplicate
     } else {
-      console.log("[BG] Context menu created");
     }
   });
 } else {
@@ -23,7 +64,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("[BG] Received:", request.action, request);
 
   const tabId = sender.tab?.id;
   if (!tabId) {
@@ -39,7 +79,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.action === "tokenFromConnect") {
     const token = request.token;
-    console.log("[BG] TokenFromConnect received – length:", token?.length || 0);
 
     if (token && token.length > 20) {
       chrome.storage.local.set({ skookooToken: token }, () => {
@@ -47,11 +86,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           console.error("[BG] SAVE FAILED:", chrome.runtime.lastError.message);
           return;
         }
-        console.log("[BG] Token saved OK");
 
         chrome.storage.local.get("skookooToken", (result) => {
           const readToken = result.skookooToken;
-          console.log("[BG] Read-back:", readToken ? `success (length ${readToken.length})` : "FAILED");
 
           if (readToken) {
             chrome.tabs.sendMessage(tabId, {
@@ -74,7 +111,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function handleOpenModal(tabId, quote) {
-  console.log("[BG] handleOpenModal – quote:", quote?.substring(0, 50) || "no quote", "tab:", tabId);
 
   try {
     const result = await chrome.storage.local.get("skookooToken");
@@ -87,17 +123,13 @@ async function handleOpenModal(tabId, quote) {
       token = null;
     }
 
-    console.log("[BG] Token lookup:", token ? `present (len ${token.length})` : "MISSING");
-
     if (token && token.length > 20) {
-      console.log("[BG] Using stored token");
       chrome.tabs.sendMessage(tabId, {
         action: "openSkookooModal",
         quote: quote,
         token: token
       });
     } else {
-      console.log("[BG] No valid token – opening connect");
       const tab = await chrome.tabs.get(tabId);
       const pageOrigin = new URL(tab.url).origin;
       const connectUrl = `${MODAL_ORIGIN}/extension_connect?origin=${encodeURIComponent(pageOrigin)}`;

@@ -4,7 +4,23 @@ const MODAL_ORIGIN = "http://localhost:3000";
 const MODAL_PATH = "/extension_modal";
 
 let floatButton = null;
-let currentQuote = null; // remember quote during reconnect
+let currentQuote = null; 
+
+let isEnabled = true;
+
+chrome.storage.local.get(["enabled"], (result) => {
+  isEnabled = result.enabled !== false;
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.enabled) {
+    isEnabled = changes.enabled.newValue;
+
+    if (!isEnabled) {
+      removeFloatButton();
+    }
+  }
+});
 
 function removeFloatButton() {
   if (floatButton) {
@@ -14,6 +30,12 @@ function removeFloatButton() {
 }
 
 function handleMouseUp() {
+
+  if (!isEnabled) {
+    removeFloatButton();
+    return;
+  }
+
   const selection = window.getSelection();
   
   if (!selection || selection.isCollapsed) {
@@ -59,6 +81,9 @@ function handleMouseUp() {
 }
 
 function requestOpenModal(quote) {
+
+  if (!isEnabled) return;
+  
   currentQuote = quote;
 
   // ✅ Check extension context
