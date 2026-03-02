@@ -235,12 +235,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
               action: "tokenFromConnect",
               token: event.data.token,
               quote: request.quote || currentQuote || ""
-            }, (res) => {
-              if (chrome.runtime.lastError) {
-                console.error("[CONTENT] Forward failed:", chrome.runtime.lastError.message);
-              } else {
-                console.log("[CONTENT] Token forwarded");
-              }
             });
 
             connectWin.close();
@@ -301,6 +295,24 @@ window.addEventListener("message", (event) => {
   if (event.data?.action === "closeSkookooModal") {
     const iframe = document.getElementById("skookoo-iframe");
     if (iframe) iframe.remove();
+  }
+});
+
+window.addEventListener("message", (event) => {
+  const iframe = document.getElementById("skookoo-iframe");
+  if (!iframe) return;
+
+  if (event.data?.action === "skookooResizeSmall") {
+
+    iframe.style.transition = "all 0.25s ease";
+
+    iframe.style.width = "400px";
+    iframe.style.height = "100px";
+    iframe.style.maxWidth = "400px";
+
+    iframe.style.top = "50%";
+    iframe.style.left = "50%";
+    iframe.style.transform = "translate(-50%, -50%)";
   }
 });
 

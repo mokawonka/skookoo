@@ -385,7 +385,10 @@
             dataType: 'json',
             success: function(response) {
             if (response.success) {
-                $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+                $('#highlightmodal').html('<div style="white-space: nowrap;" class="centered">Highlight added successfully</div>');
+                window.parent.postMessage({
+                    action: "skookooResizeSmall"
+                }, "*");
             }
             },
             error: function(xhr) {
@@ -434,7 +437,10 @@
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+                    $('#highlightmodal').html('<div style="white-space: nowrap;" class="centered">Highlight added successfully</div>');
+                    window.parent.postMessage({
+                        action: "skookooResizeSmall"
+                    }, "*");
                 }
             },
             error: function(xhr) {
@@ -487,7 +493,10 @@
             data:     payload,
             dataType: 'json',
             success:  function(response) {
-                $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+                $('#highlightmodal').html('<div style="white-space: nowrap;" class="centered">Highlight added successfully</div>');
+                window.parent.postMessage({
+                    action: "skookooResizeSmall"
+                }, "*");
             },
             error: function(xhr) {
                 let msg = 'Failed to like';
@@ -545,7 +554,10 @@
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#highlightmodal').html('<div class="centered">Highlight added successfully</div>');
+                    $('#highlightmodal').html('<div style="white-space: nowrap;" class="centered">Highlight added successfully</div>');
+                    window.parent.postMessage({
+                        action: "skookooResizeSmall"
+                    }, "*");
                 }
             },
             error: function(xhr) {
@@ -603,7 +615,10 @@
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                $('#highlightmodal').html('<div class="centered">Added to Vocabulary</div>');
+                    $('#highlightmodal').html('<div style="white-space: nowrap;" class="centered">Added to Vocabulary</div>');
+                    window.parent.postMessage({
+                        action: "skookooResizeSmall"
+                    }, "*");
                 }
             },
             error: function(xhr) {
