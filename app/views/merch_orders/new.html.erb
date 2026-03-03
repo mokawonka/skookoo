@@ -1,8 +1,11 @@
 <div class="page-container">
 
-  <section class="hero-section">
-    <h1>Order Merchandise with this Highlight</h1>
-    <p>&ldquo;<%= @highlight.quote.truncate(100) %>&rdquo;</p>
+  <section class="hero-section text-center py-5">
+    <div class="mb-3">
+      <%= image_tag("merchandises.png", style: "width: 150px; border-radius:50%") %>
+    </div>
+    <h1 class="fw-bold mb-3">Order Merchandise</h1>
+    <p class="lead mb-4">&ldquo;<%= @highlight.quote.truncate(100) %>&rdquo;</p>
   </section>
 
   <section class="merch-section">

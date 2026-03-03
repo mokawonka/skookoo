@@ -1,9 +1,49 @@
-
-<div class=container id=aboutcontent>
-    <%=image_tag('skookoo_logo_600.png', height: "100", class: 'mb-5')%>
-
-    <h2> Skookoo is a social network and e-reading app for students.</h2>
-    <hr>
-    <h4 style="color:#0951a9"> It allows you to share your reactions to the book extracts you will find peculiar and have conversations about them. </h4>
-
+<div id="about-page">
+   <section class="hero-section text-center">
+      <div class="container">
+         <%= image_tag('skookoo_logo_600.png', height: "80", class: "mb-4") %> 
+         <h1 class="hero-title"> Reading becomes social. </h1>
+         <p class="hero-subtitle"> Skookoo lets you highlight meaningful passages, share reactions, and start conversations directly inside books and articles. </p>
+         <div class="hero-cta mt-4"> <%= link_to "Create Free Account", signup_path, class: "btn btn-light btn-lg px-4 me-3" %> </div>
+      </div>
+   </section>
+   <section class="features-section">
+      <div class="container">
+         <div class="feature-card">
+            <h3><%= image_tag('article.png', height: "45") %> Interactive Reading</h3>
+            <p>Highlight passages that matter and react instantly while you read.</p>
+         </div>
+         <div class="feature-card">
+            <h3><%= image_tag('discussion.png', height: "45") %> Real Conversations</h3>
+            <p>See how others interpret the same text and engage in thoughtful discussion.</p>
+         </div>
+         <div class="feature-card">
+            <h3><%= image_tag('earth.png', height: "45") %> Built for Everyone</h3>
+            <p>From casual readers to researchers connect through articles, books and ideas.</p>
+         </div>
+      </div>
+   </section>
+   <section class="platform-section text-center">
+      <div class="container">
+         <h4 class="section-title">Available on Your Browser</h4>
+         <div class="badge-row"> 
+            <%= link_to "https://chromewebstore.google.com/detail/YOUR_EXTENSION_ID", target: "_blank", rel: "noopener" do %> 
+                <%= image_tag("chrome_web_store_badge.png", class: "store-badge") %> 
+            <% end %> 
+            <%= link_to "https://addons.mozilla.org/firefox/addon/YOUR_EXTENSION_ID/", target: "_blank", rel: "noopener" do %> 
+                <%= image_tag("firefox_addon_badge.png", class: "store-badge") %> 
+            <% end %>
+         </div>
+      </div>
+   </section>
+   <section class="platform-section text-center">
+      <div class="container">
+         <h4 class="section-title">Mobile Apps</h4>
+         <div class="badge-row opacity-75"> 
+            <%= image_tag("google_play_badge.png", class: "store-badge") %> 
+            <%= image_tag("app_store_badge.png", class: "store-badge") %> 
+        </div>
+         <p class="coming-soon">Android & iOS apps coming soon.</p>
+      </div>
+   </section>
 </div>
