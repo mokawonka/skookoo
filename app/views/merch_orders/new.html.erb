@@ -2,9 +2,9 @@
 
   <section class="hero-section text-center py-5">
     <div class="mb-3">
-      <%= image_tag("merchandises.png", style: "width: 150px; border-radius:50%") %>
+      <%= image_tag("store.png", style: "width: 150px;") %>
     </div>
-    <h1 class="fw-bold mb-3">Order Merchandise</h1>
+    <h1 class="fw-bold mb-3">Store</h1>
     <p class="lead mb-4">&ldquo;<%= @highlight.quote.truncate(100) %>&rdquo;</p>
   </section>
 
@@ -13,10 +13,10 @@
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
         <% products = [
-          {name: "Shirt", image: "merch/shirt.png", description: "Premium cotton shirt with custom print"},
-          {name: "Mug", image: "merch/mug.png", description: "Ceramic mug with durable quote engraving"},
-          {name: "Hat", image: "merch/hat.png", description: "Adjustable cap with embroidered highlight"},
-          {name: "Poster", image: "merch/poster.png", description: "High-quality matte poster print"}
+          {name: "Shirt", image: "merch/shirt.png", description: "Premium cotton shirt with custom print", price: 24.99},
+          {name: "Mug", image: "merch/mug.png", description: "Ceramic mug with durable quote engraving", price: 24.99},
+          {name: "Hat", image: "merch/hat.png", description: "Adjustable cap with printed highlight", price: 24.99},
+          {name: "Poster", image: "merch/poster.png", description: "High-quality matte poster print", price: 19.99}
         ] %>
 
         <% colors = [
@@ -35,6 +35,7 @@
 
               <div class="card-body text-center">
                 <h5 class="card-title"><%= product[:name] %></h5>
+                <p class="product-price fw-bold">$<%= product[:price] %></p>
                 <p class="card-text"><%= product[:description] %></p>
                 <p class="highlight-quote">"<%= @highlight.quote.truncate(60) %>"</p>
 
