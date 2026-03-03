@@ -33,17 +33,21 @@
 
         <%=link_to image_tag("skookoo_logo_100.png") , root_path, class: "navbar-brand" %>
         
-        <%
-=begin%>
- <%= form_with url: "/search", method: :get, class: "form-group has-search", :html=> {:id => 'searchform'} do |form|%>
-          <div class="fa fa-search form-control-feedback"></div>
-          <%= form.text_field :query, required: true,  placeholder: "Search for quotes", autocomplete: "off", spellcheck: false, id: "mainsearchinput", class: "form-control ds-input" %>
-        <% end %> 
-<%
-=end%>
+        <% unless content_for?(:hide_global_search) %>
+          <%= form_with url: "/search", method: :get, class: "form-group has-search", html: { id: 'searchform' } do |form| %>
+            <div class="fa fa-search form-control-feedback"></div>
+            <%= form.text_field :query, required: true,
+                                        placeholder: "Search",
+                                        autocomplete: "off",
+                                        spellcheck: false,
+                                        id: "mainsearchinput",
+                                        class: "form-control ds-input" %>
+          <% end %>
+        <% end %>
 
 
-        <span class=float-end>
+
+        <span class="ms-auto d-flex align-items-center">
           <% if logged_in?%>
 
               <% if current_user.allownotifications %>

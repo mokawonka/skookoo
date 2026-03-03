@@ -1,6 +1,12 @@
 <div class="pt-3 pb-3 text-center">
   
 
+  <%= form_with url: "/epub/search", method: :get, class: "form-group has-search mb-3", html: { id: 'epub-search', novalidate: true} do |form| %>
+    <div class="fa fa-search form-control-feedback"></div>
+    <%= form.text_field :query, required: true,  placeholder: "Search for available books", autocomplete: "off", spellcheck: false, id: "epub-search-input", class: "form-control ds-input" %>
+  <% end %>
+
+
   <button id="collectionDropdown" type="button" class="btn dropdown-toggle gray" data-bs-toggle="dropdown" aria-expanded="false">
     English collection (<%=@englishCount.to_s%> books)
   </button>
@@ -9,12 +15,6 @@
       <li><%= link_to 'English collection (' + @englishCount.to_s + ' books)', '#', value: 'en', class: "dropdown-item collection-choice" %></li>
       <li><%= link_to 'French collection (' + @frenchCount.to_s + ' books)', '#', value: 'fr', class: "dropdown-item collection-choice" %></li>
   </ul>
-
-
-  <%= form_with url: "/epub/search", method: :get, class: "form-group has-search", :html=> {:id => 'epub-search', novalidate: true} do |form|%>
-    <div class="fa fa-search form-control-feedback"></div>
-    <%= form.text_field :query, required: true,  placeholder: "Search for available books", autocomplete: "off", spellcheck: false, id: "epub-search-input", class: "form-control ds-input" %>
-  <% end %>
 
 
   <div class="carousel-container position-relative">

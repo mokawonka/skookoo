@@ -153,7 +153,7 @@ trix-editor {
 #searchform{
     display: inline-block;
     text-align: center;
-    width: calc(100% - 200px);
+    margin: 0 auto;
 }
 
 #searchform > input{
@@ -170,7 +170,7 @@ trix-editor {
     outline: none;
 }
 
-@media only screen and (max-width: 600px) 
+@media only screen and (max-width: 650px) 
 {
     #searchform > input{
         width: 200px;
@@ -532,16 +532,16 @@ textarea {
 }
 
 #headbar {
-    padding-top: 7px;
-    padding-bottom: 7px;
-    padding-right: 7px;
-    padding-left: 7px;
+    padding: 7px;
     background-color: white;
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 99;
     min-width: 400px;
+
+    display: flex;
+    align-items: center;
 }
 
 
