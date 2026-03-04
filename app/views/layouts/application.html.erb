@@ -198,6 +198,7 @@
 
       <%= yield %>
       <%= render "shared/premiumteaser" %>
+      <%= render "shared/feature_requests" %>
     </div>
 
   </body>
@@ -205,7 +206,11 @@
 
   <% unless controller.controller_name == "documents" && controller.action_name == "show" #not showing footer when on document %> 
       <footer id="footer" class="text-center border-top text-muted fixed-bottom">
-          <span id="copyright"></span> - <%= link_to 'About', about_path %> - <%= link_to 'Github', 'https://github.com/mokawonka/skookoo' %>
+          <span id="copyright"></span> - <%= link_to 'About', about_path %> 
+          -
+          <a href="#" data-bs-toggle="modal" data-bs-target="#featureRequestModal">Request a Feature</a> 
+          -
+          <%= link_to 'Github', 'https://github.com/mokawonka/skookoo' %>
       </footer>
   
 

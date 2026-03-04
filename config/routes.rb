@@ -126,6 +126,8 @@ Rails.application.routes.draw do
 
   resources :merch_orders, only: [:new, :create, :show]
 
+  resources :feature_requests, only: [:new, :create]
+
   resources :subscriptions, only: [:new, :create] do
     collection do
       get :success

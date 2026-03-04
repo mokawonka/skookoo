@@ -10,6 +10,19 @@ My settings
         <div class="list-group" id="list-updaters" role="tablist">
 
           <a class="list-group-item list-group-item-action d-flex align-items-center gap-3" 
+             id="list-personal-list" data-bs-toggle="list" href="#list-personal" role="tab" aria-controls="list-personal">
+            <span class="menu-icon">
+              <%= image_tag 'personal-information.png', size: '20x20' %>
+            </span>
+
+            <span class="menu-text">
+              Personal information
+            </span>
+
+          </a>
+
+
+          <a class="list-group-item list-group-item-action d-flex align-items-center gap-3" 
              id="list-account-list" data-bs-toggle="list" href="#list-account" role="tab" aria-controls="list-account">
             <span class="menu-icon">
               <%= image_tag 'default-avatar.svg', size: '20x20' %>
@@ -72,6 +85,26 @@ My settings
 
       <div class="col-md-9">
         <div class="tab-content" id="updaters">
+
+
+          <div class="tab-pane fade" id="list-personal" role="tabpanel" aria-labelledby="list-personal-list">
+
+            <p class='updater-title'>Change my name</p>
+            <%= form_with model: current_user, url: user_path(current_user), method: :patch, local: true do |form| %>
+                <div class="field">
+                    <%= form.text_field :name, required: true, class: 'smallinput' %>
+                </div>
+                <div class="actions">
+                    <%= form.submit "save", class: 'smallinput'%>
+                </div>
+            <% end %>
+
+            <hr>
+          
+
+          </div>
+
+
 
           <div class="tab-pane fade" id="list-account" role="tabpanel" aria-labelledby="list-account-list">
 
@@ -324,7 +357,7 @@ document.addEventListener("turbo:load", function () {
           bodyP.innerHTML = `<strong>${featureName}</strong> is reserved to <strong>pomologists</strong>.`;
         }
 
-        const modal = new bootstrap.Modal(modalEl);
+        let modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
       }
       return false;

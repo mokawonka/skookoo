@@ -1,0 +1,32 @@
+<div class="modal fade" id="featureRequestModal" tabindex="-1" aria-labelledby="featureRequestModalLabel" aria-hidden="true" data-controller="modal">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 21px; background: #fffaf0;">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="featureRequestModalLabel">Suggest a Feature</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <turbo-frame id="feature_request_form">
+          <%= form_with model: FeatureRequest.new, url: feature_requests_path, data: { turbo_frame: "feature_request_form" }, html: { id: "feature_request_form" } do |f| %>
+            <div class="mb-3">
+                <%= f.label :title, "Short title", class: "form-label fw-bold" %>
+                <%= f.text_field :title, class: "form-control", placeholder: "e.g. Add dark mode toggle", required: true %>
+                <div class="invalid-feedback d-block"><%= f.object.errors[:title].join(", ") %></div>
+            </div>
+
+            <div class="mb-4">
+                <%= f.label :description, "Describe the feature", class: "form-label fw-bold" %>
+                <%= f.text_area :description, class: "form-control", rows: 5, placeholder: "What problem does it solve? How should it work? Any examples?", required: true %>
+                <div class="invalid-feedback d-block"><%= f.object.errors[:description].join(", ") %></div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <%= f.submit "Submit Idea", class: "btn btn-primary px-4" %>
+            </div>
+            <% end %>
+        </turbo-frame>
+      </div>
+    </div>
+  </div>
+</div>
