@@ -110,7 +110,7 @@
 
 <div id="activity">
 
-  <%# === PRIVATE PROFILE CHECK === %>
+  <%# === private profile check  === %>
 <% if @user.private? && current_user != @user && !current_user&.approved_follower?(@user) %>
 <!-- Centered locker for private profiles -->
 <div class="text-center py-5" style="padding-top: 120px;">
@@ -125,6 +125,7 @@
 </div>
 
 <% else %>
+
 <!-- Normal public / own / approved follower view -->
 <ul class="nav nav-tabs border-0" id="profiletabs" role="tablist">
   <li class="nav-item" role="presentation">
@@ -142,34 +143,40 @@
 
 <div class="tab-content" id="profilecontent">
 
-  <div class="tab-pane fade show active" id="highlights" role="tabpanel" aria-labelledby="highlights-tab">
-    <% if @hookedhighlight != nil %>
-      <% if logged_in? && current_user == @user %>
-        <span class="hookedhighlight">
-          <span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
-        </span>
-        <%= render 'shared/userhook', hid: 'none', user: @user %>
-      <% else %>
-        <span class="hookedhighlight">
-          <span>Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
-        </span>
-      <% end %>
-      <%= render 'shared/post', highlight: @hookedhighlight %>
-      <hr>
-    <% end %>
+    <div class="tab-pane fade show active" id="highlights" role="tabpanel" aria-labelledby="highlights-tab">
+        <% if @hookedhighlight != nil %>
+        <% if logged_in? && current_user == @user %>
+            <span class="hookedhighlight">
+            <span id="unhook">Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
+            </span>
+            <%= render 'shared/userhook', hid: 'none', user: @user %>
+        <% else %>
+            <span class="hookedhighlight">
+            <span>Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
+            </span>
+        <% end %>
+        <%= render 'shared/post', highlight: @hookedhighlight %>
+        <hr>
+        <% end %>
 
-<% if @hrecords.count > 0 %>
-  <%= render "highlights/scrollable_list" %>
-<% else %>
-  <div style="padding-top:80px;" class="text-center dimmed">
-    <%= image_tag 'empty_basket.png', size: '100x100'%>
-    <p> No highlights collected </p>
-  </div>
-<% end %>  </div>
+        <% if @hrecords.count > 0 %>
+            <%= render "highlights/scrollable_list" %>
+        <% else %>
+            <div style="padding-top:80px;" class="text-center dimmed">
+                <%= image_tag 'empty_basket.png', size: '100x100'%>
+                <p> No highlights collected </p>
+            </div>
+        <% end %>  
 
-  <div class="tab-pane fade" id="myreplies" role="tabpanel" aria-labelledby="myreplies-tab"></div>
+    </div>
 
-</div>  <% end %></div>
+    <div class="tab-pane fade" id="myreplies" role="tabpanel" aria-labelledby="myreplies-tab"></div>
+
+</div>  
+
+<% end %>
+
+</div>
 <script>
     $('#myreplies-tab').on('click', function(){
     <% if logged_in? %>
@@ -380,11 +387,12 @@
         $('#zoom-range').val(1);
     });
 
-    // Edit profile toggle (unchanged)
+    // Edit profile toggle
     $('#editbutton').on('click', function(){        
         var txt = $(this).text();
 
         if (txt === 'Edit profile') {
+            // Show edit fields
             $('#handler-badges').addClass('d-none');
             $('#avatar').addClass('d-none');
             $('#editavatar').removeClass('d-none');
@@ -398,23 +406,69 @@
             $('#editbanner').removeClass('d-none');
             $(this).text('Save');
         } else {
-            $('#handler-badges').removeClass('d-none');
-            $('#avatar').removeClass('d-none');
-            $('#editavatar').addClass('d-none');
-            $('#editbanner').addClass('d-none'); 
-            $('#biography').removeClass('d-none');
-            $('#editbio').addClass('d-none');
-            $('#nameprofile').removeClass('d-none');
-            $('#editname').addClass('d-none');
-            $('#location').removeClass('d-none');
-            $('#editlocation').addClass('d-none');
-            $('#editbanner').addClass('d-none');
+            // collect all changes and send ONE request
+            var formData = {};
 
-            if ($('#user_avatar').val() !== '') $('#changeavatar').click();
-            if ($('#bioinput').val() !== '<%= @user.bio %>') $('#changebio').click();
-            if ($('#nameinput').val() !== '<%= @user.name %>') $('#changename').click();
-            if ($('#locationinput').val() !== '<%= @user.location %>') $('#changelocation').click();
-            if ($('#user_background').val() !== '') $('#changebackground').click();
+            var bioVal = $('#bioinput').val();
+            if (bioVal !== '<%= @user.bio %>') {
+            formData.bio = bioVal;
+            }
+
+            var nameVal = $('#nameinput').val();
+            if (nameVal !== '<%= @user.name %>') {
+            formData.name = nameVal;
+            }
+
+            var locVal = $('#locationinput').val();
+            if (locVal !== '<%= @user.location %>') {
+            formData.location = locVal;
+            }
+
+            // Avatar / background (if files selected)
+            var avatarFile = $('#user_avatar')[0].files[0];
+            var backgroundFile = $('#user_background')[0].files[0];
+
+            if (avatarFile || backgroundFile || Object.keys(formData).length > 0) {
+            var fd = new FormData();
+
+            // Add text fields
+            Object.keys(formData).forEach(key => {
+                fd.append('user[' + key + ']', formData[key]);
+            });
+
+            // Add files if present
+            if (avatarFile) fd.append('user[avatar]', avatarFile);
+            if (backgroundFile) fd.append('user[background]', backgroundFile);
+
+            // Send ONE PATCH request
+            $.ajax({
+                url: '/users/<%= @user.id %>',
+                type: 'PATCH',
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function() {
+                    ocation.reload(); // or update UI live
+                },
+                error: function(xhr) {
+                    console.log("Save failed: " + xhr.responseText);
+                }
+            });
+            } else {
+                // No changes → just revert UI
+                $(this).text('Edit profile');
+                $('#handler-badges').removeClass('d-none');
+                $('#avatar').removeClass('d-none');
+                $('#editavatar').addClass('d-none');
+                $('#editbanner').addClass('d-none'); 
+                $('#biography').removeClass('d-none');
+                $('#editbio').addClass('d-none');
+                $('#nameprofile').removeClass('d-none');
+                $('#editname').addClass('d-none');
+                $('#location').removeClass('d-none');
+                $('#editlocation').addClass('d-none');
+                $('#editbanner').addClass('d-none');
+            }
 
             $(this).text('Edit profile');
         }

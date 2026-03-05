@@ -90,10 +90,17 @@ class UsersController < ApplicationController
         @user = User.find(params[:id])
 
         if @user.update(user_params)
-            redirect_back fallback_location: user_path(@user), notice: "Changes saved"
+            if request.xhr?
+                render json: { status: :ok }
+            else
+                redirect_back fallback_location: user_path(@user), notice: "Changes saved"
+            end
         else
-            redirect_back fallback_location: user_path(@user),
-                        alert: @user.errors.full_messages.to_sentence
+            if request.xhr?
+                render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+            else
+                redirect_back fallback_location: user_path(@user), alert: @user.errors.full_messages.to_sentence
+            end
         end
     end
     

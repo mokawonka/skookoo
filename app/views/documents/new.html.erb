@@ -1,0 +1,181 @@
+<div id="write-page">
+
+  <div id="write-header">
+    <input type="text" id="write-title" placeholder="Title" maxlength="200" />
+    <input type="text" id="write-authors" placeholder="Author(s)" value="<%= current_user.name %>" />
+  </div>
+
+  <div id="write-toolbar">
+    <span class="ql-formats">
+      <select class="ql-header">
+        <option value="1">Heading 1</option>
+        <option value="2">Heading 2</option>
+        <option value="3">Heading 3</option>
+        <option selected>Normal</option>
+      </select>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-bold"></button>
+      <button class="ql-italic"></button>
+      <button class="ql-underline"></button>
+      <button class="ql-strike"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-blockquote"></button>
+      <button class="ql-code-block"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-list" value="ordered"></button>
+      <button class="ql-list" value="bullet"></button>
+    </span>
+    <span class="ql-formats">
+      <select class="ql-align"></select>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-link"></button>
+      <button class="ql-clean"></button>
+    </span>
+  </div>
+
+  <div id="write-editor"></div>
+
+  <div id="write-footer">
+    <label id="write-public-label">
+      <input type="checkbox" id="write-ispublic" checked />
+      Make public
+    </label>
+    <button id="write-submit" class="btn">Publish</button>
+  </div>
+
+</div>
+
+<script>
+  const quill = new Quill('#write-editor', {
+    theme: 'snow',
+    modules: { toolbar: '#write-toolbar' },
+    placeholder: 'Write something...'
+  });
+
+  document.getElementById('write-submit').addEventListener('click', function () {
+    const title   = document.getElementById('write-title').value.trim();
+    const authors = document.getElementById('write-authors').value.trim();
+    const content = quill.root.innerHTML.trim();
+    const ispublic = document.getElementById('write-ispublic').checked ? "1" : "0";
+
+    if (!title) {
+      alert("Please enter a title.");
+      return;
+    }
+
+    if (!content || quill.getText().trim().length === 0) {
+      alert("Please write some content.");
+      return;
+    }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = "Publishing...";
+
+    const fd = new FormData();
+    fd.append('title',    title);
+    fd.append('authors',  authors);
+    fd.append('content',  content);
+    fd.append('ispublic', ispublic);
+    fd.append('authenticity_token', '<%= form_authenticity_token %>');
+
+    fetch('<%= documents_path %>', {
+      method: 'POST',
+      body: fd
+    })
+    .then(res => {
+      if (res.redirected) {
+        window.location.href = res.url;
+      } else if (!res.ok) {
+        return res.text().then(t => { throw new Error(t); });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = "Publish";
+      alert("Something went wrong. Please try again.");
+    });
+  });
+</script>
+
+<style>
+  #write-page {
+    max-width: 780px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  #write-header {
+    margin-bottom: 16px;
+  }
+
+  #write-title {
+    display: block;
+    width: 100%;
+    font-size: 2rem;
+    font-weight: bold;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid #eee;
+    padding: 8px 0;
+    margin-bottom: 10px;
+    background: transparent;
+    color: inherit;
+  }
+
+  #write-authors {
+    display: block;
+    width: 100%;
+    font-size: 1rem;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid #eee;
+    padding: 6px 0;
+    background: transparent;
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  #write-toolbar {
+    border-radius: 8px 8px 0 0;
+    border: 1px solid #ddd !important;
+  }
+
+  #write-editor {
+    min-height: 500px;
+    font-size: 1.05rem;
+    border: 1px solid #ddd !important;
+    border-top: none !important;
+    border-radius: 0 0 8px 8px;
+  }
+
+  .ql-container {
+    font-size: 1.05rem;
+  }
+
+  #write-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+
+  #write-public-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  #write-submit {
+    padding: 10px 32px;
+    font-size: 1rem;
+  }
+</style>

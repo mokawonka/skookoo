@@ -841,7 +841,6 @@ figure > img {
 
 .menu-icon{
     margin-right: 7px;
-    border-radius: 100%;
     width: 32px;
     height: 32px;
     opacity: 0.8;
@@ -851,7 +850,6 @@ figure > img {
 
 .header-icon{
     margin-right: 3px;
-    border-radius: 100%;
     width: 42px;
     height: 42px;
     object-fit: cover;

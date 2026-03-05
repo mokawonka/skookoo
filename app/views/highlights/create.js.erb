@@ -1,7 +1,7 @@
 <% if flash.any? %>
   <% flash.each do |type, msg| %>
 
-    const successMsg = "<%= j msg %>";
+    var successMsg = "<%= j msg %>";
     $('#highlightmodal').modal('hide');
 
     rendition.annotations.add("highlight", '<%= @highlight.cfi %>', {}, (e) => {

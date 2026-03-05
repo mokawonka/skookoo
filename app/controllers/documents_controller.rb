@@ -20,9 +20,71 @@ class DocumentsController < ApplicationController
       @document = Document.new
   end
 
-  def create
 
+
+  def create
+      title        = params[:title]&.strip
+      authors      = params[:authors]&.strip.presence || current_user.name
+      content_html = params[:content]&.strip
+      ispublic     = params[:ispublic] == "1"
+
+      if title.blank? || content_html.blank?
+        flash.now[:alert] = "Title and content are required"
+        render :new and return
+      end
+
+      tmpfile = nil
+
+      begin
+        tmpfile = build_epub(title, authors, content_html)
+
+        @epub = Epub.new(
+          title:         title,
+          authors:       authors,
+          lang:          "en",
+          public_domain: false,
+          sha3:          SHA3::Digest.file(tmpfile.path).hexdigest
+        )
+
+        @epub.epub_file.attach(
+          io:           File.open(tmpfile.path),
+          filename:     "#{title.parameterize}.epub",
+          content_type: "application/epub+zip"
+        )
+
+        unless @epub.save
+          flash.now[:alert] = @epub.errors.full_messages.to_sentence
+          render :new and return
+        end
+
+        @document = Document.new(
+          userid:   session[:user_id],
+          epubid:   @epub.id,
+          title:    title,
+          authors:  authors,
+          ispublic: ispublic
+        )
+
+        if @document.save
+          redirect_to document_path(@document), notice: "Published successfully!"
+        else
+          @epub.destroy
+          flash.now[:alert] = @document.errors.full_messages.to_sentence
+          render :new
+        end
+
+      rescue => e
+        @epub&.destroy
+        flash.now[:alert] = "Failed to generate epub: #{e.message}"
+        render :new
+
+      ensure
+        tmpfile&.close
+        tmpfile&.unlink
+      end
   end
+
+
 
   def not_public
 
@@ -139,6 +201,45 @@ class DocumentsController < ApplicationController
 
 
   private
+
+
+  def build_epub(title, authors, content_html)
+    xhtml = <<~XHTML
+      <?xml version="1.0" encoding="UTF-8"?>
+      <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+          <title>#{CGI.escapeHTML(title)}</title>
+          <style>
+            body { font-family: Georgia, serif; line-height: 1.7; margin: 2em; }
+            h1, h2, h3 { font-weight: bold; }
+            blockquote { margin-left: 2em; font-style: italic; }
+          </style>
+        </head>
+        <body>
+          <h1>#{CGI.escapeHTML(title)}</h1>
+          <p><em>#{CGI.escapeHTML(authors)}</em></p>
+          <hr/>
+          #{content_html}
+        </body>
+      </html>
+    XHTML
+
+    book = GEPUB::Book.new
+    book.identifier = "urn:uuid:#{SecureRandom.uuid}"
+    book.add_title(title)
+    book.add_creator(authors)
+    book.language = "en"
+
+    book.ordered do
+      book.add_item("content.xhtml").add_content(StringIO.new(xhtml))
+    end
+
+    tmpfile = Tempfile.new(["epub_write_", ".epub"])
+    book.generate_epub(tmpfile.path)
+    tmpfile
+  end
+
+  
 
   def document_params
       # for whitelisting the parameters for documents to be set

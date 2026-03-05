@@ -106,7 +106,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :documents do
+  resources :documents, only: [:index, :show, :new, :create, :destroy] do
     member do
       patch :update_progress
       patch :update_locations
