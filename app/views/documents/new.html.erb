@@ -1,107 +1,37 @@
+
 <div id="write-page">
 
   <div id="write-header">
-    <input type="text" id="write-title" placeholder="Title" maxlength="200" />
-    <input type="text" id="write-authors" placeholder="Author(s)" value="<%= current_user.name %>" />
+    <%= text_field_tag :title, nil,
+                       id: "write-title",
+                       placeholder: "Title",
+                       maxlength: 200,
+                       autocomplete: "off" %>
+
+    <%= text_field_tag :authors, current_user&.name || "",
+                       id: "write-authors",
+                       placeholder: "Author(s)",
+                       autocomplete: "off" %>
   </div>
 
-  <div id="write-toolbar">
-    <span class="ql-formats">
-      <select class="ql-header">
-        <option value="1">Heading 1</option>
-        <option value="2">Heading 2</option>
-        <option value="3">Heading 3</option>
-        <option selected>Normal</option>
-      </select>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-bold"></button>
-      <button class="ql-italic"></button>
-      <button class="ql-underline"></button>
-      <button class="ql-strike"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-blockquote"></button>
-      <button class="ql-code-block"></button>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-list" value="ordered"></button>
-      <button class="ql-list" value="bullet"></button>
-    </span>
-    <span class="ql-formats">
-      <select class="ql-align"></select>
-    </span>
-    <span class="ql-formats">
-      <button class="ql-link"></button>
-      <button class="ql-clean"></button>
-    </span>
+  <div id="write-editor">
+    <%= rich_text_area_tag "content", nil,
+                           id: "document_content",
+                           placeholder: "Write something...",
+                           class: "trix-content",
+                           data: { "trix-placeholder": "Write something..." } %>
   </div>
-
-  <div id="write-editor"></div>
 
   <div id="write-footer">
-    <label id="write-public-label">
-      <input type="checkbox" id="write-ispublic" checked />
+    <label id="write-public-label" for="write-ispublic">
+      <%= check_box_tag :ispublic, "1", true, id: "write-ispublic" %>
       Make public
     </label>
-    <button id="write-submit" class="btn">Publish</button>
+
+    <button id="write-submit" class="btn" type="button">Publish</button>
   </div>
 
 </div>
-
-<script>
-  const quill = new Quill('#write-editor', {
-    theme: 'snow',
-    modules: { toolbar: '#write-toolbar' },
-    placeholder: 'Write something...'
-  });
-
-  document.getElementById('write-submit').addEventListener('click', function () {
-    const title   = document.getElementById('write-title').value.trim();
-    const authors = document.getElementById('write-authors').value.trim();
-    const content = quill.root.innerHTML.trim();
-    const ispublic = document.getElementById('write-ispublic').checked ? "1" : "0";
-
-    if (!title) {
-      alert("Please enter a title.");
-      return;
-    }
-
-    if (!content || quill.getText().trim().length === 0) {
-      alert("Please write some content.");
-      return;
-    }
-
-    const btn = this;
-    btn.disabled = true;
-    btn.textContent = "Publishing...";
-
-    const fd = new FormData();
-    fd.append('title',    title);
-    fd.append('authors',  authors);
-    fd.append('content',  content);
-    fd.append('ispublic', ispublic);
-    fd.append('authenticity_token', '<%= form_authenticity_token %>');
-
-    fetch('<%= documents_path %>', {
-      method: 'POST',
-      body: fd
-    })
-    .then(res => {
-      if (res.redirected) {
-        window.location.href = res.url;
-      } else if (!res.ok) {
-        return res.text().then(t => { throw new Error(t); });
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      btn.disabled = false;
-      btn.textContent = "Publish";
-      alert("Something went wrong. Please try again.");
-    });
-  });
-</script>
 
 <style>
   #write-page {
@@ -141,21 +71,35 @@
     opacity: 0.7;
   }
 
-  #write-toolbar {
-    border-radius: 8px 8px 0 0;
-    border: 1px solid #ddd !important;
-  }
-
-  #write-editor {
+  /* Trix styling overrides */
+  .trix-content {
     min-height: 500px;
     font-size: 1.05rem;
-    border: 1px solid #ddd !important;
-    border-top: none !important;
-    border-radius: 0 0 8px 8px;
+    line-height: 1.6;
   }
 
-  .ql-container {
-    font-size: 1.05rem;
+  .trix-editor {
+    min-height: 500px !important;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0 0 8px 8px;
+    background: white;
+    outline: none;
+  }
+
+  .trix-button-row {
+    border-radius: 8px 8px 0 0;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    padding: 8px;
+  }
+
+  .trix-button {
+    color: #444;
+  }
+
+  .trix-button.trix-active {
+    background: #e0e0e0;
   }
 
   #write-footer {
@@ -172,10 +116,107 @@
     gap: 8px;
     cursor: pointer;
     opacity: 0.8;
+    font-size: 1rem;
   }
 
   #write-submit {
     padding: 10px 32px;
     font-size: 1rem;
+    cursor: pointer;
+  }
+
+  #write-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 </style>
+
+<script>
+// Wait for Trix to be loaded (via importmap / asset pipeline)
+document.addEventListener("trix-initialize", function() {
+  // Optional: any custom behavior after Trix is ready
+});
+
+document.getElementById('write-submit').addEventListener('click', async function () {
+  const titleEl   = document.getElementById('write-title');
+  const authorsEl = document.getElementById('write-authors');
+  const publicEl  = document.getElementById('write-ispublic');
+
+  const title    = titleEl.value.trim();
+  const authors  = authorsEl.value.trim();
+  const isPublic = publicEl.checked ? "1" : "0";
+
+  // Find the hidden input that Trix creates for rich content
+  const contentInput = document.querySelector('input[name="content"]') ||
+                       document.querySelector('#document_content + input[type="hidden"]');
+
+  const content = contentInput?.value?.trim() || '';
+
+  // Basic validation
+  if (!title) {
+    alert("Please enter a title.");
+    titleEl.focus();
+    return;
+  }
+
+  if (!content || content === '<div><br></div>' || content.trim() === '') {
+    alert("Please write some content.");
+    return;
+  }
+
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = "Publishing...";
+
+  const formData = new FormData();
+  formData.append('document[title]',    title);
+  formData.append('document[authors]',  authors);
+  formData.append('document[content]',  content);
+  formData.append('document[ispublic]', isPublic);
+  formData.append('authenticity_token', '<%= form_authenticity_token %>');
+
+ try {
+  const response = await fetch('<%= documents_path %>', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  });
+
+  if (response.redirected) {
+    window.location.href = response.url;
+    return;
+  }
+
+  if (response.ok) {
+    // Rare case: 200 without redirect — maybe JSON success?
+    const text = await response.text();
+    console.log('Unexpected 200 success (no redirect):', text);
+    // Optionally parse if you return JSON later
+    alert('Published! (but no redirect – check console)');
+    return;
+  }
+
+  // Handle error response (422, 500, etc.)
+  const errorText = await response.text();
+  console.error('Server error response:', response.status, errorText);
+
+  // Try to extract flash message if it's Rails HTML (very rough)
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(errorText, 'text/html');
+  const alertDiv = doc.querySelector('.alert.alert-danger, [role="alert"]');
+  const message = alertDiv?.textContent?.trim() || 'Server returned an error. Check console for details.';
+
+  alert(message || "Something went wrong while publishing. Please try again.");
+  btn.disabled = false;
+  btn.textContent = "Publish";
+
+} catch (error) {
+  console.error('Fetch failed:', error);
+  alert("Network or publishing error. Please check your connection and try again.");
+  btn.disabled = false;
+  btn.textContent = "Publish";
+}
+});
+</script>

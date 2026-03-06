@@ -2,7 +2,6 @@ class DocumentsController < ApplicationController
   skip_before_action :require_user, only: [:show, :not_public]
   protect_from_forgery except: :progress
 
-
   def index
     myuserid = session[:user_id]
 
@@ -21,69 +20,74 @@ class DocumentsController < ApplicationController
   end
 
 
-
   def create
-      title        = params[:title]&.strip
-      authors      = params[:authors]&.strip.presence || current_user.name
-      content_html = params[:content]&.strip
-      ispublic     = params[:ispublic] == "1"
+    title   = params.dig(:document, :title)&.strip.presence
+    authors = params.dig(:document, :authors)&.strip.presence || current_user.name
+    content = params.dig(:document, :content)&.strip
+    ispublic = params.dig(:document, :ispublic) == "1"
 
-      if title.blank? || content_html.blank?
-        flash.now[:alert] = "Title and content are required"
-        render :new and return
+    if title.blank? || content.blank?
+      flash.now[:alert] = "Title and content are required."
+      render :new, status: :unprocessable_entity and return
+    end
+
+    tmpfile = nil
+    @epub   = nil
+
+    begin
+      tmpfile = build_epub(title, authors, content) 
+
+      unless tmpfile && File.exist?(tmpfile.path) && File.size(tmpfile.path) > 0
+        raise "EPUB generation failed: no valid file produced"
       end
 
-      tmpfile = nil
+      sha3_digest = SHA3::Digest.file(tmpfile.path).hexdigest
 
-      begin
-        tmpfile = build_epub(title, authors, content_html)
+      @epub = Epub.new(
+        title:         title,
+        authors:       authors,
+        lang:          "en",
+        public_domain: false,
+        sha3:          sha3_digest
+      )
 
-        @epub = Epub.new(
-          title:         title,
-          authors:       authors,
-          lang:          "en",
-          public_domain: false,
-          sha3:          SHA3::Digest.file(tmpfile.path).hexdigest
-        )
+      @epub.epub_file.attach(
+        io:           File.open(tmpfile.path),
+        filename:     "#{title.parameterize}.epub",
+        content_type: "application/epub+zip"
+      )
 
-        @epub.epub_file.attach(
-          io:           File.open(tmpfile.path),
-          filename:     "#{title.parameterize}.epub",
-          content_type: "application/epub+zip"
-        )
-
-        unless @epub.save
-          flash.now[:alert] = @epub.errors.full_messages.to_sentence
-          render :new and return
-        end
-
-        @document = Document.new(
-          userid:   session[:user_id],
-          epubid:   @epub.id,
-          title:    title,
-          authors:  authors,
-          ispublic: ispublic
-        )
-
-        if @document.save
-          redirect_to document_path(@document), notice: "Published successfully!"
-        else
-          @epub.destroy
-          flash.now[:alert] = @document.errors.full_messages.to_sentence
-          render :new
-        end
-
-      rescue => e
-        @epub&.destroy
-        flash.now[:alert] = "Failed to generate epub: #{e.message}"
-        render :new
-
-      ensure
-        tmpfile&.close
-        tmpfile&.unlink
+      unless @epub.save
+        flash.now[:alert] = @epub.errors.full_messages.to_sentence
+        render :new, status: :unprocessable_entity and return
       end
+
+      @document = Document.new(
+        userid:     current_user.id,          
+        epubid:     @epub.id,
+        title:    title,
+        authors:  authors,
+        ispublic: ispublic
+      )
+
+      if @document.save
+        redirect_to document_path(@document), notice: "Published successfully!"
+      else
+        @epub.destroy
+        flash.now[:alert] = @document.errors.full_messages.to_sentence
+        render :new, status: :unprocessable_entity
+      end
+
+    rescue => e
+      @epub&.destroy
+      flash.now[:alert] = "Failed to generate EPUB: #{e.message}"
+      render :new, status: :unprocessable_entity
+
+    ensure
+      tmpfile&.close
+      tmpfile&.unlink if tmpfile
+    end
   end
-
 
 
   def not_public
@@ -202,43 +206,46 @@ class DocumentsController < ApplicationController
 
   private
 
-
   def build_epub(title, authors, content_html)
-    xhtml = <<~XHTML
-      <?xml version="1.0" encoding="UTF-8"?>
-      <html xmlns="http://www.w3.org/1999/xhtml">
-        <head>
-          <title>#{CGI.escapeHTML(title)}</title>
-          <style>
-            body { font-family: Georgia, serif; line-height: 1.7; margin: 2em; }
-            h1, h2, h3 { font-weight: bold; }
-            blockquote { margin-left: 2em; font-style: italic; }
-          </style>
-        </head>
-        <body>
-          <h1>#{CGI.escapeHTML(title)}</h1>
-          <p><em>#{CGI.escapeHTML(authors)}</em></p>
-          <hr/>
-          #{content_html}
-        </body>
-      </html>
-    XHTML
+
+    safe_title = CGI.escapeHTML(title)
+
+    # Convert HTML → valid XHTML for EPUB
+    content_html = Nokogiri::HTML::DocumentFragment.parse(content_html).to_xhtml
 
     book = GEPUB::Book.new
     book.identifier = "urn:uuid:#{SecureRandom.uuid}"
-    book.add_title(title)
-    book.add_creator(authors)
-    book.language = "en"
+    book.title      = safe_title
+    book.creator    = authors
+    book.language   = "en"
 
-    book.ordered do
-      book.add_item("content.xhtml").add_content(StringIO.new(xhtml))
-    end
+    chapter_content = <<~HTML
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+      <title>#{safe_title}</title>
+    </head>
+    <body>
+      <h1>#{safe_title}</h1>
+      #{content_html}
+    </body>
+    </html>
+    HTML
 
-    tmpfile = Tempfile.new(["epub_write_", ".epub"])
+    item = book.add_item("chapter1.xhtml")
+    item.add_content(StringIO.new(chapter_content))
+
+    book.spine << item
+
+    tmpfile = Tempfile.new(["#{title.parameterize}", ".epub"])
+    tmpfile.binmode
+
     book.generate_epub(tmpfile.path)
+
+    tmpfile.rewind
     tmpfile
   end
-
   
 
   def document_params
