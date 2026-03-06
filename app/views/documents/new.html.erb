@@ -1,222 +1,494 @@
+<div id="write-page" class="container my-5" style="max-width: 960px;">
 
-<div id="write-page">
+  <!-- Clean segmented toggle – no circles/dots -->
+  <div class="d-flex justify-content-center mb-5">
+    <div class="segmented-toggle rounded-pill bg-light p-1">
+      <input type="radio" name="write-mode" id="mode-essay" value="essay" checked autocomplete="off">
+      <label for="mode-essay" class="segment-label">Essay</label>
 
-  <div id="write-header">
-    <%= text_field_tag :title, nil,
-                       id: "write-title",
-                       placeholder: "Title",
-                       maxlength: 200,
-                       autocomplete: "off" %>
+      <input type="radio" name="write-mode" id="mode-book" value="book" autocomplete="off">
+      <label for="mode-book" class="segment-label">Book</label>
 
-    <%= text_field_tag :authors, current_user&.name || "",
-                       id: "write-authors",
-                       placeholder: "Author(s)",
-                       autocomplete: "off" %>
+      <span class="segment-slider"></span>
+    </div>
   </div>
 
-  <div id="write-editor">
-    <%= rich_text_area_tag "content", nil,
-                           id: "document_content",
-                           placeholder: "Write something...",
-                           class: "trix-content",
-                           data: { "trix-placeholder": "Write something..." } %>
+  <!-- Header – straight blue focus line -->
+  <div class="mb-5">
+    <input type="text" id="title-input" class="title-input" placeholder="Title of your work" maxlength="200" autocomplete="off">
+    <input type="text" id="authors-input" class="authors-input mt-3" placeholder="Your name or pen name" value="<%= current_user&.name || '' %>" autocomplete="off">
   </div>
 
-  <div id="write-footer">
-    <label id="write-public-label" for="write-ispublic">
-      <%= check_box_tag :ispublic, "1", true, id: "write-ispublic" %>
-      Make public
+  <!-- Essay Mode -->
+  <div id="essay-mode" class="mode-content">
+    <div class="editor-wrapper">
+      <%= rich_text_area_tag "content", nil,
+                             id: "essay-content",
+                             placeholder: "Begin your essay here...",
+                             class: "trix-content",
+                             data: { "trix-placeholder": "Begin your essay here..." } %>
+    </div>
+  </div>
+
+  <!-- Book Mode -->
+  <div id="book-mode" class="mode-content d-none">
+    <div id="chapters-container" class="mb-5"></div>
+
+    <button id="add-chapter-btn" type="button" class="add-chapter-btn w-100 py-4">
+      <i class="bi bi-plus-circle-fill me-2 fs-4"></i> Add New Chapter
+    </button>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 mt-5 pt-4 border-top">
+    <label class="toggle-container d-flex align-items-center gap-3 cursor-pointer user-select-none">
+      <span class="fw-medium fs-5">Make public</span>
+      <div class="modern-toggle">
+        <%= check_box_tag :ispublic, "1", true, id: "ispublic" %>
+        <span class="toggle-knob"></span>
+      </div>
     </label>
 
-    <button id="write-submit" class="btn" type="button">Publish</button>
+    <button id="publish-btn" class="publish-btn btn btn-lg px-5 py-3">
+      Publish
+    </button>
   </div>
 
 </div>
 
 <style>
-  #write-page {
-    max-width: 780px;
-    margin: 40px auto;
-    padding: 0 20px;
-  }
-
-  #write-header {
-    margin-bottom: 16px;
-  }
-
-  #write-title {
-    display: block;
-    width: 100%;
-    font-size: 2rem;
-    font-weight: bold;
-    border: none;
-    outline: none;
-    border-bottom: 2px solid #eee;
-    padding: 8px 0;
-    margin-bottom: 10px;
-    background: transparent;
-    color: inherit;
-  }
-
-  #write-authors {
-    display: block;
-    width: 100%;
-    font-size: 1rem;
-    border: none;
-    outline: none;
-    border-bottom: 1px solid #eee;
-    padding: 6px 0;
-    background: transparent;
-    color: inherit;
-    opacity: 0.7;
-  }
-
-  /* Trix styling overrides */
-  .trix-content {
-    min-height: 500px;
-    font-size: 1.05rem;
-    line-height: 1.6;
-  }
-
-  .trix-editor {
-    min-height: 500px !important;
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 0 0 8px 8px;
-    background: white;
-    outline: none;
-  }
-
-  .trix-button-row {
-    border-radius: 8px 8px 0 0;
-    border: 1px solid #ddd;
+  /* ── Segmented Toggle – no circles/dots ── */
+  .segmented-toggle {
+    position: relative;
+    display: inline-flex;
     background: #f8f9fa;
-    padding: 8px;
+    border-radius: 999px;
+    padding: 4px;
   }
 
-  .trix-button {
-    color: #444;
-  }
-
-  .trix-button.trix-active {
-    background: #e0e0e0;
-  }
-
-  #write-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-    padding-top: 16px;
-  }
-
-  #write-public-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .segment-label {
+    position: relative;
+    z-index: 2;
+    padding: 12px 48px;
+    font-weight: 500;
+    color: #495057;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
     cursor: pointer;
-    opacity: 0.8;
-    font-size: 1rem;
+    transition: color 0.25s;
   }
 
-  #write-submit {
-    padding: 10px 32px;
-    font-size: 1rem;
+  input[type="radio"] {
+    display: none; /* hide native radio circle */
+  }
+
+  input[type="radio"]:checked + .segment-label {
+    color: white;
+    font-weight: 600;
+  }
+
+  .segment-slider {
+    position: absolute;
+    top: 4px; bottom: 4px; left: 4px;
+    width: calc(50% - 8px);
+    background: #0951a9;
+    border-radius: 999px;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+  }
+
+  #mode-book:checked ~ .segment-slider {
+    transform: translateX(100%);
+  }
+
+  
+.title-input,
+.authors-input,
+.chapter-title {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;     /* thinner line by default */
+  outline: none;
+  background: transparent;
+  padding: 10px 0;
+  transition: border-bottom-color 0.3s ease, color 0.2s ease;
+  border-radius: 0;
+}
+
+/* Title – prominent */
+.title-input {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #111;
+}
+
+/* Author – more discrete */
+.authors-input {
+  font-size: 1.25rem;                    /* smaller than title */
+  font-weight: 400;
+  color: #666;                           /* lighter color */
+  padding: 8px 0;
+  border-bottom: 1px solid #e8e8e8;      /* even lighter line */
+  opacity: 0.85;                         /* slightly faded */
+  transition: opacity 0.25s ease, border-bottom-color 0.3s ease;
+}
+
+/* Chapter titles – medium prominence */
+.chapter-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Focus states – straight blue line, sharp ends */
+.title-input:focus,
+.authors-input:focus,
+.chapter-title:focus {
+  border-bottom: 3px solid #0951a9;
+  border-radius: 0 !important;
+  box-shadow: none;
+  outline: none;
+}
+
+/* Author gets a subtle opacity boost on focus */
+.authors-input:focus {
+  opacity: 1;
+  color: #222;
+}
+
+/* Ensure no rounding anywhere */
+#write-page input,
+#write-page textarea {
+  border-radius: 0 !important;
+}
+
+/* Optional: remove pseudo-element if it was causing visual artifacts */
+.title-input:focus::after,
+.authors-input:focus::after,
+.chapter-title:focus::after {
+  display: none;   /* ← disable if you added it earlier */
+}
+  .modern-toggle {
+    position: relative;
+    width: 68px;
+    height: 36px;
+  }
+
+  .modern-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-knob {
+    position: absolute;
     cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #d0d5dd;
+    border-radius: 36px;
+    transition: background-color 0.3s ease;
   }
 
-  #write-submit:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  .toggle-knob::before {
+    position: absolute;
+    content: "";
+    height: 28px;
+    width: 28px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease;
   }
+
+  input:checked + .toggle-knob {
+    background-color: #0951a9;
+  }
+
+  input:checked + .toggle-knob::before {
+    transform: translateX(32px);
+  }
+
+  .add-chapter-btn {
+    background: transparent;
+    border: 2px dashed #0951a9;
+    color: #0951a9;
+    font-weight: 600;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    transition: all 0.3s;
+  }
+
+  .add-chapter-btn:hover {
+    background: #0951a9;
+    color: white;
+    border-color: transparent;
+  }
+
+  .publish-btn {
+    background: #0951a9;
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 1.25rem;
+    border-radius: 12px;
+    transition: all 0.3s;
+  }
+
+  .publish-btn:hover {
+    background: #07428c;
+    transform: translateY(-2px);
+  }
+
+  .chapter-block {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    transition: box-shadow 0.25s;
+  }
+
+  .chapter-block:hover {
+    box-shadow: 0 8px 28px rgba(0,0,0,0.09);
+  }
+
+  #write-page .trix-content {
+    min-height: 520px;
+    font-size: 1.2rem;
+    line-height: 1.85;
+  }
+
+  .editor-wrapper {
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  #write-page .trix-content:focus-within,
+  #write-page .trix-content:focus {
+    border: 3px solid #0951a9 !important;
+    border-radius: 21px !important;
+  }
+
+
 </style>
 
+
 <script>
-// Wait for Trix to be loaded (via importmap / asset pipeline)
-document.addEventListener("trix-initialize", function() {
-  // Optional: any custom behavior after Trix is ready
+
+function fitTitleText() {
+  const input = document.getElementById('title-input');
+  const maxSize = 2.4; // rem
+  const minSize = 0.9; // rem
+  const basePx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+  // Reset to max size first
+  input.style.fontSize = maxSize + 'rem';
+
+  // Shrink until it fits
+  while (input.scrollWidth > input.clientWidth && 
+         parseFloat(input.style.fontSize) > minSize) {
+    const current = parseFloat(input.style.fontSize);
+    input.style.fontSize = (current - 0.05) + 'rem';
+  }
+}
+
+document.getElementById('title-input').addEventListener('input', fitTitleText);
+window.addEventListener('resize', fitTitleText);
+
+// Mode switching
+var currentMode = 'essay';
+
+document.querySelectorAll('input[name="write-mode"]').forEach(radio => {
+  radio.addEventListener('change', e => {
+    currentMode = e.target.value;
+    const mode = e.target.value;
+    document.getElementById('essay-mode').classList.toggle('d-none', mode !== 'essay');
+    document.getElementById('book-mode').classList.toggle('d-none', mode !== 'book');
+    document.getElementById('title-input').focus();
+  });
 });
 
-document.getElementById('write-submit').addEventListener('click', async function () {
-  const titleEl   = document.getElementById('write-title');
-  const authorsEl = document.getElementById('write-authors');
-  const publicEl  = document.getElementById('write-ispublic');
+// Chapter logic (with fixed numbering)
+var chapterIndex = 0;
 
-  const title    = titleEl.value.trim();
-  const authors  = authorsEl.value.trim();
-  const isPublic = publicEl.checked ? "1" : "0";
+function addChapter() {
+  chapterIndex = document.querySelectorAll('.chapter-block').length;
+  const container = document.getElementById('chapters-container');
 
-  // Find the hidden input that Trix creates for rich content
-  const contentInput = document.querySelector('input[name="content"]') ||
-                       document.querySelector('#document_content + input[type="hidden"]');
+  const block = document.createElement('div');
+  block.className = 'chapter-block';
+  block.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="mb-0 fw-semibold">Chapter ${chapterIndex + 1}</h5>
+      <div>
+        <button type="button" class="btn btn-sm btn-outline-secondary me-2 move-up">↑ Up</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary me-2 move-down">↓ Down</button>
+        <button type="button" class="btn btn-sm btn-danger remove-chapter">Remove</button>
+      </div>
+    </div>
+    <input type="text" class="chapter-title form-control mb-3 fs-5" placeholder="Chapter Title" required>
+    <div class="trix-wrapper" id="trix-wrapper-${chapterIndex}"></div>
+  `;
 
-  const content = contentInput?.value?.trim() || '';
+  container.appendChild(block);
 
-  // Basic validation
-  if (!title) {
-    alert("Please enter a title.");
-    titleEl.focus();
-    return;
-  }
+  // Inject Trix
+  const wrapper = block.querySelector(`#trix-wrapper-${chapterIndex}`);
+  wrapper.innerHTML = `<%= escape_javascript(
+    rich_text_area_tag("chapters[INDEX][content]", "",
+      id: "chapter-content-INDEX",
+      class: "trix-content"
+    )
+  ) %>`.replace(/INDEX/g, chapterIndex);
 
-  if (!content || content === '<div><br></div>' || content.trim() === '') {
-    alert("Please write some content.");
-    return;
-  }
+  const editor = wrapper.querySelector('.trix-content');
+  if (editor) new Trix.Editor(editor);
 
-  const btn = this;
-  btn.disabled = true;
-  btn.textContent = "Publishing...";
+  // Events
+  block.querySelector('.remove-chapter').onclick = () => {
+    block.remove();
+    renumberChapters();
+  };
 
-  const formData = new FormData();
-  formData.append('document[title]',    title);
-  formData.append('document[authors]',  authors);
-  formData.append('document[content]',  content);
-  formData.append('document[ispublic]', isPublic);
-  formData.append('authenticity_token', '<%= form_authenticity_token %>');
+  block.querySelector('.move-up').onclick = () => moveChapter(block, -1);
+  block.querySelector('.move-down').onclick = () => moveChapter(block, 1);
+}
 
- try {
-  const response = await fetch('<%= documents_path %>', {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest'
+function renumberChapters() {
+  document.querySelectorAll('.chapter-block').forEach((b, i) => {
+    b.querySelector('h5').textContent = `Chapter ${i + 1}`;
+    const hidden = b.querySelector('input[type="hidden"]');
+    if (hidden) hidden.name = `chapters[${i}][content]`;
+  });
+}
+
+function moveChapter(block, dir) {
+  const container = document.getElementById('chapters-container');
+  const children = Array.from(container.children);
+  const idx = children.indexOf(block);
+  const newIdx = idx + dir;
+
+  if (newIdx < 0 || newIdx >= children.length) return;
+
+  if (dir < 0) container.insertBefore(block, children[newIdx]);
+  else container.insertBefore(block, children[newIdx + 1] || null);
+
+  renumberChapters();
+}
+
+document.addEventListener('turbo:load', () => {
+
+  fitTitleText();
+
+  // Add chapter button
+  document.getElementById('add-chapter-btn').onclick = addChapter;
+
+  // Auto-add first chapter when switching to book mode
+  document.getElementById('mode-book').addEventListener('change', () => {
+    if (document.querySelectorAll('.chapter-block').length === 0) {
+      addChapter();
     }
   });
 
-  if (response.redirected) {
-    window.location.href = response.url;
-    return;
-  }
+  // Publish handler
+  document.getElementById('publish-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('publish-btn');
+    btn.disabled = true;
+    btn.textContent = currentMode === 'essay' ? 'Publishing Essay…' : 'Publishing Book…';
 
-  if (response.ok) {
-    // Rare case: 200 without redirect — maybe JSON success?
-    const text = await response.text();
-    console.log('Unexpected 200 success (no redirect):', text);
-    // Optionally parse if you return JSON later
-    alert('Published! (but no redirect – check console)');
-    return;
-  }
+    const title = document.getElementById('title-input').value.trim();
+    if (!title) {
+      alert("Title is required");
+      btn.disabled = false;
+      btn.textContent = 'Publish';
+      return;
+    }
 
-  // Handle error response (422, 500, etc.)
-  const errorText = await response.text();
-  console.error('Server error response:', response.status, errorText);
+    const authors = document.getElementById('authors-input').value.trim();
+    const isPublic = document.getElementById('ispublic').checked ? "1" : "0";
 
-  // Try to extract flash message if it's Rails HTML (very rough)
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(errorText, 'text/html');
-  const alertDiv = doc.querySelector('.alert.alert-danger, [role="alert"]');
-  const message = alertDiv?.textContent?.trim() || 'Server returned an error. Check console for details.';
+    const formData = new FormData();
+    formData.append('document[title]', title);
+    formData.append('document[authors]', authors);
+    formData.append('document[ispublic]', isPublic);
+    formData.append('authenticity_token', '<%= form_authenticity_token %>');
 
-  alert(message || "Something went wrong while publishing. Please try again.");
-  btn.disabled = false;
-  btn.textContent = "Publish";
+    if (currentMode === 'essay') {
+      const trixEditor = document.querySelector('trix-editor#essay-content');
+      const content = trixEditor?.value?.trim() || '';
 
-} catch (error) {
-  console.error('Fetch failed:', error);
-  alert("Network or publishing error. Please check your connection and try again.");
-  btn.disabled = false;
-  btn.textContent = "Publish";
-}
+      if (!content || content === '<div><br></div>' || content.trim() === '') {
+        alert("Please write some content for your essay");
+        btn.disabled = false;
+        btn.textContent = 'Publish';
+        return;
+      }
+
+      formData.append('document[content]', content);
+      formData.append('document[mode]', 'essay');
+    } else {
+      // Book mode - collect all chapters
+      const chapters = document.querySelectorAll('.chapter-block');
+      let hasValidChapter = false;
+
+      chapters.forEach((block, index) => {
+        const chapTitle = block.querySelector('.chapter-title').value.trim();
+        const trixEditor = block.querySelector('trix-editor');
+        const content = trixEditor?.value?.trim() || '';
+
+        if (chapTitle || content) {
+          formData.append(`document[chapters][${index}][title]`, chapTitle);
+          formData.append(`document[chapters][${index}][content]`, content);
+          if (content && content !== '<div><br></div>') {
+            hasValidChapter = true;
+          }
+        }
+      });
+
+      if (!hasValidChapter) {
+        alert("Add at least one chapter with content");
+        btn.disabled = false;
+        btn.textContent = 'Publish';
+        return;
+      }
+
+      formData.append('document[mode]', 'book');
+    }
+
+    try {
+      const response = await fetch('<%= documents_path %>', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (response.redirected) {
+        window.location.href = response.url;
+        return;
+      }
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.log(data.error || 'Publishing failed.');
+        return;
+      }
+
+      // If you ever return JSON success instead of redirect
+      // const data = await response.json();
+      // window.location.href = data.redirect_url || '/documents';
+
+    } catch (error) {
+      console.error('Fetch error:', error);
+      alert('Network error while publishing. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Publish';
+    }
+  });
 });
 </script>

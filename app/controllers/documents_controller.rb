@@ -21,13 +21,14 @@ class DocumentsController < ApplicationController
 
 
   def create
+    mode = params.dig(:document, :mode)
+
     title   = params.dig(:document, :title)&.strip.presence
     authors = params.dig(:document, :authors)&.strip.presence || current_user.name
-    content = params.dig(:document, :content)&.strip
     ispublic = params.dig(:document, :ispublic) == "1"
 
-    if title.blank? || content.blank?
-      flash.now[:alert] = "Title and content are required."
+    if title.blank?
+      flash.now[:alert] = "Title is required."
       render :new, status: :unprocessable_entity and return
     end
 
@@ -35,10 +36,36 @@ class DocumentsController < ApplicationController
     @epub   = nil
 
     begin
-      tmpfile = build_epub(title, authors, content) 
+      if mode == 'essay'
+        content = params.dig(:document, :content)&.strip
+        if content.blank? || content == '<div><br></div>' || content.strip.empty?
+          flash.now[:alert] = "Content is required for essays."
+          render :new, status: :unprocessable_entity and return
+        end
 
-      unless tmpfile && File.exist?(tmpfile.path) && File.size(tmpfile.path) > 0
-        raise "EPUB generation failed: no valid file produced"
+        tmpfile = build_epub(title, authors, content)
+
+      elsif mode == 'book'
+        chapters = params.dig(:document, :chapters) || {}
+        valid_chapters = chapters.values.select do |c|
+          c[:title].present? && c[:content].present? && c[:content].strip != '<div><br></div>'
+        end
+
+        if valid_chapters.empty?
+          flash.now[:alert] = "A book must have at least one chapter with title and content."
+          render :new, status: :unprocessable_entity and return
+        end
+
+        tmpfile = build_book_epub(title, authors, valid_chapters)
+
+      else
+        flash.now[:alert] = "Invalid publishing mode."
+        render :new, status: :unprocessable_entity and return
+      end
+
+      # Common validation: ensure tmpfile is valid
+      unless tmpfile && File.exist?(tmpfile.path) && File.size(tmpfile.path) > 100
+        raise "EPUB generation failed: invalid or empty file produced"
       end
 
       sha3_digest = SHA3::Digest.file(tmpfile.path).hexdigest
@@ -53,7 +80,7 @@ class DocumentsController < ApplicationController
 
       @epub.epub_file.attach(
         io:           File.open(tmpfile.path),
-        filename:     "#{title.parameterize}.epub",
+        filename:     "#{title.parameterize.presence || 'document'}.epub",
         content_type: "application/epub+zip"
       )
 
@@ -63,8 +90,8 @@ class DocumentsController < ApplicationController
       end
 
       @document = Document.new(
-        userid:     current_user.id,          
-        epubid:     @epub.id,
+        userid:   current_user.id,
+        epubid:   @epub.id,
         title:    title,
         authors:  authors,
         ispublic: ispublic
@@ -80,15 +107,19 @@ class DocumentsController < ApplicationController
 
     rescue => e
       @epub&.destroy
-      flash.now[:alert] = "Failed to generate EPUB: #{e.message}"
-      render :new, status: :unprocessable_entity
-
+      error_msg = "Failed to generate EPUB: #{e.message}"
+      
+      if request.xhr?
+        render json: { error: error_msg }, status: :unprocessable_entity
+      else
+        flash.now[:alert] = error_msg
+        render :new, status: :unprocessable_entity
+      end
     ensure
       tmpfile&.close
       tmpfile&.unlink if tmpfile
     end
   end
-
 
   def not_public
 
@@ -206,46 +237,89 @@ class DocumentsController < ApplicationController
 
   private
 
+
   def build_epub(title, authors, content_html)
+    safe_title = CGI.escapeHTML(title.to_s)
 
-    safe_title = CGI.escapeHTML(title)
+    # Convert to clean XHTML
+    content_xhtml = Nokogiri::HTML.fragment(content_html.to_s).to_xhtml
 
-    # Convert HTML → valid XHTML for EPUB
-    content_html = Nokogiri::HTML::DocumentFragment.parse(content_html).to_xhtml
+    chapter_content = <<~HTML
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE html>
+      <html xmlns="http://www.w3.org/1999/xhtml">
+      <head>
+        <title>#{safe_title}</title>
+      </head>
+      <body>
+        <h1>#{safe_title}</h1>
+        #{content_xhtml}
+      </body>
+      </html>
+    HTML
 
     book = GEPUB::Book.new
     book.identifier = "urn:uuid:#{SecureRandom.uuid}"
-    book.title      = safe_title
+    book.title      = title
     book.creator    = authors
     book.language   = "en"
 
-    chapter_content = <<~HTML
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE html>
-    <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-      <title>#{safe_title}</title>
-    </head>
-    <body>
-      <h1>#{safe_title}</h1>
-      #{content_html}
-    </body>
-    </html>
-    HTML
-
-    item = book.add_item("chapter1.xhtml")
-    item.add_content(StringIO.new(chapter_content))
+    item = book.add_ordered_item("chapter1.xhtml")
+    item.add_content(StringIO.new(chapter_content)) 
+    # item.toc_text = "Main Content"
 
     book.spine << item
 
-    tmpfile = Tempfile.new(["#{title.parameterize}", ".epub"])
+    tmpfile = Tempfile.new(["#{title.parameterize || 'essay'}", ".epub"])
     tmpfile.binmode
-
     book.generate_epub(tmpfile.path)
 
     tmpfile.rewind
     tmpfile
   end
+
+
+  def build_book_epub(title, authors, chapters_array)
+    book = GEPUB::Book.new
+    book.identifier = "urn:uuid:#{SecureRandom.uuid}"
+    book.title      = title
+    book.creator    = authors
+    book.language   = "en"
+
+    chapters_array.each_with_index do |chap, idx|
+      chap_title = CGI.escapeHTML(chap[:title].to_s.presence || "Chapter #{idx + 1}")
+      content_xhtml = Nokogiri::HTML.fragment(chap[:content].to_s).to_xhtml
+
+      chapter_html = <<~HTML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE html>
+        <html xmlns="http://www.w3.org/1999/xhtml">
+        <head>
+          <title>#{chap_title}</title>
+        </head>
+        <body>
+          <h1>#{chap_title}</h1>
+          #{content_xhtml}
+        </body>
+        </html>
+      HTML
+
+      item = book.add_ordered_item("chapter#{idx + 1}.xhtml")
+      item.add_content(StringIO.new(chapter_content))
+      # item.toc_text = chap[:title].presence || "Chapter #{idx + 1}"
+
+      book.spine << item
+
+    end
+
+    tmpfile = Tempfile.new(["#{title.parameterize || 'book'}", ".epub"])
+    tmpfile.binmode
+    book.generate_epub(tmpfile.path)
+
+    tmpfile.rewind
+    tmpfile
+  end
+  
   
 
   def document_params
