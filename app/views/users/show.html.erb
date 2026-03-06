@@ -8,7 +8,7 @@
     <button id="editbanner" class="edit-banner-btn d-none" title="Edit background image">
       <i class="fa-solid fa-camera"></i>
     </button>
-    <%= render 'changebackground', user: current_user %>
+    <input type="file" id="user_background" accept="image/*" style="display:none;">
   <% end %>
 
 <div id=avatarprofile>
@@ -17,8 +17,21 @@
 
     <% if logged_in? && current_user == @user %>
         <!-- Owner sees Edit button -->
-        <div id=editavatar class="d-none" >
-            <%= render 'changeavatar', user: current_user %>
+        <div id="editavatar" class="d-none">
+            <div class="avatar-upload">
+                <div class="avatar-edit">
+                    <input type="file" id="user_avatar" accept="image/*">
+                    <label for="user_avatar" style="color:transparent">o</label>
+                </div>
+
+                <div class="avatar-preview">
+                    <% if @user.avatar.attached? %>
+                    <div id="imagePreview" style="background-image: url(<%= polymorphic_url(@user.avatar.variant(resize_to_limit: [200,200])) %>);"></div>
+                    <% else %>
+                    <div id="imagePreview" style="background-image: url('default-avatar.svg');"></div>
+                    <% end %>
+                </div>
+            </div>
         </div>
     <% end %>
 
@@ -51,8 +64,8 @@
     <span id=nameprofile><%= @user.name %></span>
     <% if logged_in? %>
         <% if current_user == @user %>
-                <div id=editname class=d-none>
-                <%= render 'changename', user: current_user %>
+            <div id=editname class=d-none>
+                <input type="text" id="nameinput" value="<%= @user.name %>" placeholder="Name" spellcheck="false">
             </div>
         <% end %>
     <% end %>
@@ -70,7 +83,7 @@
     <% if logged_in? %>
         <% if current_user == @user %>
             <div id=editbio class=d-none>
-                <%= render 'changebio', user: current_user %>
+                <textarea id="bioinput" placeholder="Add your bio ..." spellcheck="false"><%= @user.bio %></textarea>
             </div>
         <% end %>
     <% end %>
@@ -82,8 +95,8 @@
 
     <% if logged_in? %>
         <% if current_user == @user %>
-                <div id=editlocation class=d-none>
-                <%= render 'changelocation', user: current_user %>
+            <div id=editlocation class=d-none>
+                <input type="text" id="locationinput" value="<%= @user.location %>" placeholder="Hometown" spellcheck="false">
             </div>
         <% end %>
     <% end %>
@@ -177,6 +190,7 @@
 <% end %>
 
 </div>
+
 <script>
     $('#myreplies-tab').on('click', function(){
     <% if logged_in? %>
@@ -188,7 +202,10 @@
     });
 </script>
 
-<% if logged_in? %><!-- zoom on profile avatar --><div class="modal" id="avatarmodal" tabindex="-1" role="dialog" aria-labelledby="avatarLabel" aria-hidden="true">
+<% if logged_in? %>
+
+<!-- zoom on profile avatar -->
+<div class="modal" id="avatarmodal" tabindex="-1" role="dialog" aria-labelledby="avatarLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <img src="" class='centered' id="avatarpreview">
     </div>
@@ -238,241 +255,293 @@
 
     <% if current_user == @user %>
 
-    var cropper = null;
-    var applied = false;
-
-    $('#editbanner').on('click', function(){
-        $('#user_background').click();
-    });
-
-    $('#user_background').on('change', function(e){
-        applied = false;
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-
-            const imgHtml = '<img id="cropper-image" src="' + event.target.result + '" style="max-width:100%; display:block; margin:0 auto;">';
-            $('#image-preview').html(imgHtml);
-
-            $('#backgroundmodal').modal('show');
-        };
-        reader.readAsDataURL(file);
-    });
-
-    // Wait for modal shown + image loaded
-    $('#backgroundmodal').on('shown.bs.modal', function () {
-
-        const img = document.getElementById('cropper-image');
-        if (!img) {
-            console.error("[ERROR] No cropper-image element");
-            return;
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#imagePreview')
+                        .css('background-image', 'url(' + e.target.result + ')')
+                        .hide()
+                        .fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         }
 
-        // If already loaded → init immediately
-        if (img.complete && img.naturalWidth > 0) {
-            initializeCropper(img);
-        } else {
-            // Wait for load event
-            img.onload = function() {
+        $("#user_avatar").on("change", function() {
+            readURL(this);
+        });
+
+
+        var cropper = null;
+        var applied = false;
+
+        $('#editbanner').on('click', function(){
+            $('#user_background').click();
+        });
+
+        $('#user_background').on('change', function(e){
+            applied = false;
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+
+                const imgHtml = '<img id="cropper-image" src="' + event.target.result + '" style="max-width:100%; display:block; margin:0 auto;">';
+                $('#image-preview').html(imgHtml);
+
+                $('#backgroundmodal').modal('show');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Wait for modal shown + image loaded
+        $('#backgroundmodal').on('shown.bs.modal', function () {
+
+            const img = document.getElementById('cropper-image');
+            if (!img) {
+                console.error("[ERROR] No cropper-image element");
+                return;
+            }
+
+            // If already loaded → init immediately
+            if (img.complete && img.naturalWidth > 0) {
                 initializeCropper(img);
-            };
-            img.onerror = function() {
-                console.error("[ERROR] Image failed to load");
-                $('#image-preview').append('<p style="color:red">Failed to load image. Try another file.</p>');
-            };
-        }
-    });
-
-    function initializeCropper(imgElement) {
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-
-        const bannerContainer = document.getElementById('bannerprofile');
-        var aspect = 3;
-
-        if (bannerContainer) {
-            const w = bannerContainer.offsetWidth;
-            const h = bannerContainer.offsetHeight;
-            if (w > 0 && h > 0) {
-                aspect = w / h;
-            }
-        }
-
-        try {
-            cropper = new Cropper(imgElement, {
-                aspectRatio: aspect,
-                viewMode: 1,
-                autoCropArea: 0.95,
-                responsive: true,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                background: false,
-                modal: true,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                dragMode: 'move',
-                zoomable: true,
-                zoomOnWheel: true,
-                zoomOnTouch: true,
-                movable: true,
-                scalable: true,
-                ready: function () {
-                    cropper.zoomTo(0);
-                    cropper.zoomTo(0.01);
-                }
-            });
-
-            // Zoom slider
-            $('#zoom-range').off('input').on('input', function() {
-                if (cropper) {
-                    const val = parseFloat(this.value);
-                    cropper.zoomTo(val - 1);
-                }
-            });
-
-        } catch (err) {
-            console.error("[ERROR] Cropper init failed:", err);
-            $('#image-preview').append('<p style="color:red">Cropper failed: ' + (err.message || 'unknown error') + '</p>');
-        }
-    }
-
-    $('#apply-crop').on('click', function() {
-        if (!cropper) {
-            return;
-        }
-
-        applied = true;
-
-        cropper.getCroppedCanvas({
-            width: 1500,
-            height: 500,
-            fillColor: '#fff',
-            imageSmoothingQuality: 'high'
-        }).toBlob(function(blob) {
-            if (!blob) return;
-
-            const file = new File([blob], "banner-cropped.jpg", { type: 'image/jpeg' });
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            document.getElementById('user_background').files = dt.files;
-
-            // live preview
-            const previewUrl = URL.createObjectURL(blob);
-            const bannerImg = document.getElementById('banner');
-            if (bannerImg) {
-                bannerImg.src = previewUrl;
-                bannerImg.style.objectFit = 'cover';
-            }
-
-            $('#backgroundmodal').modal('hide');
-        }, 'image/jpeg', 0.92);
-    });
-
-    $('#backgroundmodal').on('hidden.bs.modal', function () {
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-        if (!applied) {
-            $('#user_background').val('');
-        }
-        applied = false;
-        $('#image-preview').empty();
-        $('#zoom-range').val(1);
-    });
-
-    // Edit profile toggle
-    $('#editbutton').on('click', function(){        
-        var txt = $(this).text();
-
-        if (txt === 'Edit profile') {
-            // Show edit fields
-            $('#handler-badges').addClass('d-none');
-            $('#avatar').addClass('d-none');
-            $('#editavatar').removeClass('d-none');
-            $('#editbanner').removeClass('d-none'); 
-            $('#biography').addClass('d-none');
-            $('#editbio').removeClass('d-none');
-            $('#nameprofile').addClass('d-none');
-            $('#editname').removeClass('d-none');
-            $('#location').addClass('d-none');
-            $('#editlocation').removeClass('d-none');
-            $('#editbanner').removeClass('d-none');
-            $(this).text('Save');
-        } else {
-            // collect all changes and send ONE request
-            var formData = {};
-
-            var bioVal = $('#bioinput').val();
-            if (bioVal !== '<%= @user.bio %>') {
-            formData.bio = bioVal;
-            }
-
-            var nameVal = $('#nameinput').val();
-            if (nameVal !== '<%= @user.name %>') {
-            formData.name = nameVal;
-            }
-
-            var locVal = $('#locationinput').val();
-            if (locVal !== '<%= @user.location %>') {
-            formData.location = locVal;
-            }
-
-            // Avatar / background (if files selected)
-            var avatarFile = $('#user_avatar')[0].files[0];
-            var backgroundFile = $('#user_background')[0].files[0];
-
-            if (avatarFile || backgroundFile || Object.keys(formData).length > 0) {
-            var fd = new FormData();
-
-            // Add text fields
-            Object.keys(formData).forEach(key => {
-                fd.append('user[' + key + ']', formData[key]);
-            });
-
-            // Add files if present
-            if (avatarFile) fd.append('user[avatar]', avatarFile);
-            if (backgroundFile) fd.append('user[background]', backgroundFile);
-
-            // Send ONE PATCH request
-            $.ajax({
-                url: '/users/<%= @user.id %>',
-                type: 'PATCH',
-                data: fd,
-                processData: false,
-                contentType: false,
-                success: function() {
-                    ocation.reload(); // or update UI live
-                },
-                error: function(xhr) {
-                    console.log("Save failed: " + xhr.responseText);
-                }
-            });
             } else {
-                // No changes → just revert UI
-                $(this).text('Edit profile');
-                $('#handler-badges').removeClass('d-none');
-                $('#avatar').removeClass('d-none');
-                $('#editavatar').addClass('d-none');
-                $('#editbanner').addClass('d-none'); 
-                $('#biography').removeClass('d-none');
-                $('#editbio').addClass('d-none');
-                $('#nameprofile').removeClass('d-none');
-                $('#editname').addClass('d-none');
-                $('#location').removeClass('d-none');
-                $('#editlocation').addClass('d-none');
-                $('#editbanner').addClass('d-none');
+                // Wait for load event
+                img.onload = function() {
+                    initializeCropper(img);
+                };
+                img.onerror = function() {
+                    console.error("[ERROR] Image failed to load");
+                    $('#image-preview').append('<p style="color:red">Failed to load image. Try another file.</p>');
+                };
+            }
+        });
+
+        function initializeCropper(imgElement) {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
             }
 
-            $(this).text('Edit profile');
+            const bannerContainer = document.getElementById('bannerprofile');
+            var aspect = 3;
+
+            if (bannerContainer) {
+                const w = bannerContainer.offsetWidth;
+                const h = bannerContainer.offsetHeight;
+                if (w > 0 && h > 0) {
+                    aspect = w / h;
+                }
+            }
+
+            try {
+                cropper = new Cropper(imgElement, {
+                    aspectRatio: aspect,
+                    viewMode: 1,
+                    autoCropArea: 0.95,
+                    responsive: true,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    background: false,
+                    modal: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    dragMode: 'move',
+                    zoomable: true,
+                    zoomOnWheel: true,
+                    zoomOnTouch: true,
+                    movable: true,
+                    scalable: true,
+                    ready: function () {
+                        cropper.zoomTo(0);
+                        cropper.zoomTo(0.01);
+                    }
+                });
+
+                // Zoom slider
+                $('#zoom-range').off('input').on('input', function() {
+                    if (cropper) {
+                        const val = parseFloat(this.value);
+                        cropper.zoomTo(val - 1);
+                    }
+                });
+
+            } catch (err) {
+                console.error("[ERROR] Cropper init failed:", err);
+                $('#image-preview').append('<p style="color:red">Cropper failed: ' + (err.message || 'unknown error') + '</p>');
+            }
         }
-    });
+
+        $('#apply-crop').on('click', function() {
+            if (!cropper) {
+                return;
+            }
+
+            applied = true;
+
+            cropper.getCroppedCanvas({
+                width: 1500,
+                height: 500,
+                fillColor: '#fff',
+                imageSmoothingQuality: 'high'
+            }).toBlob(function(blob) {
+                if (!blob) return;
+
+                const file = new File([blob], "banner-cropped.jpg", { type: 'image/jpeg' });
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                document.getElementById('user_background').files = dt.files;
+
+                // live preview
+                const previewUrl = URL.createObjectURL(blob);
+                const bannerImg = document.getElementById('banner');
+                if (bannerImg) {
+                    bannerImg.src = previewUrl;
+                    bannerImg.style.objectFit = 'cover';
+                }
+
+                $('#backgroundmodal').modal('hide');
+            }, 'image/jpeg', 0.92);
+        });
+
+        $('#backgroundmodal').on('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            if (!applied) {
+                $('#user_background').val('');
+            }
+            applied = false;
+            $('#image-preview').empty();
+            $('#zoom-range').val(1);
+        });
+
+        // Edit profile toggle
+        $('#editbutton').on('click', function() {
+            const btn = $(this);
+            const isEditMode = btn.text().trim() === 'Edit profile';
+
+            if (isEditMode) {
+                $('#handler-badges').addClass('d-none');
+                $('#avatar').addClass('d-none');
+                $('#editavatar').removeClass('d-none');
+                $('#editbanner').removeClass('d-none');
+                $('#biography').addClass('d-none');
+                $('#editbio').removeClass('d-none');
+                $('#nameprofile').addClass('d-none');
+                $('#editname').removeClass('d-none');
+                $('#location').addClass('d-none');
+                $('#editlocation').removeClass('d-none');
+
+                btn.text('Save');
+            } else {
+                const formData = new FormData();
+
+                const bio      = $('#bioinput').val()?.trim();
+                const name     = $('#nameinput').val()?.trim();
+                const location = $('#locationinput').val()?.trim();
+
+                if (bio      && bio      !== '<%= @user.bio      || "" %>') formData.append('user[bio]',      bio);
+                if (name     && name     !== '<%= @user.name     || "" %>') formData.append('user[name]',     name);
+                if (location && location !== '<%= @user.location || "" %>') formData.append('user[location]', location);
+
+                const avatarFile     = $('#user_avatar')[0].files[0];
+                const backgroundFile = $('#user_background')[0].files[0];
+
+                if (avatarFile)     formData.append('user[avatar]',     avatarFile);
+                if (backgroundFile) formData.append('user[background]', backgroundFile);
+
+                if (formData.entries().next().done) {
+                    revertEditModeUI(btn);
+                    return;
+                }
+
+                $.ajax({
+                    url:  '/users/<%= @user.id %>',
+                    type: 'PATCH',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-Token': '<%= form_authenticity_token %>'
+                    },
+                    success: function() {
+
+                        const newName = $('#nameinput').val()?.trim();
+                        if (newName) {
+                            $('#nameprofile').text(newName);
+                        }
+
+                        const newBio = $('#bioinput').val()?.trim();
+                        if (newBio !== undefined) {
+                            $('#biography').text(newBio); 
+                        }
+
+                        const newLocation = $('#locationinput').val()?.trim();
+                        if (newLocation !== undefined) {
+                            if (newLocation) {
+                                $('#location').text(`Lives in ${newLocation}`);
+                            } else {
+                                $('#location').empty(); 
+                            }
+                        }
+
+                        const avatarInput = $('#user_avatar')[0];
+                        if (avatarInput && avatarInput.files && avatarInput.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                // Update main avatar image
+                                $('#avatar').attr('src', e.target.result);
+                                
+                                // Also update the edit-mode preview (optional but nice)
+                                $('#imagePreview').css('background-image', `url(${e.target.result})`);
+                            };
+                            reader.readAsDataURL(avatarInput.files[0]);
+                        }
+
+                        const bgInput = $('#user_background')[0];
+                        if (bgInput && bgInput.files && bgInput.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                $('#banner').attr('src', e.target.result);
+                            };
+                            reader.readAsDataURL(bgInput.files[0]);
+                        }
+
+                        revertEditModeUI(btn); 
+
+                        btn.text('Saved');
+                        setTimeout(() => { btn.text('Edit profile');}, 1500);
+                    },
+                    error: function(xhr) {
+                        console.error("Profile update failed", xhr.responseText);
+                        alert("Could not save changes. Please try again.");
+                    }
+                });
+
+                revertEditModeUI(btn);
+            }
+        });
+
+        function revertEditModeUI(btn) {
+            btn.text('Edit profile');
+            $('#handler-badges').removeClass('d-none');
+            $('#avatar').removeClass('d-none');
+            $('#editavatar').addClass('d-none');
+            $('#editbanner').addClass('d-none');
+            $('#biography').removeClass('d-none');
+            $('#editbio').addClass('d-none');
+            $('#nameprofile').removeClass('d-none');
+            $('#editname').addClass('d-none');
+            $('#location').removeClass('d-none');
+            $('#editlocation').addClass('d-none');
+        }
 
     <% end %>
 

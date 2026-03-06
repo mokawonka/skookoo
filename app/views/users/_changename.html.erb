@@ -1,9 +1,0 @@
-
-<%= form_with model: user, url: user_path(user), method: :patch, local: true, data: { turbo: false }  do |form| %>
-    <div class="field">
-        <%= form.text_field :name, placeholder: "Name", spellcheck: false, id: 'nameinput' %>
-    </div>
-    <div class="actions">
-        <%= form.submit "save", class: 'd-none', id: 'changename' %>
-    </div>
-<% end %>
