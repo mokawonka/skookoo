@@ -43,7 +43,7 @@ class DocumentsController < ApplicationController
           render :new, status: :unprocessable_entity and return
         end
 
-        tmpfile = build_epub(title, authors, content)
+        tmpfile = build_essay_epub(title, authors, content)
 
       elsif mode == 'book'
         chapters = params.dig(:document, :chapters) || {}
@@ -238,7 +238,7 @@ class DocumentsController < ApplicationController
   private
 
 
-  def build_epub(title, authors, content_html)
+  def build_essay_epub(title, authors, content_html)
     safe_title = CGI.escapeHTML(title.to_s)
 
     content_xhtml = Nokogiri::HTML.fragment(content_html.to_s).to_xhtml
@@ -373,7 +373,7 @@ class DocumentsController < ApplicationController
     tmpfile
   end
 
-  
+
 
   def build_book_epub(title, authors, chapters_array)
     book = GEPUB::Book.new

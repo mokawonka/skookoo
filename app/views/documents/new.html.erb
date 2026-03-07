@@ -399,9 +399,106 @@ function moveChapter(block, dir) {
   renumberChapters();
 }
 
+
+var DRAFT_KEY = "write_draft_v1";
+var draftSaveTimeout = null;
+
+function scheduleDraftSave() {
+  clearTimeout(draftSaveTimeout);
+  draftSaveTimeout = setTimeout(saveDraft, 3000);
+}
+
+function saveDraft() {
+
+  const draft = {
+    mode: currentMode,
+    title: document.getElementById('title-input')?.value || "",
+    authors: document.getElementById('authors-input')?.value || "",
+    isPublic: document.getElementById('ispublic')?.checked || false,
+    essayContent: "",
+    chapters: []
+  };
+
+  // Essay content
+  const trixEditor = document.getElementById('essay-content');
+  if (trixEditor) {
+    const hidden = document.getElementById(trixEditor.getAttribute('input'));
+    draft.essayContent = hidden?.value || "";
+  }
+
+  // Chapters
+  document.querySelectorAll('.chapter-block').forEach(block => {
+    const title = block.querySelector('.chapter-title')?.value || "";
+    const hidden = block.querySelector('input[type="hidden"]');
+
+    draft.chapters.push({
+      title: title,
+      content: hidden?.value || ""
+    });
+  });
+
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+}
+
+function loadDraft() {
+
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return;
+
+  const draft = JSON.parse(raw);
+
+  if (draft.title) document.getElementById('title-input').value = draft.title;
+  if (draft.authors) document.getElementById('authors-input').value = draft.authors;
+  document.getElementById('ispublic').checked = draft.isPublic;
+
+  // Restore mode
+  if (draft.mode === "book") {
+    document.getElementById("mode-book").checked = true;
+    document.getElementById("book-mode").classList.remove("d-none");
+    document.getElementById("essay-mode").classList.add("d-none");
+    currentMode = "book";
+  }
+
+  // Essay content
+  if (draft.essayContent) {
+    const trixEditor = document.getElementById('essay-content');
+    const hidden = document.getElementById(trixEditor.getAttribute('input'));
+    hidden.value = draft.essayContent;
+    trixEditor.editor.loadHTML(draft.essayContent);
+  }
+
+  // Chapters
+  if (draft.chapters && draft.chapters.length) {
+
+    draft.chapters.forEach(chap => {
+
+      addChapter();
+
+      const block = document.querySelector('#chapters-container').lastElementChild;
+
+      block.querySelector('.chapter-title').value = chap.title;
+
+      const hidden = block.querySelector('input[type="hidden"]');
+      const trix = block.querySelector('trix-editor');
+
+      hidden.value = chap.content;
+      trix.editor.loadHTML(chap.content);
+    });
+
+  }
+}
+
 document.addEventListener('turbo:load', () => {
 
   fitTitleText();
+
+  loadDraft();
+
+  // save after typing
+  document.addEventListener("trix-change", scheduleDraftSave);
+  document.getElementById('title-input').addEventListener("input", scheduleDraftSave);
+  document.getElementById('authors-input').addEventListener("input", scheduleDraftSave);
+  document.getElementById('ispublic').addEventListener("change", scheduleDraftSave);
 
   // Add chapter button
   document.getElementById('add-chapter-btn').onclick = addChapter;
@@ -523,6 +620,8 @@ document.addEventListener('turbo:load', () => {
       btn.disabled = false;
       btn.textContent = 'Publish';
     }
+
+    localStorage.removeItem(DRAFT_KEY);
   });
 });
 </script>
