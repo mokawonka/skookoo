@@ -292,19 +292,14 @@
 
 
 <script>
-
 function fitTitleText() {
   const input = document.getElementById('title-input');
-  const maxSize = 2.4; // rem
-  const minSize = 0.9; // rem
+  const maxSize = 2.4;
+  const minSize = 0.9;
   const basePx = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-  // Reset to max size first
   input.style.fontSize = maxSize + 'rem';
-
-  // Shrink until it fits
-  while (input.scrollWidth > input.clientWidth && 
-         parseFloat(input.style.fontSize) > minSize) {
+  while (input.scrollWidth > input.clientWidth && parseFloat(input.style.fontSize) > minSize) {
     const current = parseFloat(input.style.fontSize);
     input.style.fontSize = (current - 0.05) + 'rem';
   }
@@ -319,16 +314,98 @@ var currentMode = 'essay';
 document.querySelectorAll('input[name="write-mode"]').forEach(radio => {
   radio.addEventListener('change', e => {
     currentMode = e.target.value;
-    const mode = e.target.value;
-    document.getElementById('essay-mode').classList.toggle('d-none', mode !== 'essay');
-    document.getElementById('book-mode').classList.toggle('d-none', mode !== 'book');
+    document.getElementById('essay-mode').classList.toggle('d-none', currentMode !== 'essay');
+    document.getElementById('book-mode').classList.toggle('d-none', currentMode !== 'book');
     document.getElementById('title-input').focus();
   });
 });
 
-// Chapter logic (with fixed numbering)
-var chapterIndex = 0;
+// Draft management
+var DRAFT_KEY = "write_draft_v1";
+var draftSaveTimeout = null;
 
+function scheduleDraftSave() {
+  clearTimeout(draftSaveTimeout);
+  draftSaveTimeout = setTimeout(saveDraft, 2000); // save every 2s after typing
+}
+
+function saveDraft() {
+  const draft = {
+    mode: currentMode,
+    title: document.getElementById('title-input')?.value || "",
+    authors: document.getElementById('authors-input')?.value || "",
+    isPublic: document.getElementById('ispublic')?.checked || false,
+    essayContent: "",
+    chapters: []
+  };
+
+  // Essay content
+  const essayTrix = document.querySelector('#essay-content');
+  if (essayTrix) {
+    draft.essayContent = essayTrix.innerHTML || '';
+  }
+
+  // Chapters content (each independent Trix)
+  document.querySelectorAll('.chapter-block').forEach(block => {
+    const title = block.querySelector('.chapter-title')?.value || "";
+    const trixEditor = block.querySelector('.trix-content');
+    const content = trixEditor ? trixEditor.innerHTML : '';
+
+    draft.chapters.push({ title, content });
+  });
+
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+}
+
+function loadDraft() {
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return;
+
+  const draft = JSON.parse(raw);
+
+  // Restore shared fields
+  if (draft.title) document.getElementById('title-input').value = draft.title;
+  if (draft.authors) document.getElementById('authors-input').value = draft.authors;
+  if (document.getElementById('ispublic')) document.getElementById('ispublic').checked = draft.isPublic;
+
+  // Restore mode
+  if (draft.mode === 'book') {
+    document.getElementById('mode-book').checked = true;
+    document.getElementById('book-mode').classList.remove('d-none');
+    document.getElementById('essay-mode').classList.add('d-none');
+    currentMode = 'book';
+  }
+
+  // Restore essay
+  if (draft.essayContent) {
+    const essayTrix = document.querySelector('#essay-content');
+    if (essayTrix && essayTrix.editor) {
+      essayTrix.editor.loadHTML(draft.essayContent);
+    }
+  }
+
+  // Restore chapters (add them and load content)
+  if (draft.chapters && draft.chapters.length > 0) {
+    draft.chapters.forEach(chap => {
+      addChapter(); // add empty chapter
+
+      const block = document.querySelector('#chapters-container').lastElementChild;
+      if (block) {
+        block.querySelector('.chapter-title').value = chap.title || '';
+
+        const trixEditor = block.querySelector('.trix-content');
+        if (trixEditor && trixEditor.editor) {
+          trixEditor.editor.loadHTML(chap.content || '');
+        }
+      }
+    });
+  }
+
+  // Trigger save after load to keep in sync
+  scheduleDraftSave();
+}
+
+// Chapter logic
 function addChapter() {
   const container = document.getElementById('chapters-container');
   const chapterIndex = container.children.length;
@@ -367,21 +444,25 @@ function addChapter() {
   block.querySelector('.remove-chapter').onclick = () => {
     block.remove();
     renumberChapters();
+    scheduleDraftSave();
   };
 
-  block.querySelector('.move-up').onclick = () => moveChapter(block, -1);
-  block.querySelector('.move-down').onclick = () => moveChapter(block, 1);
+  block.querySelector('.move-up').onclick = () => {
+    moveChapter(block, -1);
+    scheduleDraftSave(); 
+  };
+
+  block.querySelector('.move-down').onclick = () => {
+    moveChapter(block, 1);
+    scheduleDraftSave();
+  };
+
 }
+
 
 function renumberChapters() {
   document.querySelectorAll('.chapter-block').forEach((block, i) => {
     block.querySelector('h5').textContent = `Chapter ${i + 1}`;
-
-    // Rename hidden input
-    const hiddenInput = block.querySelector('input[type="hidden"]');
-    if (hiddenInput) {
-      hiddenInput.name = `chapters[${i}][content]`;
-    }
   });
 }
 
@@ -393,117 +474,29 @@ function moveChapter(block, dir) {
 
   if (newIdx < 0 || newIdx >= children.length) return;
 
-  if (dir < 0) container.insertBefore(block, children[newIdx]);
-  else container.insertBefore(block, children[newIdx + 1] || null);
+  if (dir < 0) {
+    container.insertBefore(block, children[newIdx]);
+  } else {
+    container.insertBefore(block, children[newIdx + 1] || null);
+  }
 
   renumberChapters();
+  scheduleDraftSave();
 }
 
-
-var DRAFT_KEY = "write_draft_v1";
-var draftSaveTimeout = null;
-
-function scheduleDraftSave() {
-  clearTimeout(draftSaveTimeout);
-  draftSaveTimeout = setTimeout(saveDraft, 3000);
-}
-
-function saveDraft() {
-
-  const draft = {
-    mode: currentMode,
-    title: document.getElementById('title-input')?.value || "",
-    authors: document.getElementById('authors-input')?.value || "",
-    isPublic: document.getElementById('ispublic')?.checked || false,
-    essayContent: "",
-    chapters: []
-  };
-
-  // Essay content
-  const trixEditor = document.getElementById('essay-content');
-  if (trixEditor) {
-    const hidden = document.getElementById(trixEditor.getAttribute('input'));
-    draft.essayContent = hidden?.value || "";
-  }
-
-  // Chapters
-  document.querySelectorAll('.chapter-block').forEach(block => {
-    const title = block.querySelector('.chapter-title')?.value || "";
-    const hidden = block.querySelector('input[type="hidden"]');
-
-    draft.chapters.push({
-      title: title,
-      content: hidden?.value || ""
-    });
-  });
-
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-}
-
-function loadDraft() {
-
-  const raw = localStorage.getItem(DRAFT_KEY);
-  if (!raw) return;
-
-  const draft = JSON.parse(raw);
-
-  if (draft.title) document.getElementById('title-input').value = draft.title;
-  if (draft.authors) document.getElementById('authors-input').value = draft.authors;
-  document.getElementById('ispublic').checked = draft.isPublic;
-
-  // Restore mode
-  if (draft.mode === "book") {
-    document.getElementById("mode-book").checked = true;
-    document.getElementById("book-mode").classList.remove("d-none");
-    document.getElementById("essay-mode").classList.add("d-none");
-    currentMode = "book";
-  }
-
-  // Essay content
-  if (draft.essayContent) {
-    const trixEditor = document.getElementById('essay-content');
-    const hidden = document.getElementById(trixEditor.getAttribute('input'));
-    hidden.value = draft.essayContent;
-    trixEditor.editor.loadHTML(draft.essayContent);
-  }
-
-  // Chapters
-  if (draft.chapters && draft.chapters.length) {
-
-    draft.chapters.forEach(chap => {
-
-      addChapter();
-
-      const block = document.querySelector('#chapters-container').lastElementChild;
-
-      block.querySelector('.chapter-title').value = chap.title;
-
-      const hidden = block.querySelector('input[type="hidden"]');
-      const trix = block.querySelector('trix-editor');
-
-      hidden.value = chap.content;
-      trix.editor.loadHTML(chap.content);
-    });
-
-  }
-}
-
+// Init
 document.addEventListener('turbo:load', () => {
-
   fitTitleText();
-
   loadDraft();
 
-  // save after typing
-  document.addEventListener("trix-change", scheduleDraftSave);
-  document.getElementById('title-input').addEventListener("input", scheduleDraftSave);
-  document.getElementById('authors-input').addEventListener("input", scheduleDraftSave);
-  document.getElementById('ispublic').addEventListener("change", scheduleDraftSave);
+  // Global save triggers
+  document.addEventListener('trix-change', scheduleDraftSave);
+  document.getElementById('title-input').addEventListener('input', scheduleDraftSave);
+  document.getElementById('authors-input').addEventListener('input', scheduleDraftSave);
+  document.getElementById('ispublic').addEventListener('change', scheduleDraftSave);
 
-  // Add chapter button
   document.getElementById('add-chapter-btn').onclick = addChapter;
 
-  // Auto-add first chapter when switching to book mode
   document.getElementById('mode-book').addEventListener('change', () => {
     if (document.querySelectorAll('.chapter-block').length === 0) {
       addChapter();
@@ -597,6 +590,7 @@ document.addEventListener('turbo:load', () => {
 
       if (response.redirected) {
         window.location.href = response.url;
+        localStorage.removeItem(DRAFT_KEY);
         return;
       }
 
@@ -621,7 +615,6 @@ document.addEventListener('turbo:load', () => {
       btn.textContent = 'Publish';
     }
 
-    localStorage.removeItem(DRAFT_KEY);
   });
 });
 </script>
