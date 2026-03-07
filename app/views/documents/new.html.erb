@@ -39,7 +39,7 @@
     </button>
   </div>
 
-  <!-- Footer -->
+
   <div class="footer d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 mt-5 pt-4 border-top">
     <label class="toggle-container d-flex align-items-center gap-3 cursor-pointer user-select-none">
       <span class="fw-medium fs-5">Make public</span>
@@ -49,10 +49,17 @@
       </div>
     </label>
 
-    <button id="publish-btn" class="publish-btn btn btn-lg px-5 py-3">
-      Publish
-    </button>
+    <div class="d-flex gap-3">
+      <button id="save-draft-btn" type="button" class="btn btn-outline-secondary px-4">
+        Save Draft
+      </button>
+      <button id="publish-btn" class="publish-btn btn btn-lg px-5 py-3">
+        Publish
+      </button>
+    </div>
   </div>
+
+</div>
 
 </div>
 
@@ -292,6 +299,33 @@
 
 
 <script>
+
+const saveDraftBtn = document.getElementById('save-draft-btn');
+
+function updateSaveButtonState(isSaving = false, justSaved = false) {
+  if (isSaving) {
+    saveDraftBtn.textContent = 'Saving…';
+    saveDraftBtn.disabled = true;
+  } else if (justSaved) {
+    saveDraftBtn.textContent = 'Saved';
+    saveDraftBtn.disabled = true;
+    setTimeout(() => {
+      saveDraftBtn.textContent = 'Save Draft';
+      saveDraftBtn.disabled = false;
+    }, 2000);
+  } else {
+    saveDraftBtn.textContent = 'Save Draft';
+    saveDraftBtn.disabled = false;
+  }
+}
+
+saveDraftBtn.onclick = () => {
+  updateSaveButtonState(true);
+  saveDraft();
+  updateSaveButtonState(false, true);
+};
+
+
 function fitTitleText() {
   const input = document.getElementById('title-input');
   const maxSize = 2.4;
