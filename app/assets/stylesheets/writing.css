@@ -1,5 +1,5 @@
  /* ── Segmented Toggle – no circles/dots ── */
-  .segmented-toggle {
+  #write-page .segmented-toggle {
     position: relative;
     display: inline-flex;
     background: #f8f9fa;
@@ -7,7 +7,7 @@
     padding: 4px;
   }
 
-  .segment-label {
+  #write-page .segment-label {
     position: relative;
     z-index: 2;
     padding: 12px 48px;
@@ -29,7 +29,7 @@
     font-weight: 600;
   }
 
-  .segment-slider {
+  #write-page  .segment-slider {
     position: absolute;
     top: 4px; bottom: 4px; left: 4px;
     width: calc(50% - 8px);
@@ -44,9 +44,9 @@
   }
 
   
-.title-input,
-.authors-input,
-.chapter-title {
+#write-page  .title-input,
+#write-page .authors-input,
+#write-page .chapter-title {
   width: 100%;
   border: none;
   border-bottom: 1px solid #e0e0e0;     /* thinner line by default */
@@ -58,14 +58,14 @@
 }
 
 /* Title – prominent */
-.title-input {
+#write-page .title-input {
   font-size: 2.4rem;
   font-weight: 700;
   color: #111;
 }
 
 /* Author – more discrete */
-.authors-input {
+#write-page  .authors-input {
   font-size: 1.25rem;                    /* smaller than title */
   font-weight: 400;
   color: #666;                           /* lighter color */
@@ -76,16 +76,16 @@
 }
 
 /* Chapter titles – medium prominence */
-.chapter-title {
+#write-page  .chapter-title {
   font-size: 1.5rem;
   font-weight: 600;
   color: #222;
 }
 
 /* Focus states – straight blue line, sharp ends */
-.title-input:focus,
-.authors-input:focus,
-.chapter-title:focus {
+#write-page .title-input:focus,
+#write-page .authors-input:focus,
+#write-page .chapter-title:focus {
   border-bottom: 3px solid #0951a9;
   border-radius: 0 !important;
   box-shadow: none;
@@ -93,7 +93,7 @@
 }
 
 /* Author gets a subtle opacity boost on focus */
-.authors-input:focus {
+#write-page  .authors-input:focus {
   opacity: 1;
   color: #222;
 }
@@ -105,9 +105,9 @@
 }
 
 /* Optional: remove pseudo-element if it was causing visual artifacts */
-.title-input:focus::after,
-.authors-input:focus::after,
-.chapter-title:focus::after {
+#write-page  .title-input:focus::after,
+#write-page .authors-input:focus::after,
+#write-page .chapter-title:focus::after {
   display: none;   /* ← disable if you added it earlier */
 }
 
@@ -149,11 +149,11 @@
   background-color: #0951a9;
 }
 
-#write-page  input:checked + .toggle-knob::before {
+#write-page input:checked + .toggle-knob::before {
   transform: translateX(32px);
 }
 
-.add-chapter-btn {
+#write-page  .add-chapter-btn {
   background: transparent;
   border: 2px dashed #0951a9;
   color: #0951a9;
@@ -163,7 +163,7 @@
   transition: all 0.3s;
 }
 
-.add-chapter-btn:hover {
+#write-page  .add-chapter-btn:hover {
   background: #0951a9;
   color: white;
   border-color: transparent;
@@ -184,7 +184,7 @@
   transform: translateY(-2px);
 }
 
-.chapter-block {
+#write-page .chapter-block {
   background: white;
   border-radius: 12px;
   padding: 28px;
@@ -193,7 +193,7 @@
   transition: box-shadow 0.25s;
 }
 
-.chapter-block:hover {
+#write-page .chapter-block:hover {
   box-shadow: 0 8px 28px rgba(0,0,0,0.09);
 }
 
@@ -203,7 +203,7 @@
   line-height: 1.85;
 }
 
-.editor-wrapper {
+#write-page .editor-wrapper {
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
