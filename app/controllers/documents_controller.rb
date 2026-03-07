@@ -241,8 +241,76 @@ class DocumentsController < ApplicationController
   def build_epub(title, authors, content_html)
     safe_title = CGI.escapeHTML(title.to_s)
 
-    # Convert to clean XHTML
     content_xhtml = Nokogiri::HTML.fragment(content_html.to_s).to_xhtml
+
+    css = <<~CSS
+      body {
+        font-family: serif;
+        line-height: 1.7;
+        margin: 5%;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2.2em;
+        margin-top: 2em;
+        margin-bottom: 2em;
+        font-weight: bold;
+      }
+
+      p {
+        margin: 1em 0;
+        text-indent: 1.5em;
+      }
+
+      h2, h3 {
+        margin-top: 2em;
+        margin-bottom: 1em;
+      }
+
+      pre {
+        background: #f4f4f4;
+        padding: 1em;
+        margin: 1.5em 0;
+        overflow-x: auto;
+        white-space: pre-wrap;    
+        word-wrap: break-word;    
+        font-family: monospace;
+        font-size: 0.95em;
+        border-radius: 4px;
+      }
+
+      code {
+        font-family: monospace;
+        background: #f4f4f4;
+        padding: 0.15em 0.3em;
+        border-radius: 3px;
+        word-break: break-word;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+      
+      figure {
+        text-align: center;
+        margin: 2em auto;
+      } 
+
+      figure img,
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+      }
+
+      .attachment__caption,
+      figcaption {
+        display: none;
+      }
+    CSS
 
     chapter_content = <<~HTML
       <?xml version="1.0" encoding="UTF-8"?>
@@ -250,6 +318,7 @@ class DocumentsController < ApplicationController
       <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
         <title>#{safe_title}</title>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
       </head>
       <body>
         <h1>#{safe_title}</h1>
@@ -264,20 +333,47 @@ class DocumentsController < ApplicationController
     book.creator    = authors
     book.language   = "en"
 
-    item = book.add_ordered_item("chapter1.xhtml")
-    item.add_content(StringIO.new(chapter_content)) 
-    # item.toc_text = "Main Content"
+    css_item = book.add_item("style.css")
+    css_item.add_content(StringIO.new(css))
+    css_item.instance_variable_get(:@attributes)["media-type"] = "text/css"
 
-    book.spine << item
+    chapter_item = book.add_ordered_item("chapter1.xhtml")
+    chapter_item.add_content(StringIO.new(chapter_content))
+
+    # navigation
+    nav_xhtml = <<~NAV
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE html>
+      <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+      <head>
+        <title>Table of Contents</title>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+      </head>
+      <body epub:type="nav">
+        <nav epub:type="toc" id="toc">
+          <h1>Table of Contents</h1>
+          <ol>
+            <li><a href="chapter1.xhtml">#{safe_title}</a></li>
+          </ol>
+        </nav>
+      </body>
+      </html>
+    NAV
+
+    nav_item = book.add_ordered_item("nav.xhtml")
+    nav_item.add_content(StringIO.new(nav_xhtml))
+    nav_item.add_property("nav")
 
     tmpfile = Tempfile.new(["#{title.parameterize || 'essay'}", ".epub"])
     tmpfile.binmode
+
     book.generate_epub(tmpfile.path)
 
     tmpfile.rewind
     tmpfile
   end
 
+  
 
   def build_book_epub(title, authors, chapters_array)
     book = GEPUB::Book.new
@@ -286,6 +382,80 @@ class DocumentsController < ApplicationController
     book.creator    = authors
     book.language   = "en"
 
+    css = <<~CSS
+      body {
+        font-family: serif;
+        line-height: 1.7;
+        margin: 5%;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 2.2em;
+        margin-top: 2em;
+        margin-bottom: 2em;
+        font-weight: bold;
+      }
+
+      p {
+        margin: 1em 0;
+        text-indent: 1.5em;
+      }
+
+      h2, h3 {
+        margin-top: 2em;
+        margin-bottom: 1em;
+      }
+
+      pre {
+        background: #f4f4f4;
+        padding: 1em;
+        margin: 1.5em 0;
+        overflow-x: auto;
+        white-space: pre-wrap;    
+        word-wrap: break-word;    
+        font-family: monospace;
+        font-size: 0.95em;
+        border-radius: 4px;
+      }
+
+      code {
+        font-family: monospace;
+        background: #f4f4f4;
+        padding: 0.15em 0.3em;
+        border-radius: 3px;
+        word-break: break-word;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      figure {
+        text-align: center;
+        margin: 2em auto;
+      } 
+
+      figure img,
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto;
+      }
+
+      .attachment__caption,
+      figcaption {
+        display: none;
+      }
+    CSS
+
+    css_item = book.add_item("style.css")
+    css_item.add_content(StringIO.new(css))
+    css_item.instance_variable_get(:@attributes)["media-type"] = "text/css"
+
+    # chapters
     chapters_array.each_with_index do |chap, idx|
       chap_title = CGI.escapeHTML(chap[:title].to_s.presence || "Chapter #{idx + 1}")
       content_xhtml = Nokogiri::HTML.fragment(chap[:content].to_s).to_xhtml
@@ -296,6 +466,7 @@ class DocumentsController < ApplicationController
         <html xmlns="http://www.w3.org/1999/xhtml">
         <head>
           <title>#{chap_title}</title>
+          <link rel="stylesheet" type="text/css" href="style.css"/>
         </head>
         <body>
           <h1>#{chap_title}</h1>
@@ -304,23 +475,47 @@ class DocumentsController < ApplicationController
         </html>
       HTML
 
-      item = book.add_ordered_item("chapter#{idx + 1}.xhtml")
-      item.add_content(StringIO.new(chapter_content))
-      # item.toc_text = chap[:title].presence || "Chapter #{idx + 1}"
-
-      book.spine << item
-
+      chapter_item = book.add_ordered_item("chapter#{idx + 1}.xhtml")
+      chapter_item.add_content(StringIO.new(chapter_html))
     end
+
+    # navigation
+    nav_xhtml = <<~NAV
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE html>
+      <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+      <head>
+        <title>Table of Contents</title>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+      </head>
+      <body epub:type="nav">
+        <nav epub:type="toc" id="toc">
+          <h1>Table of Contents</h1>
+          <ol>
+            #{chapters_array.map.with_index { |chap, idx|
+              chap_title = CGI.escapeHTML(chap[:title].to_s.presence || "Chapter #{idx + 1}")
+              "<li><a href=\"chapter#{idx + 1}.xhtml\">#{chap_title}</a></li>"
+            }.join("\n          ")}
+          </ol>
+        </nav>
+      </body>
+      </html>
+    NAV
+
+    nav_item = book.add_ordered_item("nav.xhtml")
+    nav_item.add_content(StringIO.new(nav_xhtml))
+    nav_item.add_property("nav")
 
     tmpfile = Tempfile.new(["#{title.parameterize || 'book'}", ".epub"])
     tmpfile.binmode
+
     book.generate_epub(tmpfile.path)
 
     tmpfile.rewind
     tmpfile
   end
-  
-  
+
+
 
   def document_params
       # for whitelisting the parameters for documents to be set

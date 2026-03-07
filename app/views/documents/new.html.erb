@@ -15,7 +15,7 @@
 
   <!-- Header – straight blue focus line -->
   <div class="mb-5">
-    <input type="text" id="title-input" class="title-input" placeholder="Title of your work" maxlength="200" autocomplete="off">
+    <input type="text" id="title-input" class="title-input" placeholder="Title" maxlength="200" autocomplete="off">
     <input type="text" id="authors-input" class="authors-input mt-3" placeholder="Your name or pen name" value="<%= current_user&.name || '' %>" autocomplete="off">
   </div>
 
@@ -55,6 +55,21 @@
   </div>
 
 </div>
+
+<template id="chapter-template">
+  <div class="chapter-block">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="mb-0 fw-semibold">Chapter [NUM]</h5>
+      <div>
+        <button type="button" class="btn btn-sm btn-outline-secondary me-2 move-up">↑ Up</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary me-2 move-down">↓ Down</button>
+        <button type="button" class="btn btn-sm btn-danger remove-chapter">Remove</button>
+      </div>
+    </div>
+    <input type="text" class="chapter-title form-control mb-3 fs-5" placeholder="Chapter Title" required>
+    <%= rich_text_area_tag "temp[content]", "", class: "trix-content" %>  <!-- no name/id here -->
+  </div>
+</template>
 
 <style>
   /* ── Segmented Toggle – no circles/dots ── */
@@ -315,39 +330,40 @@ document.querySelectorAll('input[name="write-mode"]').forEach(radio => {
 var chapterIndex = 0;
 
 function addChapter() {
-  chapterIndex = document.querySelectorAll('.chapter-block').length;
   const container = document.getElementById('chapters-container');
+  const chapterIndex = container.children.length;
 
-  const block = document.createElement('div');
-  block.className = 'chapter-block';
-  block.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h5 class="mb-0 fw-semibold">Chapter ${chapterIndex + 1}</h5>
-      <div>
-        <button type="button" class="btn btn-sm btn-outline-secondary me-2 move-up">↑ Up</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary me-2 move-down">↓ Down</button>
-        <button type="button" class="btn btn-sm btn-danger remove-chapter">Remove</button>
-      </div>
-    </div>
-    <input type="text" class="chapter-title form-control mb-3 fs-5" placeholder="Chapter Title" required>
-    <div class="trix-wrapper" id="trix-wrapper-${chapterIndex}"></div>
-  `;
+  // Clone template
+  const template = document.getElementById('chapter-template').content.cloneNode(true);
 
-  container.appendChild(block);
+  // Set chapter number
+  template.querySelector('h5').textContent = `Chapter ${chapterIndex + 1}`;
 
-  // Inject Trix
-  const wrapper = block.querySelector(`#trix-wrapper-${chapterIndex}`);
-  wrapper.innerHTML = `<%= escape_javascript(
-    rich_text_area_tag("chapters[INDEX][content]", "",
-      id: "chapter-content-INDEX",
-      class: "trix-content"
-    )
-  ) %>`.replace(/INDEX/g, chapterIndex);
+  // Append to DOM
+  container.appendChild(template);
 
-  const editor = wrapper.querySelector('.trix-content');
-  if (editor) new Trix.Editor(editor);
+  // Get the new block
+  const block = container.lastElementChild;
 
-  // Events
+  // Get .trix-content
+  const trixElement = block.querySelector('.trix-content');
+
+  if (trixElement) {
+    const uniqueHiddenId = `chapter-hidden-${Date.now()}-${chapterIndex}`;
+    trixElement.setAttribute('input', uniqueHiddenId);
+
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = `chapters[${chapterIndex}][content]`;
+    hiddenInput.id = uniqueHiddenId;
+    hiddenInput.value = '';
+
+    trixElement.parentNode.insertBefore(hiddenInput, trixElement.nextSibling);
+
+    new Trix.Editor(trixElement); // Trix will now sync to the hidden input with matching id
+  }
+
+  // Add remove/move listeners
   block.querySelector('.remove-chapter').onclick = () => {
     block.remove();
     renumberChapters();
@@ -358,10 +374,14 @@ function addChapter() {
 }
 
 function renumberChapters() {
-  document.querySelectorAll('.chapter-block').forEach((b, i) => {
-    b.querySelector('h5').textContent = `Chapter ${i + 1}`;
-    const hidden = b.querySelector('input[type="hidden"]');
-    if (hidden) hidden.name = `chapters[${i}][content]`;
+  document.querySelectorAll('.chapter-block').forEach((block, i) => {
+    block.querySelector('h5').textContent = `Chapter ${i + 1}`;
+
+    // Rename hidden input
+    const hiddenInput = block.querySelector('input[type="hidden"]');
+    if (hiddenInput) {
+      hiddenInput.name = `chapters[${i}][content]`;
+    }
   });
 }
 
@@ -417,8 +437,10 @@ document.addEventListener('turbo:load', () => {
     formData.append('authenticity_token', '<%= form_authenticity_token %>');
 
     if (currentMode === 'essay') {
-      const trixEditor = document.querySelector('trix-editor#essay-content');
-      const content = trixEditor?.value?.trim() || '';
+      // Essay mode: get hidden input next to trix-editor
+      const trixEditor = document.getElementById('essay-content');
+      const hiddenInput = document.getElementById(trixEditor.getAttribute('input'));
+      const content = hiddenInput?.value?.trim() || '';
 
       if (!content || content === '<div><br></div>' || content.trim() === '') {
         alert("Please write some content for your essay");
@@ -430,19 +452,28 @@ document.addEventListener('turbo:load', () => {
       formData.append('document[content]', content);
       formData.append('document[mode]', 'essay');
     } else {
-      // Book mode - collect all chapters
+      // Book mode - collect all chapters correctly
       const chapters = document.querySelectorAll('.chapter-block');
       let hasValidChapter = false;
 
       chapters.forEach((block, index) => {
         const chapTitle = block.querySelector('.chapter-title').value.trim();
-        const trixEditor = block.querySelector('trix-editor');
-        const content = trixEditor?.value?.trim() || '';
 
-        if (chapTitle || content) {
+        const hiddenInput = block.querySelector('input[type="hidden"][name^="chapters"]');
+        const content = hiddenInput?.value?.trim() || '';
+
+        // Better check: is there meaningful content?
+        const hasMeaningfulContent = content && 
+                                    content.length > 10 && 
+                                    content !== '<div><br></div>' && 
+                                    content !== '<div></div>' && 
+                                    !/^\s*<br\s*\/?>\s*$/.test(content) &&  // just <br>
+                                    content.trim() !== '';
+
+        if (chapTitle || hasMeaningfulContent) {
           formData.append(`document[chapters][${index}][title]`, chapTitle);
           formData.append(`document[chapters][${index}][content]`, content);
-          if (content && content !== '<div><br></div>') {
+          if (hasMeaningfulContent) {
             hasValidChapter = true;
           }
         }
@@ -473,14 +504,17 @@ document.addEventListener('turbo:load', () => {
       }
 
       if (!response.ok) {
-        const data = await response.json();
-        console.log(data.error || 'Publishing failed.');
+        let errorMsg = 'Publishing failed.';
+        try {
+          const data = await response.json();
+          errorMsg = data.error || errorMsg;
+        } catch {
+          // fallback if not JSON
+        }
+        console.error('Server error:', response.status, errorMsg);
+        alert(errorMsg);
         return;
       }
-
-      // If you ever return JSON success instead of redirect
-      // const data = await response.json();
-      // window.location.href = data.redirect_url || '/documents';
 
     } catch (error) {
       console.error('Fetch error:', error);
