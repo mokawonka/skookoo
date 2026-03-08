@@ -17,6 +17,24 @@
   <div class="mb-5">
     <input type="text" id="title-input" class="title-input" placeholder="Title" maxlength="200" autocomplete="off">
     <input type="text" id="authors-input" class="authors-input mt-3" placeholder="Your name or pen name" value="<%= current_user&.name || '' %>" autocomplete="off">
+  
+    <div id="cover-upload-zone" class="mt-4 p-4 rounded-3 text-center">
+      <div id="cover-preview-container" class="d-none position-relative mx-auto" style="max-width: 480px; aspect-ratio: 3 / 2;">
+        <img id="cover-preview-img" class="img-fluid" alt="Cover preview" style="display: block;">
+        <div id="cover-cropper-hint" class="position-absolute top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center text-white bg-dark bg-opacity-50 rounded fs-5 fw-light d-none">
+          Drag to reposition • Scroll / pinch to zoom
+        </div>
+      </div>
+
+      <div id="cover-placeholder" class="d-flex flex-column align-items-center justify-content-center py-5">
+        <i class="bi bi-image fs-1 text-muted mb-3"></i>
+        <p class="mb-1">Add cover picture</p>
+      </div>
+
+      <input type="file" id="cover-file-input" accept="image/jpeg,image/png,image/webp" class="d-none">
+    </div>
+    <input type="hidden" name="document[cover_base64]" id="cover-base64-field" value="">
+
   </div>
 
   <!-- Essay Mode -->
@@ -339,11 +357,146 @@ document.addEventListener('turbo:load', () => {
     });
   }
 
+  const coverZone = document.getElementById('cover-upload-zone');
+  if (!coverZone) return;
+
+  let cropper = null;
+
+  const fileInput = document.getElementById('cover-file-input');
+  const previewImg = document.getElementById('cover-preview-img');
+  const placeholder = document.getElementById('cover-placeholder');
+  const previewContainer = document.getElementById('cover-preview-container');
+  const hint = document.getElementById('cover-cropper-hint');
+  const base64Field = document.getElementById('cover-base64-field');
+
+  // Prevent duplicate initialization
+  if (coverZone.dataset.initialized === "true") return;
+  coverZone.dataset.initialized = "true";
+
+
+  if (previewContainer) {
+    previewContainer.addEventListener('click', function(e) {
+      if (cropper) e.stopPropagation();
+    }, true);
+  }
+
+
+  function initCoverCropper(imgSrc) {
+
+    if (cropper) cropper.destroy();
+
+    previewImg.src = imgSrc;
+
+    placeholder?.classList.add('d-none');
+    previewContainer?.classList.remove('d-none');
+    hint?.classList.remove('d-none');
+
+    const onImageLoad = () => {
+
+      cropper = new Cropper(previewImg, {
+        aspectRatio: 2 / 3,
+        viewMode: 2,
+        dragMode: 'move',
+        autoCrop: true,
+        autoCropArea: 1,
+        responsive: true,
+        restore: false,
+        modal: true,
+        guides: false,
+        highlight: false,
+        background: false,
+        cropBoxMovable: true,
+        cropBoxResizable: false,
+        toggleDragModeOnDblclick: false,
+        minCropBoxWidth: 180,
+        minCropBoxHeight: 120,
+
+        ready() {
+          setTimeout(() => hint?.classList.add('d-none'), 3500);
+        }
+      });
+
+    };
+
+    if (previewImg.complete && previewImg.naturalWidth > 0) {
+      onImageLoad();
+    } else {
+      previewImg.addEventListener('load', onImageLoad, { once: true });
+
+      setTimeout(() => {
+        if (!cropper) onImageLoad();
+      }, 4000);
+    }
+  }
+
+
+  function handleCoverFile(file) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      initCoverCropper(ev.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+
+  // Click → open file picker
+  coverZone.addEventListener('click', () => {
+    fileInput?.click();
+  });
+
+
+  // Drag & drop
+  coverZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    coverZone.classList.add('dragover');
+  });
+
+  coverZone.addEventListener('dragleave', () => {
+    coverZone.classList.remove('dragover');
+  });
+
+  coverZone.addEventListener('drop', e => {
+    e.preventDefault();
+    coverZone.classList.remove('dragover');
+
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleCoverFile(file);
+    }
+  });
+
+
+  fileInput?.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) handleCoverFile(file);
+  });
+
+
+  // Destroy cropper before Turbo caches the page
+  document.addEventListener("turbo:before-cache", () => {
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+  });
+
   // Publish handler
   var publishBtn = document.getElementById('publish-btn');
   if (publishBtn) 
   {
     publishBtn.addEventListener('click', async () => {
+
+      if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+          width: 800,         
+          height: 800,
+          fillColor: '#ffffff'
+        });
+
+        if (canvas) {
+          base64Field.value = canvas.toDataURL('image/jpeg', 0.92);
+        }
+      }
 
       const btn = document.getElementById('publish-btn');
       btn.disabled = true;
@@ -365,6 +518,11 @@ document.addEventListener('turbo:load', () => {
       formData.append('document[authors]', authors);
       formData.append('document[ispublic]', isPublic);
       formData.append('authenticity_token', '<%= form_authenticity_token %>');
+
+      const coverBase64 = base64Field.value;
+      if (coverBase64) {
+        formData.append('document[cover_base64]', coverBase64);
+      }
 
       if (currentMode === 'essay') {
         // Essay mode: get hidden input next to trix-editor

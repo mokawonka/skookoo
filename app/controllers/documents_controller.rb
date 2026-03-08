@@ -78,6 +78,33 @@ class DocumentsController < ApplicationController
         sha3:          sha3_digest
       )
 
+      if base64_str = params.dig(:document, :cover_base64)&.presence
+        begin
+          base64_clean = base64_str.sub(%r{^data:image/[a-z]+;base64,?\s*}, '')
+          decoded_bytes = Base64.strict_decode64(base64_clean)
+
+          Rails.logger.info "Decoded cover bytes: #{decoded_bytes.bytesize}"
+
+          cover_temp = Tempfile.new(['cover-', '.jpg'])
+          cover_temp.binmode
+          cover_temp.write(decoded_bytes)
+          cover_temp.rewind 
+
+          if cover_temp.size < 100
+            raise "Cover tempfile too small after write (#{cover_temp.size} bytes)"
+          end
+
+          @epub.cover_pic.attach(
+            io: cover_temp,
+            filename: "cover-#{Time.now.to_i}.jpg",   # avoid name collisions
+            content_type: "image/jpeg"
+          )
+
+        rescue => e
+          Rails.logger.error "Cover attachment failed: #{e.class} - #{e.message}"
+        end
+      end
+
       @epub.epub_file.attach(
         io:           File.open(tmpfile.path),
         filename:     "#{title.parameterize.presence || 'document'}.epub",
@@ -89,6 +116,7 @@ class DocumentsController < ApplicationController
         render :new, status: :unprocessable_entity and return
       end
 
+
       @document = Document.new(
         userid:   current_user.id,
         epubid:   @epub.id,
@@ -98,7 +126,7 @@ class DocumentsController < ApplicationController
       )
 
       if @document.save
-        redirect_to document_path(@document), notice: "Published successfully!"
+        redirect_to documents_path, notice: "Published successfully!"
       else
         @epub.destroy
         flash.now[:alert] = @document.errors.full_messages.to_sentence
@@ -121,6 +149,8 @@ class DocumentsController < ApplicationController
     end
   end
 
+
+  
   def not_public
 
   end

@@ -1,47 +1,46 @@
- /* ── Segmented Toggle – no circles/dots ── */
-  #write-page .segmented-toggle {
-    position: relative;
-    display: inline-flex;
-    background: #f8f9fa;
-    border-radius: 999px;
-    padding: 4px;
-  }
+#write-page .segmented-toggle {
+  position: relative;
+  display: inline-flex;
+  background: #f8f9fa;
+  border-radius: 999px;
+  padding: 4px;
+}
 
-  #write-page .segment-label {
-    position: relative;
-    z-index: 2;
-    padding: 12px 48px;
-    font-weight: 500;
-    color: #495057;
-    background: transparent;
-    border: none;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: color 0.25s;
-  }
+#write-page .segment-label {
+  position: relative;
+  z-index: 2;
+  padding: 12px 48px;
+  font-weight: 500;
+  color: #495057;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.25s;
+}
 
-  #write-page input[type="radio"] {
-    display: none; /* hide native radio circle */
-  }
+#write-page input[type="radio"] {
+  display: none; 
+}
 
-  #write-page input[type="radio"]:checked + .segment-label {
-    color: white;
-    font-weight: 600;
-  }
+#write-page input[type="radio"]:checked + .segment-label {
+  color: white;
+  font-weight: 600;
+}
 
-  #write-page  .segment-slider {
-    position: absolute;
-    top: 4px; bottom: 4px; left: 4px;
-    width: calc(50% - 8px);
-    background: #0951a9;
-    border-radius: 999px;
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-  }
+#write-page  .segment-slider {
+  position: absolute;
+  top: 4px; bottom: 4px; left: 4px;
+  width: calc(50% - 8px);
+  background: #0951a9;
+  border-radius: 999px;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
 
-  #mode-book:checked ~ .segment-slider {
-    transform: translateX(100%);
-  }
+#mode-book:checked ~ .segment-slider {
+  transform: translateX(100%);
+}
 
   
 #write-page  .title-input,
@@ -49,7 +48,7 @@
 #write-page .chapter-title {
   width: 100%;
   border: none;
-  border-bottom: 1px solid #e0e0e0;     /* thinner line by default */
+  border-bottom: 1px solid #e0e0e0;  
   outline: none;
   background: transparent;
   padding: 10px 0;
@@ -57,32 +56,28 @@
   border-radius: 0;
 }
 
-/* Title – prominent */
 #write-page .title-input {
   font-size: 2.4rem;
   font-weight: 700;
   color: #111;
 }
 
-/* Author – more discrete */
 #write-page  .authors-input {
-  font-size: 1.25rem;                    /* smaller than title */
+  font-size: 1.25rem;                   
   font-weight: 400;
-  color: #666;                           /* lighter color */
+  color: #666;                          
   padding: 8px 0;
-  border-bottom: 1px solid #e8e8e8;      /* even lighter line */
-  opacity: 0.85;                         /* slightly faded */
+  border-bottom: 1px solid #e8e8e8;     
+  opacity: 0.85;                         
   transition: opacity 0.25s ease, border-bottom-color 0.3s ease;
 }
 
-/* Chapter titles – medium prominence */
 #write-page  .chapter-title {
   font-size: 1.5rem;
   font-weight: 600;
   color: #222;
 }
 
-/* Focus states – straight blue line, sharp ends */
 #write-page .title-input:focus,
 #write-page .authors-input:focus,
 #write-page .chapter-title:focus {
@@ -92,23 +87,20 @@
   outline: none;
 }
 
-/* Author gets a subtle opacity boost on focus */
 #write-page  .authors-input:focus {
   opacity: 1;
   color: #222;
 }
 
-/* Ensure no rounding anywhere */
 #write-page input,
 #write-page textarea {
   border-radius: 0 !important;
 }
 
-/* Optional: remove pseudo-element if it was causing visual artifacts */
 #write-page  .title-input:focus::after,
 #write-page .authors-input:focus::after,
 #write-page .chapter-title:focus::after {
-  display: none;   /* ← disable if you added it earlier */
+  display: none;  
 }
 
 #write-page .modern-toggle {
@@ -214,3 +206,68 @@
   border-radius: 21px !important;
 }
 
+
+#write-page #cover-upload-zone {
+  height: 72px !important;         
+  min-height: 72px !important;
+  max-height: 72px !important;
+  margin-top: 1rem;
+  background: transparent;
+  border: 2px dashed #0951a9 !important;
+  border-radius: 12px;
+  color: #0951a9;
+  font-weight: 600;
+  font-size: large;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+#write-page #cover-upload-zone:hover,
+#write-page #cover-upload-zone.dragover {
+  background-color: rgba(9, 81, 169, 0.07) !important;
+  border-color: #074080 !important;
+}
+
+#write-page #cover-upload-zone:has(#cover-preview-container:not(.d-none)) {
+  height: auto !important;
+  min-height: 240px !important;      
+  max-height: none !important;
+  padding: 1rem !important;
+  background: #f8f9fa !important;    
+}
+
+#write-page #cover-placeholder p,
+#write-page #cover-placeholder small,
+#write-page #cover-placeholder {
+  font-size: 1.5rem !important;  
+  margin: 0;
+  line-height: 1.2;
+}
+
+#write-page #cover-placeholder i {
+  font-size: 1.5rem !important;
+}
+
+#write-page #cover-preview-img {
+  max-height: 360px;
+}
+
+#write-page .cropper-view-box,
+#write-page .cropper-face {
+  border-color: #0951a9 !important;
+  border-width: 2px !important;
+}
+
+#write-page .cropper-line {
+  background-color: #0951a9 !important;
+}
+
+#write-page .cropper-point {
+  background-color: #0951a9 !important;
+  width: 8px !important;
+  height: 8px !important;
+}
