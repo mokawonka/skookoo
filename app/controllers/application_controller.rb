@@ -62,10 +62,10 @@ class ApplicationController < ActionController::Base
 
         if last_action && Time.current - last_action < 2.seconds
             respond_to do |format|
-                format.js { render "layouts/check_timestamp" }
-                format.html { redirect_back fallback_location: root_path, alert: "Please retry in 2 seconds" }
+            format.js { render "layouts/check_timestamp" }
+            format.html { redirect_back fallback_location: root_path, alert: "Please retry in 2 seconds" }
             end
-            return
+            return   #  stops the controller action
         end
 
         session[:last_action_at] = Time.current

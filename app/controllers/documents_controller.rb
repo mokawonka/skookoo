@@ -122,7 +122,9 @@ class DocumentsController < ApplicationController
         epubid:   @epub.id,
         title:    title,
         authors:  authors,
-        ispublic: ispublic
+        ispublic: ispublic,
+        user_created: true,
+        nature: mode
       )
 
       if @document.save
@@ -150,7 +152,7 @@ class DocumentsController < ApplicationController
   end
 
 
-  
+
   def not_public
 
   end

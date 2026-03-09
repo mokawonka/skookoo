@@ -93,7 +93,7 @@ class HighlightsController < ApplicationController
     @highlight = Highlight.find(params[:id])
 
     params[:highlight].each do |increment, value|
-      @highlight.score += value.to_i
+      @highlight.increment!(:score, value.to_i)
     end
 
     respond_to do |format|

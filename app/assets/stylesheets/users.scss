@@ -404,17 +404,6 @@ button.smallinput {
   border-bottom: 1px solid black;
 }
 
-#profilecontent{
-  border-bottom-right-radius: 21px;
-  border-bottom-left-radius: 21px;
-
-  border-left: 1px solid #e0e0e0 ; 
-  border-right: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
-  min-height: 500px;
-  margin-bottom: 50px;
-}
-
 
 #presentation{
   padding-left: 1em;
@@ -427,21 +416,68 @@ button.smallinput {
 }
 
 
-#myreplies-tab{
-  color:#444444;
-  padding-left: 7px;
-  padding-right: 7px;
+.nav-tabs.border-0 {
+  border-bottom: 2px solid #e0e0e0 !important;
 }
 
-#highlights-tab{
-  color:#444444;
-  padding-left: 7px;
-  padding-right: 7px;
+#profiletabs .nav-item {
+  margin-bottom: -2px;
+}
+
+#profiletabs .nav-link:not(.active) img {
+  filter: grayscale(100%);
+  opacity: 0.65;
+}
+
+#highlights-tab,
+#myreplies-tab,
+#mydocuments-tab {
+  color: #666;
+  padding-left: 14px;
+  padding-right: 14px;
+  border: 2px solid transparent !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 21px 21px 0 0 !important;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+#highlights-tab:hover:not(.active),
+#myreplies-tab:hover:not(.active),
+#mydocuments-tab:hover:not(.active) {
+  background: #f3f5f8;
+  border-color: #e0e0e0 !important;
+  border-bottom-color: #e0e0e0 !important;
+  color: #444;
+}
+
+#highlights-tab.active,
+#myreplies-tab.active,
+#mydocuments-tab.active {
+  background: white !important;
+  border-top-color: #e0e0e0 !important;
+  border-left-color: #e0e0e0 !important;
+  border-right-color: #e0e0e0 !important;
+  border-bottom-color: white !important;
+  color: #0951a9 !important;
+  font-weight: 600;
+}
+
+#profilecontent {
+  border-left: 2px solid #e0e0e0;
+  border-right: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  border-top: none;
+  border-bottom-right-radius: 21px;
+  border-bottom-left-radius: 21px;
+  min-height: 500px;
+  margin-bottom: 50px;
 }
 
 #highlights{
   max-height: 500px;
   overflow-y: scroll;
+  padding-top: 16px;
 }
 
 #myreplies{
@@ -779,4 +815,97 @@ button.smallinput {
   font-size: 0.85rem;
   white-space: nowrap;
   pointer-events: none;
+}
+
+
+#mydocuments .documents-container{
+  padding:30px 10px;
+}
+
+#mydocuments .documents-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:26px;
+}
+
+#mydocuments .document-card-link {
+  display: block;         
+  text-decoration: none; 
+  color: inherit;          
+}
+
+#mydocuments .document-card-link:hover {
+  text-decoration: none;    
+  color: inherit;            
+  cursor: pointer;      
+}    
+
+#mydocuments .document-card-link img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+#mydocuments .document-card{
+  border-radius:16px;
+  overflow:hidden;
+  background:white;
+  transition:all .25s ease;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+}
+
+#mydocuments .document-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 12px 28px rgba(0,0,0,0.15);
+}
+
+#mydocuments .document-cover{
+  position:relative;
+  width:100%;
+  aspect-ratio:1/1;
+  overflow:hidden;
+}
+
+#mydocuments .document-cover img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+#mydocuments .document-overlay{
+  position:absolute;
+  top:10px;
+  right:10px;
+}
+
+.document-type{
+  background:white;
+  padding:4px 10px;
+  font-size:12px;
+  border-radius:30px;
+  font-weight:600;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+
+#mydocuments .document-meta{
+  padding:14px 16px;
+}
+
+#mydocuments .document-title{
+  font-weight:600;
+  font-size:15px;
+  line-height:1.3;
+  margin-bottom:4px;
+}
+
+#mydocuments .document-author{
+  font-size:13px;
+  color:#777;
+}
+
+#mydocuments .documents-empty{
+  text-align:center;
+  padding:80px 20px;
+  opacity: 0.5;
 }

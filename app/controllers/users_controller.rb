@@ -61,11 +61,13 @@ class UsersController < ApplicationController
             @background_filepath = @user.background.variant(resize_to_limit:[1920, 1080])
         end
 
-        @totalH = Highlight.where(userid: @user.id).count
-        @totalR = Reply.where(deleted: false).where(userid: @user.id).count
+        @documents = Document.where(userid: current_user.id, user_created: true)
 
+        @totalR = Reply.where(deleted: false).where(userid: @user.id).count
+        @totalD = @documents.count
 
         highlights = Highlight.where(userid: @user.id)
+        @totalH    = highlights.count
         highlights = highlights.where.not(id: @hookedhighlight.id) if @hookedhighlight.present?
 
         @pagy, @hrecords = pagy(highlights.order(created_at: :desc), items: 7)

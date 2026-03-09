@@ -1,13 +1,13 @@
 <h3 class="pt-4">
 <%=image_tag('tree.svg', class: "header-icon")%>
-My Documents
+Documents
 </h3>
 
 <div class="text-center pt-3 pb-3">
   <%= link_to '+ Add Documents', new_epub_path, class: "btn btn-warning border-3 border-dark" %>
 </div>
 
-<div id=mydocuments>
+<div id=documents>
 
 <% if @records.count > 0 %>
       
