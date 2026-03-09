@@ -41,17 +41,12 @@ class ApplicationController < ActionController::Base
     
 
     def require_user
-
-        if !logged_in?
-            flash[:alert] = "You must be logged in to perform that action."
-            redirect_to login_path 
+        unless logged_in?
+            respond_to do |format|
+            format.html { redirect_to login_path(return_to: request.fullpath) }
+            format.js   { render js: "window.location='#{login_path(return_to: request.referrer)}'" }
+            end
         end
-    
-    end
-
-    
-    def authorize_user!
-        redirect_to root_path unless session[:user_id].present?
     end
 
 

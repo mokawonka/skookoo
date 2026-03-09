@@ -192,6 +192,8 @@
     <div class="tab-pane fade" id="myreplies" role="tabpanel" aria-labelledby="myreplies-tab"></div>
 
     <div class="tab-pane fade" id="mydocuments" role="tabpanel" aria-labelledby="mydocuments-tab">
+      <% if logged_in? %>
+
         <div class="documents-container">
 
             <% if @documents.any? %>
@@ -246,6 +248,12 @@
             <% end %>
 
         </div>
+        <% else %>
+            <br>
+            <div class="embeddedlogin">
+               <%= render "shared/login", return_to: request.fullpath %>
+            </div>
+        <% end %>
     </div>
 
 
@@ -261,7 +269,7 @@
         var actionurl = "/users/" + "<%=@user.id%>" + "/show_replies?authenticity_token=" + "<%=form_authenticity_token%>";
         $.get(actionurl);
     <% else %>
-        $('#myreplies').html('<br><div class=embeddedlogin><%= escape_javascript render "shared/login" %></div>');
+        $('#myreplies').html('<br><div class=embeddedlogin><%= escape_javascript render "shared/login", return_to: request.fullpath %></div>');
     <% end %>
     });
 </script>

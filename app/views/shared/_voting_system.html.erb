@@ -32,9 +32,9 @@
 
 <div class="hrating">
     <% if myvote == 1 %>
-        <%=link_to image_tag("upvote-arrow-active.svg", size:"21x21"), login_path, class:"active", id: "upvote-" + eid %>
+        <%=link_to image_tag("upvote-arrow-active.svg", size:"21x21"), login_path(return_to: request.fullpath), class:"active", id: "upvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("upvote-arrow.svg", size:"21x21"), login_path, id: "upvote-" + eid %>
+        <%=link_to image_tag("upvote-arrow.svg", size:"21x21"), login_path(return_to: request.fullpath), id: "upvote-" + eid %>
     <% end %>
 
 
@@ -48,18 +48,18 @@
 
 
     <% if myvote == -1 %>
-        <%=link_to image_tag("downvote-arrow-active.svg", size:"21x21"), login_path, class:"active", id: "downvote-" + eid %>
+        <%=link_to image_tag("downvote-arrow-active.svg", size:"21x21"), login_path(return_to: request.fullpath), class:"active", id: "downvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("downvote-arrow.svg", size:"21x21") , login_path, id: "downvote-" + eid %>
+        <%=link_to image_tag("downvote-arrow.svg", size:"21x21") , login_path(return_to: request.fullpath), id: "downvote-" + eid %>
     <% end %>
 </div>
 
 <% elsif type == "minor" %>
 
     <% if myvote == 1 %>
-        <%=link_to image_tag("upvote-arrow-active.svg", size:"15x15"), login_path, class:"active", id: "upvote-" + eid %>
+        <%=link_to image_tag("upvote-arrow-active.svg", size:"15x15"), login_path(return_to: request.fullpath), class:"active", id: "upvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("upvote-arrow.svg", size:"15x15"), login_path, id: "upvote-" + eid %>
+        <%=link_to image_tag("upvote-arrow.svg", size:"15x15"), login_path(return_to: request.fullpath), id: "upvote-" + eid %>
     <% end %>
 
     
@@ -73,9 +73,9 @@
 
 
     <% if myvote == -1 %>
-        <%=link_to image_tag("downvote-arrow-active.svg", size:"15x15"), login_path, class:"active", id: "downvote-" + eid %>
+        <%=link_to image_tag("downvote-arrow-active.svg", size:"15x15"), login_path(return_to: request.fullpath), class:"active", id: "downvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("downvote-arrow.svg", size:"15x15") , login_path, id: "downvote-" + eid %>
+        <%=link_to image_tag("downvote-arrow.svg", size:"15x15") , login_path(return_to: request.fullpath), id: "downvote-" + eid %>
     <% end %>
 
 <% end %>

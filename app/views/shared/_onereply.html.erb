@@ -83,7 +83,7 @@
                                                                         touser: User.find(reply.userid),
                                                                         type: "minor" %></span>
 
-                <span><%= link_to 'reply', reply_path(reply), remote: "true" %></span>
+                <span><%= link_to 'reply', logged_in? ? reply_path(reply) : login_path(return_to: request.fullpath), remote: logged_in? ? "true" : false %></span>
 
                 <% if current_user != nil %>
 

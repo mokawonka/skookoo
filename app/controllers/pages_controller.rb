@@ -3,10 +3,11 @@ class PagesController < ApplicationController
 
   def login
     if logged_in?
-      redirect_to user_path(current_user.username)
+      redirect_to root_path
+    else
+      session[:return_to] = params[:return_to] if params[:return_to].present?
     end
   end
-
 
 
   def home

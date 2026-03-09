@@ -94,7 +94,7 @@ class RepliesController < ApplicationController
       @reply = Reply.find(params[:id])
   
       params[:reply].each do |increment, value|
-        @reply.score += value.to_i
+        @reply.increment!(:score, value.to_i)
       end
   
       respond_to do |format|

@@ -61,7 +61,7 @@ class UsersController < ApplicationController
             @background_filepath = @user.background.variant(resize_to_limit:[1920, 1080])
         end
 
-        @documents = Document.where(userid: current_user.id, user_created: true)
+        @documents = Document.where(userid: @user.id, ispublic: true, user_created: true)
 
         @totalR = Reply.where(deleted: false).where(userid: @user.id).count
         @totalD = @documents.count
