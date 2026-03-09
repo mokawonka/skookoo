@@ -417,11 +417,15 @@ button.smallinput {
 
 
 .nav-tabs.border-0 {
-  border-bottom: 2px solid #e0e0e0 !important;
+  border-bottom: none !important;
+}
+
+#profiletabs {
+  flex-wrap: nowrap;
 }
 
 #profiletabs .nav-item {
-  margin-bottom: -2px;
+  flex: 1;
 }
 
 #profiletabs .nav-link:not(.active) img {
@@ -433,22 +437,25 @@ button.smallinput {
 #myreplies-tab,
 #mydocuments-tab {
   color: #666;
-  padding-left: 14px;
-  padding-right: 14px;
   border: 2px solid transparent !important;
   border-bottom: 2px solid transparent !important;
   border-radius: 21px 21px 0 0 !important;
   background: transparent;
   transition: background 0.15s ease, border-color 0.15s ease;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  padding-left: 6px;
+  padding-right: 6px;
+  font-size: 0.78rem;
 }
+
 
 #highlights-tab:hover:not(.active),
 #myreplies-tab:hover:not(.active),
 #mydocuments-tab:hover:not(.active) {
-  background: #f3f5f8;
-  border-color: #e0e0e0 !important;
-  border-bottom-color: #e0e0e0 !important;
-  color: #444;
+  border-bottom: 2px solid #e0e0e0 !important;
+
 }
 
 #highlights-tab.active,
@@ -458,31 +465,33 @@ button.smallinput {
   border-top-color: #e0e0e0 !important;
   border-left-color: #e0e0e0 !important;
   border-right-color: #e0e0e0 !important;
-  border-bottom-color: white !important;
+  border-bottom: 4px solid white !important;
   color: #0951a9 !important;
   font-weight: 600;
+  position: relative;
+  z-index: 1;
+  margin-bottom: -4px;
 }
 
+
 #profilecontent {
-  border-left: 2px solid #e0e0e0;
-  border-right: 2px solid #e0e0e0;
-  border-bottom: 2px solid #e0e0e0;
-  border-top: none;
+  border: 2px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0 !important;
   border-bottom-right-radius: 21px;
   border-bottom-left-radius: 21px;
   min-height: 500px;
   margin-bottom: 50px;
 }
 
-#highlights{
-  max-height: 500px;
+#mydocuments,
+#highlights,
+#myreplies {
+  max-height: calc(100vh - 400px);
   overflow-y: scroll;
-  padding-top: 16px;
 }
 
-#myreplies{
-  max-height: 500px;
-  overflow-y: scroll;
+#highlights {
+  padding-top: 16px;
 }
 
 #nameprofile{
