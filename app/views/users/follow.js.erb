@@ -6,6 +6,12 @@
     .attr('disabled', true)
     .removeAttr('href');
 
+  $('#hover-followbutton')
+    .text('Requested')
+    .addClass('disabled')
+    .attr('disabled', true)
+    .removeAttr('href');
+
   $("<div class='alert alert-info mt-2'>Follow request sent! Waiting for approval.</div>")
     .appendTo('#infoprofile')
     .fadeOut(5000);

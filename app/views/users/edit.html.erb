@@ -343,7 +343,7 @@ document.addEventListener("turbo:load", function () {
 
     const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
 
-    if (!isPomologist) {
+    if (isPomologist) {
       e.preventDefault();
       e.stopImmediatePropagation();
 

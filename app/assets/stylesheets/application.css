@@ -923,6 +923,16 @@ figure > img {
   color:#222;
 }
 
+.hover-name a {
+  color: #222;
+  text-decoration: none;
+}
+
+.hover-name a:hover {
+  text-decoration: none;
+  color: #0951a9;
+}
+
 .hover-handle{
   color:#0951a9;
   font-size:13px;
