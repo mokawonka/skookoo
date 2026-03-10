@@ -11,6 +11,23 @@
     .fadeOut(5000);
 
 <% else %>
-  // Public profile → Successful follow
-  $('#followbutton').text('Unfollow');
+
+  var isFollowing = $('#hover-followbutton').text().trim() === 'Following' || 
+                    $('#followbutton').text().trim() === 'Following';
+
+  $('#followbutton')
+    .text('Following')
+    .attr('href', '<%= user_unfollow_path(@user) %>');
+
+  $('#hover-followbutton')
+    .text('Following')
+    .attr('href', '<%= user_unfollow_path(@user) %>')
+
+  if (!isFollowing) {
+    var followers = parseInt($('#hover-followers-count').text());
+    if (!isNaN(followers)) $('#hover-followers-count').text(followers + 1);
+
+    var profileFollowers = parseInt($('#profile-followers-count').text());
+    if (!isNaN(profileFollowers)) $('#profile-followers-count').text((profileFollowers + 1) + ' Followers');
+  }
 <% end %>

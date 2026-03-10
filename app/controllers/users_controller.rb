@@ -407,6 +407,11 @@ class UsersController < ApplicationController
     end
 
 
+    def hovercard
+        @user = User.find(params[:id])
+        render partial: "users/hovercard", locals: { user: @user }
+    end
+
 
     def download_data
         return head :forbidden unless current_user == User.find(params[:id])

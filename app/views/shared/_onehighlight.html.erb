@@ -9,8 +9,8 @@
     <% end %>
 
     <div class="hmeta">
-      <% owner = User.find_by_id(highlight.userid).username %>
-      <strong class=green>Posted by <%=link_to owner, user_path(owner), class: "postedby"%> <%=time_ago_in_words(highlight.created_at)%> ago</strong>  
+      <%  owner = User.find_by_id(highlight.userid) %>
+      <strong class=green>Posted by <%=link_to owner.username, user_path(owner.username), class: "postedby user-hover-trigger", data: { user_id: owner.id }%> <%=time_ago_in_words(highlight.created_at)%> ago</strong>  
       
       <div class="highlightactions">
         <span><a class="hshare">share</a></span>
@@ -33,7 +33,7 @@
           <% end %>
           
 
-          <% if current_user.username == owner %>
+          <% if current_user.username == owner.username %>
 
             <% if from == "highlight" %>
               

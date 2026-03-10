@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
   get 'users/:id/follow' => 'users#follow'
   get 'users/:id/unfollow' => 'users#unfollow'
+  get "users/:id/hovercard", to: "users#hovercard"
 
 
   post 'epubs/:sha3/check_presence', to: 'epubs#check_presence'

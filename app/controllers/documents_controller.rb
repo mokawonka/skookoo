@@ -323,6 +323,7 @@ class DocumentsController < ApplicationController
       img {
         max-width: 100%;
         height: auto;
+        border-radius: 21px;
       }
       
       figure {
@@ -462,6 +463,7 @@ class DocumentsController < ApplicationController
       img {
         max-width: 100%;
         height: auto;
+        border-radius: 21px;
       }
 
       figure {

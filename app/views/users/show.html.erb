@@ -48,7 +48,7 @@
     <% if @user.private? && @user.has_pending_follow_request_from?(current_user) %>
         <%= link_to 'Requested', '#', class: 'btn disabled', id: 'followbutton' %>
     <% elsif current_user.following.include?(@user.id) %>
-        <%= link_to 'Unfollow', user_unfollow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
+        <%= link_to 'Following', user_unfollow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
     <% else %>
         <%= link_to 'Follow', user_follow_path(@user), remote: true, class: 'btn', id: 'followbutton' %>
     <% end %>
@@ -110,8 +110,8 @@
 </div>
 
 <div id="connections">
-    <%=link_to @user.following.count.to_s + ' Following', user_show_following_path(@user), remote: true, class: 'follownb me-3' %> 
-    <%=link_to @user.followers.count.to_s + ' Followers', user_show_followers_path(@user), remote: true, class: 'follownb me-3' %>
+    <%=link_to @user.following.count.to_s + ' Following', user_show_following_path(@user), remote: true, class: 'follownb me-3', id: 'profile-following-count' %> 
+    <%=link_to @user.followers.count.to_s + ' Followers', user_show_followers_path(@user), remote: true, class: 'follownb me-3', id: 'profile-followers-count' %>
 
     <% if current_user == @user && @user.pending_follow_requests.any? %>
         <%= link_to @user.pending_follow_requests.count.to_s + ' Follow Requests', 

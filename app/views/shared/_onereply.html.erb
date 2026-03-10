@@ -7,7 +7,6 @@
 
     subreplies = reply.getsubreplies
 
-    replyuser = poster.username
     owner_id = Highlight.find(reply.highlightid).userid 
     highlightowner = User.find(owner_id).username
 
@@ -23,9 +22,9 @@
 
         <!-- Avatar -->
         <% if poster.avatar.attached? %>
-            <%= link_to image_tag(poster.avatar.variant(resize_to_limit:[64, 64]), class: avatarclass), user_path(poster.username), style:'height:fit-content' %>
+            <%= link_to image_tag(poster.avatar.variant(resize_to_limit:[64, 64]), class: avatarclass), user_path(poster.username), class: "user-hover-trigger", data: { user_id: poster.id }, style:'height:fit-content' %>
         <% else %>
-            <%= link_to image_tag("default-avatar.svg", class: avatarclass),  user_path(poster.username), style:'height:fit-content' %>
+            <%= link_to image_tag("default-avatar.svg", class: avatarclass),  user_path(poster.username), class: "user-hover-trigger", data: { user_id: poster.id }, style:'height:fit-content' %>
         <% end %>
 
         <!-- collapser / expander if children present -->
@@ -71,7 +70,7 @@
 
         <div class="onereply <%=onereplyclass%> <%=iffromposter%>">
             <div class="replyheader">
-                By <%= link_to replyuser, user_path(replyuser) %> <%=time_ago_in_words(reply.created_at)%> ago
+                By <%= link_to poster.username, user_path(poster.username), class: "user-hover-trigger", data: { user_id: poster.id } %> <%=time_ago_in_words(reply.created_at)%> ago
                 <% if reply.edited %>(edited)<% end %>
             </div>
             <div class=replybody>
@@ -87,7 +86,7 @@
 
                 <% if current_user != nil %>
 
-                    <% if current_user.username == replyuser %>
+                    <% if current_user.username == poster.username %>
                         <span><%= link_to 'edit', edit_reply_path(reply), remote: "true" , class: "editcomment" %></span>
                         <span><%= link_to 'delete', reply, method: :delete, remote:"true", data: { confirm: "Delete, Are you sure?"} %></span>
                     <% elsif current_user.username == highlightowner %>

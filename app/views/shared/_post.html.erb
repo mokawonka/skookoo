@@ -24,11 +24,11 @@
         <%end%>
     </div>
 
-    <% poster = User.find_by_id(highlight.userid).username %>
+    <% poster = User.find_by_id(highlight.userid) %>
     <% document = Document.find_by_id(highlight.docid) %>
     <% replies = Reply.where(:highlightid => highlight.id).where(:recipientid => nil).where(:deleted => false) %>
 
-    <small class=hposter>Submitted <%=time_ago_in_words(highlight.created_at)%> ago by <%=link_to poster, user_path(poster)%> </small>  
+    <small class=hposter>Submitted <%=time_ago_in_words(highlight.created_at)%> ago by <%=link_to poster.username, user_path(poster.username), class: "user-hover-trigger", data: { user_id: poster.id }%> </small>  
     <br>
     <%= link_to highlight.quote, highlight_path(highlight), class: "hquote addReadMore showlesscontent" %> - 
     <span id="fromauthors-<%=highlight.id%>" class="todecode authors_highlight"><%= highlight.fromauthors%></span> - 
