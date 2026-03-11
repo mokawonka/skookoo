@@ -156,7 +156,17 @@ cp .env.example .env
 Configure the following variables as needed:
 - `RAILS_ENV`: Environment (development/test/production)
 - `SECRET_KEY_BASE`: Rails secret key base
-- Database configuration
+- `GIPHY_API_KEY`
+- `GMAIL_USERNAME`
+- `GMAIL_APP_PASSWORD`
+- `GEMINI_API_KEY`
+- `STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+Optional:
+- `GOOGLE_CLOUD_PROJECT` # for ai videos
+- `GOOGLE_CLOUD_KEYFILE` # for ai videos
 
 
 ## 🍉 Contributing

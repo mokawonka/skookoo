@@ -510,6 +510,11 @@ input[type="range"] {
   background-color: #ffffff; 
 }
 
+/* Close dropdowns when clicking inside the epub iframe */
+body:has(.dropdown-menu.show) #viewer iframe {
+  pointer-events: none;
+}
+
 
 #texture-overlay {
   position: fixed;                

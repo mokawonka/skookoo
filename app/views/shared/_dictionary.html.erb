@@ -1,0 +1,41 @@
+<div id="dictionary-popup" class="dictionary-hidden"
+     <% if logged_in? %>
+       data-user-email="<%= current_user.email %>"
+     <% end %>
+>
+  <div class="dictionary-card">
+
+    <div class="dictionary-title">
+      <%= image_tag('dictionary.png', size: '32x32') %> Dictionary
+                  <span id="dictionary-close">✕</span>
+
+    </div>
+
+
+    <form id="dictionary-form" onsubmit="return false;">
+      <div class="dictionary-header">
+
+        <input
+          id="dictionary-input"
+          type="search"                 
+          placeholder="Search word..."
+          autocomplete="off"
+        >
+
+        <select id="dictionary-lang">
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="it">Italian</option>
+          <option value="de">German</option>
+        </select>
+
+
+      </div>
+    </form>
+
+    <div id="dictionary-status"></div>
+    <div id="dictionary-results"></div>
+
+  </div>
+</div>
