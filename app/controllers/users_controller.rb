@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
     protect_from_forgery
-    skip_before_action :require_user, only: [:new, :create, :show] 
+    skip_before_action :require_user, only: [:new, :create, :show, :hovercard] 
     before_action :check_timestamp, only: [:update_votes, :follow, :unfollow]
 
 
@@ -408,6 +408,9 @@ class UsersController < ApplicationController
 
 
     def hovercard
+        unless request.xhr?
+            redirect_to root_path and return
+        end
         @user = User.find(params[:id])
         render partial: "users/hovercard", locals: { user: @user }
     end
