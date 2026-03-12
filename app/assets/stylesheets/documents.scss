@@ -510,6 +510,27 @@ input[type="range"] {
   background-color: #ffffff; 
 }
 
+.spinner-wrapper{
+  position:relative;
+  display:inline-block;
+}
+
+.spinner-large{
+  width:80px !important;
+  height:80px !important;
+}
+
+#spinner-percent{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  font-weight:600;
+  font-size:16px;
+  color:#333;
+}
+
+
 /* Close dropdowns when clicking inside the epub iframe */
 body:has(.dropdown-menu.show) #viewer iframe {
   pointer-events: none;

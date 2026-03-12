@@ -4,42 +4,75 @@
 <% if @document.opened == 0 %>
   
 
-    <div id="firstloading" class=centered>
-        <h5 class=text-center> Preparing document for first read. </h5><br>
-        <h5 class=text-center> Please wait. </h5>
-        <br>
-    </div>
+<div id="firstloading" class="centered text-center">
 
-  <script>
-    var loading = $('#firstloading');
-    loading.append('<div class="text-center"><span class="spinner-border text-dark"></span></div>');
-    loading.show();
+  <h5>Preparing document for first read.</h5>
+  <h5>Please wait.</h5>
+  <br>
 
-    book.ready
-      .then(() => book.locations.generate(1500))
-      .then(() => { 
-        const jsonLocations = book.locations.save();  // Returns '["cfi1","cfi2",...]'
-        return fetch("<%= update_locations_document_path(@document) %>", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
-          },
-          body: JSON.stringify({
-            document: { locations: jsonLocations }  // Send the string
-          })
-        });
-      }).then(() => {
-        loading.html('<div class="text-center"><%= image_tag "ready.png" %></div>');
-        setTimeout(() => {
-          window.location.reload();
-        }, 600);
-      })
-      .catch(err => {
-        console.error(err);
-        loading.html("<h5 class='text-danger text-center'>Failed to prepare document.</h5>");
+  <div class="spinner-wrapper">
+      <span class="spinner-border text-dark spinner-large"></span>
+      <span id="spinner-percent">0%</span>
+  </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener("turbo:load", function () {
+
+  const loading = document.getElementById("firstloading");
+  const percentText = document.getElementById("spinner-percent");
+
+  loading.style.display = "block";
+
+  book.ready
+    .then(() => book.locations.generate(1500, (progress) => {
+        const percent = Math.round(progress * 100);
+        percentText.innerText = percent + "%";
+    }))
+
+    .then(() => {
+      const jsonLocations = book.locations.save();
+
+      return fetch("<%= update_locations_document_path(@document) %>", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
+        },
+        body: JSON.stringify({
+          document: { locations: jsonLocations }
+        })
       });
-  </script>
+
+    })
+
+    .then(() => {
+
+      loading.innerHTML = `
+        <div class="text-center">
+          <img src="/assets/ready.png" width="80">
+          <div style="margin-top:10px;font-weight:600;">Ready</div>
+        </div>
+      `;
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
+
+    })
+
+    .catch(err => {
+      console.error(err);
+      loading.innerHTML =
+        "<h5 class='text-danger text-center'>Failed to prepare document.</h5>";
+    });
+
+});
+
+</script>
 
 <% else %>
 
@@ -608,7 +641,7 @@
           if (stored && stored.trim() !== '') {
             try {
               book.locations.load(stored);
-              console.log("Loaded existing locations from DB");
+              //console.log("Loaded existing locations from DB");
             } catch (err) {
               console.error("Failed to load stored locations:", err);
               // Optional: fallback to generate ONLY if really needed (rare)

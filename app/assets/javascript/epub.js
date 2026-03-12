@@ -16666,6 +16666,11 @@ class locations_Locations {
     this.currentLocation = '';
     this._currentCfi = '';
     this.processingTimeout = undefined;
+
+    // NEW: progress tracking
+    this._onProgress = null;
+    this._sectionCount = 0;
+    this._processedSections = 0;
   }
   /**
    * Load all of sections in the book to generate locations
@@ -16674,17 +16679,37 @@ class locations_Locations {
    */
 
 
-  generate(chars) {
+  generate(chars, onProgress) {
+    // Support both old call (generate(1024)) and new call with progress
+    if (typeof chars === "function") {
+      onProgress = chars;
+      chars = undefined;
+    }
+
     if (chars) {
       this.break = chars;
     }
 
     this.q.pause();
+
+    // Count linear sections once (for accurate progress %)
+    let sectionCount = 0;
+    this.spine.each(function (section) {
+      if (section.linear) {
+        sectionCount++;
+      }
+    }.bind(this));
+
+    this._sectionCount = sectionCount;
+    this._processedSections = 0;
+    this._onProgress = typeof onProgress === "function" ? onProgress : null;
+
     this.spine.each(function (section) {
       if (section.linear) {
         this.q.enqueue(this.process.bind(this), section);
       }
     }.bind(this));
+
     return this.q.run().then(function () {
       this.total = this._locations.length - 1;
 
@@ -16692,7 +16717,13 @@ class locations_Locations {
         this.currentLocation = this._currentCfi;
       }
 
-      return this._locations; // console.log(this.percentage(this.book.rendition.location.start), this.percentage(this.book.rendition.location.end));
+      // Final safety call (will be 100%)
+      if (this._onProgress) {
+        this._onProgress(1);
+        this._onProgress = null;
+      }
+
+      return this._locations;
     }.bind(this));
   }
 
@@ -16710,6 +16741,14 @@ class locations_Locations {
       var completed = new core["defer"]();
       var locations = this.parse(contents, section.cfiBase);
       this._locations = this._locations.concat(locations);
+
+      // NEW: update ongoing percentage after every section
+      if (this._onProgress && this._sectionCount > 0) {
+        this._processedSections++;
+        const progress = Math.min(this._processedSections / this._sectionCount, 1);
+        this._onProgress(progress);
+      }
+
       section.unload();
       this.processingTimeout = setTimeout(() => completed.resolve(locations), this.pause);
       return completed.promise;
