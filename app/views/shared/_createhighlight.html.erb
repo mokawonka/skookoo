@@ -134,6 +134,7 @@
         <textarea id=vdefinition name="expression[definition]"></textarea>
         <textarea id=vcfi name="expression[cfi]"></textarea>
         <input id=vdocid name="expression[docid]">
+        <input id=vorigin name="expression[origin]">
         <button id="railsvocabbutton" type=submit>Ok</button>
     </form>
 
@@ -603,7 +604,8 @@
                 content: content,
                 definition: definition,
                 cfi: $('#cfi').text(),
-                docid: documentid
+                docid: documentid,
+                origin: "web"
             },
             token: token
             };
@@ -635,6 +637,7 @@
             $('#vdefinition').val(definition);
             $('#vcfi').val($('#cfi').text());
             $('#vdocid').val(documentid);
+            $('#vorigin').val("document");
 
             $('#railsvocabbutton').click();
         }
@@ -670,7 +673,7 @@
 
         const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
 
-        if (!isPomologist) {
+        if (isPomologist) {
             e.preventDefault();
             e.stopPropagation();
 

@@ -1141,4 +1141,22 @@ figure > img {
   margin-bottom:10px;
 }
 
+.dict-actions{
+margin-top:16px;
+}
+
+.dict-add-vocab{
+background:#00a711;
+color:white;
+border:none;
+padding:7px 14px;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+}
+
+.dict-add-vocab:hover{
+background:#00a711;
+}
+
 /* ================= END DICTIONARY ================= */

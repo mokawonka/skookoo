@@ -37,9 +37,9 @@ Rails.application.routes.draw do
 
   get "myvocab", to: "expressions#index"
 
-  get "search", to: "pages#search"
-  get "recharge", to: "pages#mana"
+  get "/dictionary/lookup", to: "dictionary#lookup"
 
+  get "search", to: "pages#search"
 
   post "login", to: "sessions#create"
   post "logout", to: "sessions#destroy"

@@ -29,6 +29,7 @@ class ExpressionsController < ApplicationController
       respond_to do |format|
         format.json { render json: { error: "Authentication required" }, status: :unauthorized }
         format.js   { render js: "alert('Please log in.');" }
+        format.html { redirect_to login_path }
       end
       return
     end
@@ -38,17 +39,20 @@ class ExpressionsController < ApplicationController
 
     respond_to do |format|
       if @expression.save
+        flash.now[:notice] = "Added to Vocabulary" 
+
         if token.present?
-          format.json { render json: { success: true, message: "Added to Vocabulary" } }
+          format.json { render json: { success: true, message: "Added to Vocabulary" } }  # web
         else
-          flash.now[:notice] = "Added to Vocabulary"
-          format.js 
+          format.json { render json: { success: true, message: "Added to Vocabulary" } }  # dictionary popup
+          format.js                                                                       # document
+          format.html { redirect_to expressions_path, notice: "Added to Vocabulary" }
         end
       else
         flash.now[:alert] = @expression.errors.full_messages.join(", ")
-
         format.json { render json: { error: flash.now[:alert] }, status: :unprocessable_entity }
         format.js   { render js: "alert('Failed: #{j flash.now[:alert]}');" }
+        format.html { redirect_to expressions_path, alert: flash.now[:alert] }
       end
     end
   end
@@ -71,6 +75,6 @@ class ExpressionsController < ApplicationController
   private
 
   def expression_params
-    params.require(:expression).permit(:userid, :docid, :cfi, :content, :definition)
+    params.require(:expression).permit(:userid, :docid, :cfi, :content, :definition, :origin)
   end
 end

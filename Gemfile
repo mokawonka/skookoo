@@ -63,6 +63,9 @@ gem 'prawn'
 
 gem 'gepub'
 
+gem 'wordnet'
+gem 'wordnet-defaultdb'
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.4', require: false
 

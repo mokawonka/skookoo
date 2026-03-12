@@ -3,21 +3,20 @@
        data-user-email="<%= current_user.email %>"
      <% end %>
 >
+
   <div class="dictionary-card">
 
     <div class="dictionary-title">
       <%= image_tag('dictionary.png', size: '32x32') %> Dictionary
-                  <span id="dictionary-close">✕</span>
-
+      <span id="dictionary-close">✕</span>
     </div>
-
 
     <form id="dictionary-form" onsubmit="return false;">
       <div class="dictionary-header">
 
         <input
           id="dictionary-input"
-          type="search"                 
+          type="search"
           placeholder="Search word..."
           autocomplete="off"
         >
@@ -30,12 +29,31 @@
           <option value="de">German</option>
         </select>
 
-
       </div>
     </form>
 
     <div id="dictionary-status"></div>
     <div id="dictionary-results"></div>
 
+    <% if logged_in? %>
+
+      <form id="dictionary-vocab-form"
+            action="<%= expressions_path %>"
+            method="post"
+            data-remote="true"
+            style="display:none;">
+
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+        <input type="hidden" name="expression[userid]" value="<%= current_user.id %>">
+        <input type="hidden" name="expression[content]"    id="vocab-word">
+        <input type="hidden" name="expression[definition]" id="vocab-definition">
+        <input type="hidden" name="expression[origin]"     id="vocab-origin">
+
+      </form>
+
+    <% end %>
+
   </div>
+
 </div>
