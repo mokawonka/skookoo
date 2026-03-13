@@ -1,5 +1,5 @@
 <% if @user.private? && @user.has_pending_follow_request_from?(current_user) %>
-  // Private profile → Pending request
+
   $('#followbutton')
     .text('Requested')
     .addClass('disabled')
@@ -18,8 +18,9 @@
 
 <% else %>
 
-  var isFollowing = $('#hover-followbutton').text().trim() === 'Following' || 
-                    $('#followbutton').text().trim() === 'Following';
+  var isFollowing =
+    $('#hover-followbutton').text().trim() === 'Following' ||
+    $('#followbutton').text().trim() === 'Following';
 
   $('#followbutton')
     .text('Following')
@@ -27,13 +28,20 @@
 
   $('#hover-followbutton')
     .text('Following')
-    .attr('href', '<%= user_unfollow_path(@user) %>')
+    .attr('href', '<%= user_unfollow_path(@user) %>');
 
   if (!isFollowing) {
-    var followers = parseInt($('#hover-followers-count').text());
-    if (!isNaN(followers)) $('#hover-followers-count').text(followers + 1);
 
-    var profileFollowers = parseInt($('#profile-followers-count').text());
-    if (!isNaN(profileFollowers)) $('#profile-followers-count').text((profileFollowers + 1) + ' Followers');
+    var followers = parseInt($('#hover-followers-count').text());
+    if (!isNaN(followers)) {
+      $('#hover-followers-count').text(followers + 1);
+    }
+
+    var following = parseInt($('#profile-following-count').text());
+    if (!isNaN(following)) {
+      $('#profile-following-count').text((following + 1) + ' Following');
+    }
+
   }
+
 <% end %>

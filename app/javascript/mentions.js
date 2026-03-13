@@ -33,8 +33,8 @@ document.addEventListener("turbo:load", () => {
       text = editor.value.substring(0, caretPos)
     }
 
-    const match = text.match(/@(\w{1,20})$/)
-    return match ? match[1].toLowerCase() : null
+    const match = text.match(/@([\w\s]{2,30})$/)
+    return match ? match[1].trim().toLowerCase() : null
   }
 
   // ─── Input handler ──────────────────────────────────────────────

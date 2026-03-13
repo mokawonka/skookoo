@@ -89,7 +89,7 @@
     <% end %>
 
     <div id=biography>
-        <%=@user.bio%>
+        <%=linkify_mentions(@user.bio)%>
     </div>
 
 
