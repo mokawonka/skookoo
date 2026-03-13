@@ -273,7 +273,7 @@ class DocumentsController < ApplicationController
   def build_essay_epub(title, authors, content_html)
     safe_title = CGI.escapeHTML(title.to_s)
 
-    content_xhtml = Nokogiri::HTML.fragment(content_html.to_s).to_xhtml
+    content_xhtml = Nokogiri::HTML.fragment(linkify_for_epub(content_html.to_s)).to_xhtml
 
     css = <<~CSS
       body {
@@ -492,7 +492,7 @@ class DocumentsController < ApplicationController
     # chapters
     chapters_array.each_with_index do |chap, idx|
       chap_title = CGI.escapeHTML(chap[:title].to_s.presence || "Chapter #{idx + 1}")
-      content_xhtml = Nokogiri::HTML.fragment(chap[:content].to_s).to_xhtml
+      content_xhtml = Nokogiri::HTML.fragment(linkify_for_epub(chap[:content].to_s)).to_xhtml
 
       chapter_html = <<~HTML
         <?xml version="1.0" encoding="UTF-8"?>
@@ -549,6 +549,20 @@ class DocumentsController < ApplicationController
     tmpfile
   end
 
+
+  def linkify_for_epub(html)
+    usernames = html.scan(/@(\w+)/).flatten.uniq
+    return html if usernames.empty?
+
+    users_map = User.where(username: usernames)
+                    .select(:id, :username)
+                    .index_by(&:username)
+
+    html.gsub(/@(\w+)/) do
+      username = $1
+      user = users_map[username]
+      user ? %(<a href="https://skookoo.com/users/#{username}" style="color:#0951a9;text-decoration:none;font-weight:600;">@#{username}</a>) : "@#{username}"    end
+  end
 
 
   def document_params

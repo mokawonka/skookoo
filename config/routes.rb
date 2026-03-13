@@ -5,6 +5,8 @@ Rails.application.routes.draw do
   get 'pages/home' => 'pages#home'
   get 'pages/following', to: 'pages#following'
 
+  get 'users/mention_search', to: 'users#mention_search'
+
   get 'users/:username' => 'users#show'
   get 'users/:id/show_following' => 'users#show_following'
   get 'users/:id/show_followers' => 'users#show_followers'
@@ -13,7 +15,6 @@ Rails.application.routes.draw do
   get 'users/:id/follow' => 'users#follow'
   get 'users/:id/unfollow' => 'users#unfollow'
   get "users/:id/hovercard", to: "users#hovercard"
-
 
   post 'epubs/:sha3/check_presence', to: 'epubs#check_presence'
   post 'epubs/:id/createfromdb' , to: 'epubs#createfromdb'
@@ -105,6 +106,7 @@ Rails.application.routes.draw do
       get    :show_follow_requests
       get    :download_data
     end
+
   end
 
   resources :documents, only: [:index, :show, :new, :create, :destroy] do

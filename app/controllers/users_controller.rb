@@ -416,6 +416,46 @@ class UsersController < ApplicationController
     end
 
 
+def mention_search
+  q = params[:q].to_s.strip.downcase
+  return render json: [] if q.length < 2 || q.length > 30
+
+  users = User
+    .where("LOWER(username) LIKE :q OR LOWER(name) LIKE :q", q: "#{q}%")
+    .order(Arel.sql(<<~SQL))
+      CASE
+        WHEN LOWER(username) = '#{q}'     THEN 0
+        WHEN LOWER(username) LIKE '#{q}%' THEN 1
+        WHEN LOWER(name)     LIKE '#{q}%' THEN 2
+        ELSE 3
+      END
+    SQL
+    .limit(8)
+    .select(:id, :username, :name)
+
+  following_ids = Set.new(current_user.following || [])
+
+  result = users.map do |u|
+    avatar_url = u.avatar.attached? \
+    ? url_for(u.avatar.variant(resize_to_limit: [44, 44])) \
+    : helpers.asset_path("default-avatar.svg")
+
+    {
+      id:           u.id,
+      username:     u.username,
+      name:         u.name,
+      avatar_url:   avatar_url,
+      is_following: following_ids.include?(u.id.to_s) || following_ids.include?(u.id)
+    }
+  end
+
+  expires_in 10.seconds, public: false
+  respond_to do |format|
+    format.json { render json: result }
+  end
+end
+
+
     def download_data
         return head :forbidden unless current_user == User.find(params[:id])
 

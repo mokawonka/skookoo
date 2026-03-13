@@ -9,6 +9,9 @@ import "@hotwired/turbo-rails"
 import "trix"
 import "@rails/actiontext"
 
+import "readmore"
+import "dictionary"
+import "mentions"
 
 
 Rails.start()

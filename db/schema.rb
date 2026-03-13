@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_12_101637) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_13_135002) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
@@ -221,6 +222,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_12_101637) do
     t.boolean "emailnotifications"
     t.boolean "private_profile", default: false, null: false
     t.text "pending_follow_requests", default: "[]"
+    t.index "lower((name)::text)", name: "index_users_on_lower_name"
+    t.index "lower((username)::text)", name: "index_users_on_lower_username"
+    t.index ["name"], name: "index_users_on_name_trigram", opclass: :gist_trgm_ops, using: :gist
+    t.index ["username"], name: "index_users_on_username_trigram", opclass: :gist_trgm_ops, using: :gist
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

@@ -52,6 +52,61 @@ BIOS = [
 ]
 
 # =====================================================
+# USERNAME POOLS
+# =====================================================
+
+USERNAME_ADJECTIVES = %w[
+  silent golden dark swift lucky wild bright sharp
+  lazy cool calm brave bold fuzzy tiny clever
+  cosmic frosted neon blazing hollow rusty velvet
+  stormy gentle fierce ancient lunar solar
+]
+
+USERNAME_NOUNS = %w[
+  fox wolf bear eagle hawk owl raven panda
+  pixel blade echo drift spark flare ghost
+  ridge storm creek vale peak dusk dawn
+  cipher nomad sage monk scribe wanderer
+  comet orbit nebula quasar pulsar
+]
+
+USERNAME_SUFFIXES = %w[
+  reads books pages ink shelf lit prose
+  tales words story lore verse chapter
+]
+
+# Patterns that mimic how real users pick usernames
+def generate_username(used)
+  100.times do
+    candidate = case rand(6)
+    when 0
+      # adjective + noun: "silentfox", "goldenowl"
+      "#{USERNAME_ADJECTIVES.sample}#{USERNAME_NOUNS.sample}"
+    when 1
+      # adjective + noun + number: "darkwolf42"
+      "#{USERNAME_ADJECTIVES.sample}#{USERNAME_NOUNS.sample}#{rand(10..999)}"
+    when 2
+      # firstname + number: "emma94"
+      "#{FIRST_NAMES.sample.downcase}#{rand(10..9999)}"
+    when 3
+      # noun + suffix: "foxreads", "wolftales"
+      "#{USERNAME_NOUNS.sample}#{USERNAME_SUFFIXES.sample}"
+    when 4
+      # firstname + noun: "lucaswolf", "miaecho"
+      "#{FIRST_NAMES.sample.downcase}#{USERNAME_NOUNS.sample}"
+    when 5
+      # adjective + suffix + number: "goldenreads7"
+      "#{USERNAME_ADJECTIVES.sample}#{USERNAME_SUFFIXES.sample}#{rand(1..99)}"
+    end
+
+    return candidate unless used.include?(candidate)
+  end
+
+  # Fallback: guaranteed unique
+  "reader_#{SecureRandom.hex(4)}"
+end
+
+# =====================================================
 # NAME POOL
 # =====================================================
 
@@ -61,10 +116,6 @@ NAME_POOL = ALL_NAMES.sample(actual_name_count).freeze
 
 # =====================================================
 # PRE-HASH PASSWORD ONCE
-#
-# BCrypt::Engine::MIN_COST (4) is ~250x faster than the default (12).
-# This is safe for seed/test data — never use MIN_COST in production.
-# We hash once and reuse the digest string for every row.
 # =====================================================
 
 puts "Pre-hashing password (cost=#{BCrypt::Engine::MIN_COST})..."
@@ -75,20 +126,22 @@ puts "Password hashed. Starting inserts..."
 # SEED USERS
 # =====================================================
 
-# Determine the correct column name Devise uses for the password digest.
-# Common values: :encrypted_password (Devise) or :password_digest (has_secure_password).
 PASSWORD_COLUMN = User.column_names.include?("encrypted_password") \
   ? :encrypted_password \
   : :password_digest
 
-timestamp = Time.current
-batch     = []
+timestamp      = Time.current
+batch          = []
 total_inserted = 0
+used_usernames = Set.new
 
 USER_COUNT.times do |i|
+  username = generate_username(used_usernames)
+  used_usernames << username
+
   batch << {
     email:                    "user#{i}_#{SecureRandom.hex(3)}@example.com",
-    username:                 "user#{i}_#{SecureRandom.hex(3)}",
+    username:                 username,
     name:                     NAME_POOL.sample,
     PASSWORD_COLUMN =>        HASHED_PASSWORD.to_s,
     mana:                     rand(0..1000),
@@ -117,7 +170,6 @@ USER_COUNT.times do |i|
   end
 end
 
-# Flush the last partial batch
 unless batch.empty?
   User.insert_all!(batch)
   total_inserted += batch.size

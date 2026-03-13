@@ -287,6 +287,8 @@ document.addEventListener('turbo:load', () => {
       trixElement.parentNode.insertBefore(hiddenInput, trixElement.nextSibling);
 
       new Trix.Editor(trixElement);
+
+      if (window.mentionsAttachToEditors) window.mentionsAttachToEditors()
     }
 
     block.querySelector('.remove-chapter').onclick = () => {
