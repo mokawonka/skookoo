@@ -9,9 +9,16 @@ import "@hotwired/turbo-rails"
 import "trix"
 import "@rails/actiontext"
 
+import "libraries/bootstrap.bundle.min"
+import "libraries/jszip.min"
+import "libraries/epub"
+import "libraries/cropper.min"
+import "libraries/sha3.min"
+
 import "readmore"
 import "dictionary"
 import "mentions"
+
 
 
 Rails.start()

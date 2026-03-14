@@ -13,7 +13,9 @@ pin "@hotwired/turbo-rails", to: "https://ga.jspm.io/npm:@hotwired/turbo-rails@7
 pin "@hotwired/turbo", to: "https://ga.jspm.io/npm:@hotwired/turbo@7.3.0/dist/turbo.es2017-esm.js"
 pin "@rails/actioncable/src", to: "https://ga.jspm.io/npm:@rails/actioncable@7.0.4/src/index.js"
 
+pin_all_from "app/javascript/libraries", under: "libraries"
 
 pin "dictionary", to: "dictionary.js"
 pin "readmore", to: "readmore.js"
 pin "mentions", to: "mentions.js"
+
