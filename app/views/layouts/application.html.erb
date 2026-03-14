@@ -12,7 +12,12 @@
 
     <%= display_meta_tags %> 
 
-    <%= javascript_include_tag ('libraries/jquery-3.6.0.min.js') %>
+    <%= javascript_include_tag asset_path("jquery-3.6.0.min.js") , defer: false %>
+    <%= javascript_include_tag asset_path("jszip.min.js") , defer: false %>
+    <%= javascript_include_tag asset_path("epub.js") , defer: false %>
+    <%= javascript_include_tag asset_path("bootstrap.bundle.min.js"), defer: false %>
+    <%= javascript_include_tag asset_path("cropper.min.js") , defer: false %>
+    <%= javascript_include_tag asset_path("sha3.min.js") , defer: false %>
     <%= javascript_importmap_tags %>
   </head>
 
