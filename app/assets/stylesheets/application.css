@@ -607,6 +607,22 @@ textarea {
     align-items: center;
 }
 
+.mini-avatar{
+  border-radius: 100%;
+  border: solid 1px #0951a9;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+}
+
+.mini-icon{
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+}
+
 
 #footer {
     position: fixed;

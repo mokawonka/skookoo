@@ -1,7 +1,3 @@
-.dropdown-menu {
-  padding: 0;                    /* remove default padding so scroll area touches edges */
-  overflow: hidden;              /* prevent outer scrollbar */
-}
 
 .allnotifications {
   min-width: 340px !important;           /* wider than 200px — looks better for notifications */

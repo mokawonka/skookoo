@@ -20,7 +20,6 @@ Rails.application.routes.draw do
   post 'epubs/:id/createfromdb' , to: 'epubs#createfromdb'
   get 'epubs/:id/createfromdb'  , to: 'epubs#createfromdb'
 
-
   get 'highlights/:id' => 'highlights#show'
   post 'highlights/:id' => 'highlights#show'
   post "richcomment" , to: 'highlights#create'

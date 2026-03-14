@@ -17,7 +17,7 @@
                 <% end %>
                 <span><%= link_to 'View' , highlight_path(highlight)+'?reply='+rep.id %></span>
             </small>
-            <div class='linkreturn pt-2'><%=rep.content %></div>
+            <div class='linkreturn pt-2'><%=linkify_mentions(rep.content) %></div>
 
         </div>
         <hr>

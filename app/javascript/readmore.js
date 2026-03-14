@@ -1,3 +1,5 @@
+document.addEventListener("turbo:load", function() {
+
 function runPostsPostprocessing() {
     $('.todecode').each(function(){
         $(this).text(he.decode($(this).text()));
@@ -38,7 +40,5 @@ $(function() {
     initPostsPostprocessing();
 });
 
-// Re-run when Turbo loads new page content (e.g. clicking user link from another page)
-document.addEventListener("turbo:load", function() {
     initPostsPostprocessing();
 });

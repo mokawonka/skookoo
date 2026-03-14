@@ -1,5 +1,3 @@
-// app/javascript/mentions.js
-
 document.addEventListener("turbo:load", () => {
 
   const cache = new Map()

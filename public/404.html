@@ -1,66 +1,171 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>The page you were looking for doesn't exist (404)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-  .rails-default-error-page {
-    background-color: #EFEFEF;
-    color: #2E2F30;
-    text-align: center;
-    font-family: arial, sans-serif;
-    margin: 0;
-  }
+<title>404 — Page Not Found</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-  .rails-default-error-page div.dialog {
-    width: 95%;
-    max-width: 33em;
-    margin: 4em auto 0;
-  }
+<style>
 
-  .rails-default-error-page div.dialog > div {
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #BBB;
-    border-top: #B00100 solid 4px;
-    border-top-left-radius: 9px;
-    border-top-right-radius: 9px;
-    background-color: white;
-    padding: 7px 12% 0;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
 
-  .rails-default-error-page h1 {
-    font-size: 100%;
-    color: #730E15;
-    line-height: 1.5em;
-  }
+body{
+font-family: 'League Spartan', system-ui, sans-serif; 
+font-weight: 700;
+background:linear-gradient(180deg,#fff8e6,#f6f8fa);
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+color:#24292f;
+overflow:hidden;
+}
 
-  .rails-default-error-page div.dialog > p {
-    margin: 0 0 1em;
-    padding: 1em;
-    background-color: #F7F7F7;
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #999;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-top-color: #DADADA;
-    color: #666;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
-  </style>
+/* floating decorations */
+
+.bg-icons img{
+position:absolute;
+opacity:.18;
+animation:float 12s infinite ease-in-out;
+}
+
+.bg-icons img:nth-child(1){top:8%;left:10%;width:60px}
+.bg-icons img:nth-child(2){top:20%;right:15%;width:70px;animation-delay:2s}
+.bg-icons img:nth-child(3){bottom:12%;left:20%;width:65px;animation-delay:3s}
+.bg-icons img:nth-child(4){bottom:18%;right:12%;width:60px;animation-delay:1s}
+.bg-icons img:nth-child(5){top:55%;left:8%;width:55px;animation-delay:4s}
+
+@keyframes float{
+0%{transform:translateY(0)}
+50%{transform:translateY(-18px)}
+100%{transform:translateY(0)}
+}
+
+/* main card */
+
+.container{
+max-width:640px;
+text-align:center;
+padding:60px 50px;
+background:white;
+border-radius:20px;
+box-shadow:0 20px 60px rgba(0,0,0,0.08);
+position:relative;
+z-index:10;
+}
+
+.logo{
+font-size:64px;
+margin-bottom:20px;
+}
+
+h1{
+font-size:70px;
+font-weight:800;
+letter-spacing:-2px;
+margin-bottom:10px;
+}
+
+.subtitle{
+font-size:20px;
+margin-bottom:14px;
+color:#57606a;
+}
+
+.description{
+font-size:16px;
+color:#656d76;
+margin-bottom:35px;
+line-height:1.6;
+}
+
+/* button */
+
+.actions{
+display:flex;
+justify-content:center;
+gap:14px;
+flex-wrap:wrap;
+}
+
+.button{
+padding:12px 22px;
+border-radius:10px;
+text-decoration:none;
+font-weight:600;
+font-size:15px;
+transition:all .2s ease;
+}
+
+.button-primary{
+background:#f4b400;
+color:white;
+}
+
+.button-primary:hover{
+background:#e6a300;
+transform:translateY(-2px);
+}
+
+.button-secondary{
+background:#f6f8fa;
+color:#24292f;
+border:1px solid #d0d7de;
+}
+
+.button-secondary:hover{
+background:#eaeef2;
+}
+
+/* small footer */
+
+.footer{
+margin-top:30px;
+font-size:13px;
+color:#8c959f;
+}
+
+</style>
 </head>
 
-<body class="rails-default-error-page">
-  <!-- This file lives in public/404.html -->
-  <div class="dialog">
-    <div>
-      <h1>The page you were looking for doesn't exist.</h1>
-      <p>You may have mistyped the address or the page may have moved.</p>
-    </div>
-  </div>
+<body>
+
+<div class="bg-icons">
+<img src="/bee.svg">
+<img src="/honey.svg">
+<img src="/berry.svg">
+<img src="/book.png">
+<img src="/grapes.svg">
+</div>
+
+<div class="container">
+
+<div class="logo">🍯</div>
+
+<h1>404</h1>
+
+<div class="subtitle">
+This page flew away with the bees.
+</div>
+
+<div class="description">
+The page you were looking for may have been moved,<br>
+renamed, or never existed in this garden of knowledge.
+</div>
+
+<div class="actions">
+<a href="/" class="button button-primary">Return Home</a>
+<a href="javascript:history.back()" class="button button-secondary">Go Back</a>
+</div>
+
+<div class="footer">
+Lost in the orchard of books and honey.
+</div>
+
+</div>
+
 </body>
 </html>
