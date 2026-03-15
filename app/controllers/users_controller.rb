@@ -21,7 +21,7 @@ class UsersController < ApplicationController
         if @user.save
 
             # creating a sample epub
-            service = EpubCreator.new(
+            service = EpubCreatorService.new(
                 file:    Rails.root.join("app", "assets", "samples", "demo.epub"), 
                 user_id: @user.id
             )
@@ -502,7 +502,7 @@ class UsersController < ApplicationController
 
 
             format.pdf do
-                pdf = UserDataPdf.new(user, highlights, replies)
+                pdf = UserDataPdfService.new(user, highlights, replies)
 
                 send_data pdf.render,
                             filename: "skookoo_data_#{Date.today}.pdf",

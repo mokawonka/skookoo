@@ -1,4 +1,4 @@
-class UserDataPdf < Prawn::Document
+class UserDataPdfService < Prawn::Document
 
   def initialize(user, highlights, replies)
     super(top_margin: 50)
@@ -83,7 +83,7 @@ class UserDataPdf < Prawn::Document
       move_down 5
 
       indent(10) do
-        plain_content = ActionView::Base.full_sanitizer.sanitize(r.content)
+        plain_content = r.content.body.to_plain_text.squish
         text plain_content
       end
 

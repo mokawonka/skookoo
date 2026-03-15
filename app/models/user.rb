@@ -14,6 +14,8 @@ class User < ApplicationRecord
     after_create :create_default_subscription
 
     before_destroy :soft_delete_replies
+    before_save    :downcase_username
+
 
     attribute :mana, :integer, default: 1
     attribute :darkmode, :boolean, default: false
@@ -91,16 +93,18 @@ class User < ApplicationRecord
     def notify_new_followers
         new_follower_ids = (followers || []) - (previous_followers || [])
         new_follower_ids.each do |follower_id|
-        follower = User.find_by(id: follower_id)
-        next unless follower
-
-        # Send a notification using Noticed
-        FollowNotifier.with(follower: follower, followed_user: self).deliver_later(self)
+            follower = User.find_by(id: follower_id)
+            next unless follower
+            FollowNotifier.with(follower: follower, followed_user: self).deliver_later(self)
         end
     end
 
     def create_default_subscription
         create_subscription(plan: 'janitor', status: 'active')
+    end
+
+    def downcase_username
+        self.username = username.downcase
     end
 
     def soft_delete_replies

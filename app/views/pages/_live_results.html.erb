@@ -15,8 +15,10 @@
         <div class="search-user-meta">
           <div class="search-user-name">
             <%= user.name %>
-            <% if current_user.following.include?(user.id) %>
-              <span class="following-badge">Following</span>
+            <% if logged_in? %>
+              <% if current_user.following.include?(user.id) %>
+                <span class="following-badge">Following</span>
+              <% end %>
             <% end %>
           </div>
           <div class="search-user-handle">@<%= user.username %></div>

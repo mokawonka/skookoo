@@ -169,12 +169,374 @@
 }
 
 
-#aboutcontent{
-    font-size: 22px;
-    padding-top: 100px;
-    text-align: center;
-    padding-bottom: 5em;
-    max-width: 500px;
+
+#search-container{
+    position:relative;
+    width:375px;
+    margin:auto;
+    border:2px solid #0951a9;
+    border-radius:21px;
+    background:white;
+    transition:all .25s ease;
 }
 
+
+#searchform input{
+    border:none;
+    height:40px;
+    width:100%;
+    padding-left:35px;
+    color:#444;
+    background:transparent;
+}
+
+
+#searchform input:focus,
+#searchform input:focus-visible,
+#searchform input:active{
+    outline:none !important;
+    box-shadow:none !important;
+    border:none !important;
+}
+
+#search-container.active{
+    border-color:#ff8080;
+    border-bottom-color: transparent;
+    border-bottom-left-radius:0;
+    border-bottom-right-radius:0;
+}
+
+#search-container:focus-within {
+    border-color: #ff8080;
+}
+
+
+#search-results{
+    position:absolute;
+    top:100%;
+    left:-2px;
+    width:calc(100% + 4px);
+    background:white;
+    border-left:2px solid #ff8080;
+    border-right:2px solid #ff8080;
+    border-bottom:2px solid #ff8080;
+    border-bottom-left-radius:21px;
+    border-bottom-right-radius:21px;
+    display:none;
+    max-height:420px;
+    overflow-y:auto;
+    scrollbar-width: none; 
+    z-index:10000;
+}
+
+.search-results::-webkit-scrollbar {
+  display: none;
+}
+
+#search-container.active #search-results{
+    display:block;
+}
+
+.search-section{
+    padding:10px 0;
+}
+
+.search-section-title{
+    font-size:12px;
+    font-weight:600;
+    color:#8a8a8a;
+    padding:6px 15px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+
+
+.search-item{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    padding:10px 15px;
+    border-radius:10px;
+    text-decoration:none;
+    color:#222;
+    transition:background .15s ease;
+}
+
+.search-item:hover{
+    background:#f6f7f9;
+}
+
+
+.search-user{
+    align-items:center;
+}
+
+.search-user-avatar img{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.search-user-meta{
+    display:flex;
+    flex-direction:column;
+}
+
+.search-user-name{
+    font-weight:600;
+    font-size:14px;
+    line-height:1.2;
+    color: #0951a9;
+}
+
+.search-user-handle{
+    font-size:13px;
+    color:#8a8a8a;
+}
+
+
+.search-quote{
+    flex-direction:column;
+}
+
+.search-quote-text{
+    font-size:14px;
+    line-height:1.4;
+    color:#222;
+    font-style:normal;
+}
+
+.search-quote-meta{
+    font-size:12px;
+    color:#8a8a8a;
+    margin-top:4px;
+}
+
+.search-section + .search-section{
+    border-top:1px solid #f0f0f0;
+}
+
+.following-badge {
+  display: inline-block;
+  background-color: #e0f7ea;   
+  color: green;            
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;       
+  margin-left: 6px;
+  vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media only screen and (max-width:650px){
+    #search-container{
+        width:200px;
+    }
+
+    .search-item{
+        padding:9px 12px;
+    }
+}
+
+.sr-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.sr-page-header {
+  padding: 1.5rem 0 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sr-page-meta {
+  font-size: 14px;
+  font-weight: 400;
+  color: #aaa;
+}
+
+.sr-page-count {
+  font-weight: 600;
+  color: #555;
+}
+
+.sr-page-query {
+  color: #0951a9;
+  font-weight: 600;
+}
+
+.sr-section {
+  margin-bottom: 2.5rem;
+}
+
+.sr-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.sr-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #E6F1FB;
+  color: #185FA5;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 20px;
+  letter-spacing: 0;
+}
+
+.sr-people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.sr-person-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  text-decoration: none;
+  background: #fff;
+  transition: border-color .15s, background .15s;
+}
+
+.sr-person-card:hover {
+  border-color: #c5d8f5;
+  background: #f6f9ff;
+}
+
+.sr-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #E6F1FB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+
+.sr-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sr-person-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0951a9;
+  line-height: 1.2;
+}
+
+.sr-person-handle {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 1px;
+}
+
+.sr-quotes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sr-quote-card {
+  display: block;
+  padding: 16px 18px;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  background: #fff;
+  text-decoration: none;
+  transition: border-color .15s, background .15s;
+}
+
+.sr-quote-card:hover {
+  border-color: #c5d8f5;
+  background: #f6f9ff;
+}
+
+.sr-quote-mark {
+  font-size: 28px;
+  line-height: 1;
+  color: #dde8f7;
+  font-family: Georgia, serif;
+  margin-bottom: 4px;
+}
+
+.sr-quote-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #0951a9;
+}
+
+.sr-quote-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.sr-quote-author {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+.sr-quote-dot {
+  color: #ddd;
+  font-size: 10px;
+}
+
+.sr-quote-title {
+  font-size: 12px;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+.sr-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #aaa;
+}
+
+.sr-empty p {
+  margin-top: 12px;
+  font-size: 15px;
+}
+
+@media (max-width: 500px) {
+  .sr-people-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sr-quote-card {
+    padding: 14px;
+  }
+}
 

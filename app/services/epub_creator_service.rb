@@ -1,4 +1,4 @@
-class EpubCreator
+class EpubCreatorService
   include ActiveModel::Model
 
   attr_accessor :file, :user_id, :epub, :document
