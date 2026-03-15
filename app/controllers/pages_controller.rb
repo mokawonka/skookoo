@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  skip_before_action :require_user, only: [:login, :home, :search, :about]
+  skip_before_action :require_user, only: [:login, :home, :search, :about, :live]
 
   def login
     if logged_in?
@@ -28,6 +28,27 @@ class PagesController < ApplicationController
     end
   end
 
+
+
+  def live
+
+    q = params[:q]
+
+    return render html: "" if q.blank?
+
+    @users = User
+      .where("username % :q OR name % :q", q: q)
+      .order(Arel.sql("GREATEST(similarity(username, #{ActiveRecord::Base.connection.quote(q)}), similarity(name, #{ActiveRecord::Base.connection.quote(q)})) DESC"))
+      .limit(5)
+
+    @highlights = Highlight
+          .where("quote ILIKE ?", "%#{q}%")
+          .order(Arel.sql("similarity(quote, #{ActiveRecord::Base.connection.quote(q)}) DESC"))
+          .limit(5)
+
+    render partial: "pages/live_results"
+
+  end
 
 
   def search

@@ -113,7 +113,9 @@ document.addEventListener("turbo:load", function () {
       <% end %>
 
 
-
+      <% content_for :head do %>
+        <meta name="turbo-cache-control" content="no-cache">
+      <% end %>
       <div id=allcontent class="row">
 
           <div id=content class="p-0">

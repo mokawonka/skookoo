@@ -2,26 +2,26 @@ Rails.application.routes.draw do
 
   root 'pages#home'
 
-  get 'pages/home' => 'pages#home'
+  get 'pages/home' , to: 'pages#home'
   get 'pages/following', to: 'pages#following'
 
   get 'users/mention_search', to: 'users#mention_search'
 
   get 'users/:username' => 'users#show'
-  get 'users/:id/show_following' => 'users#show_following'
-  get 'users/:id/show_followers' => 'users#show_followers'
-  get 'users/:id/show_replies' => 'users#show_replies'
+  get 'users/:id/show_following' , to:  'users#show_following'
+  get 'users/:id/show_followers' , to: 'users#show_followers'
+  get 'users/:id/show_replies' , to:  'users#show_replies'
 
-  get 'users/:id/follow' => 'users#follow'
-  get 'users/:id/unfollow' => 'users#unfollow'
+  get 'users/:id/follow' , to: 'users#follow'
+  get 'users/:id/unfollow' , to: 'users#unfollow'
   get "users/:id/hovercard", to: "users#hovercard"
 
   post 'epubs/:sha3/check_presence', to: 'epubs#check_presence'
   post 'epubs/:id/createfromdb' , to: 'epubs#createfromdb'
   get 'epubs/:id/createfromdb'  , to: 'epubs#createfromdb'
 
-  get 'highlights/:id' => 'highlights#show'
-  post 'highlights/:id' => 'highlights#show'
+  get 'highlights/:id', to: 'highlights#show'
+  post 'highlights/:id' , to: 'highlights#show'
   post "richcomment" , to: 'highlights#create'
 
   post '/gemini/define',  to: 'gemini#define'
@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   get "/dictionary/lookup", to: "dictionary#lookup"
 
   get "search", to: "pages#search"
+  get "search/live", to: "pages#live"
 
   post "login", to: "sessions#create"
   post "logout", to: "sessions#destroy"

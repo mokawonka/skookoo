@@ -17,4 +17,6 @@ pin "@rails/actioncable/src", to: "https://ga.jspm.io/npm:@rails/actioncable@7.0
 pin "dictionary", to: "dictionary.js"
 pin "readmore", to: "readmore.js"
 pin "mentions", to: "mentions.js"
+pin "livesearch", to: "livesearch.js"
+
 

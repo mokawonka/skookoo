@@ -62,6 +62,10 @@
 
 <div id="infoprofile">
     <span id=nameprofile><%= @user.name %></span>
+    <% if @user.pomologist? %>
+        <span class="pomo-badge">🌿 Pomologist</span>
+    <% end %>
+
     <% if logged_in? %>
         <% if current_user == @user %>
             <div id=editname class=d-none>

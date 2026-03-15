@@ -12,6 +12,8 @@ import "@rails/actiontext"
 import "readmore"
 import "dictionary"
 import "mentions"
+import "livesearch"
+
 
 
 

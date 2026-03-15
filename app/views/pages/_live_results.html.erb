@@ -1,0 +1,40 @@
+<% if @users.any? %>
+  <div class="search-section">
+    <div class="search-section-title">People</div>
+
+    <% @users.each do |user| %>
+      <a href="<%= user_path(user.username) %>" class="search-item search-user">
+        <div class="search-user-avatar">
+          <% if user.avatar.attached? %>
+            <%= image_tag user.avatar.variant(resize_to_limit: [40, 40]) %>
+          <% else %>
+            <%= image_tag "default-avatar.svg" %>
+          <% end %>
+        </div>
+
+        <div class="search-user-meta">
+          <div class="search-user-name">
+            <%= user.name %>
+            <% if current_user.following.include?(user.id) %>
+              <span class="following-badge">Following</span>
+            <% end %>
+          </div>
+          <div class="search-user-handle">@<%= user.username %></div>
+        </div>
+      </a>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @highlights.any? %>
+  <div class="search-section">
+    <div class="search-section-title">Quotes</div>
+
+    <% @highlights.each do |h| %>
+      <a href="/highlights/<%= h.id %>" class="search-item search-quote">
+        <div class="search-quote-text">"<%= truncate(h.quote, length: 110) %>"</div>
+        <div class="search-quote-meta"><%= h.fromauthors %> · <%= h.fromtitle %></div>
+      </a>
+    <% end %>
+  </div>
+<% end %>

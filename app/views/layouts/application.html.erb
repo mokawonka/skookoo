@@ -12,13 +12,15 @@
 
     <%= display_meta_tags %> 
 
-    <%= javascript_include_tag asset_path("jquery-3.6.0.min.js") , defer: false %>
-    <%= javascript_include_tag asset_path("jszip.min.js") , defer: false %>
-    <%= javascript_include_tag asset_path("epub.js") , defer: false %>
-    <%= javascript_include_tag asset_path("bootstrap.bundle.min.js"), defer: false %>
-    <%= javascript_include_tag asset_path("cropper.min.js") , defer: false %>
-    <%= javascript_include_tag asset_path("sha3.min.js") , defer: false %>
+    <%= javascript_include_tag asset_path("jquery-3.6.0.min.js"),       defer: false, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag asset_path("jszip.min.js"),               defer: false, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag asset_path("epub.js"),                    defer: false, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag asset_path("bootstrap.bundle.min.js"),    defer: false, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag asset_path("cropper.min.js"),             defer: false, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag asset_path("sha3.min.js"),                defer: false, "data-turbo-track": "reload" %>
+
     <%= javascript_importmap_tags %>
+    <%= yield :head %>
   </head>
 
 
@@ -31,15 +33,25 @@
         <% end %>
                 
         <% unless content_for?(:hide_global_search) %>
-          <%= form_with url: "/search", method: :get, class: "form-group has-search", html: { id: 'searchform' } do |form| %>
-            <div class="fa fa-search form-control-feedback"></div>
-            <%= form.text_field :query, required: true,
-                                        placeholder: "Search",
-                                        autocomplete: "off",
-                                        spellcheck: false,
-                                        id: "mainsearchinput",
-                                        class: "form-control ds-input" %>
-          <% end %>
+          <div id="search-container">
+            <%= form_with url: "/search",
+                          method: :get,
+                          class: "form-group has-search",
+                          html: { id: "searchform" } do |form| %>
+
+                <div class="fa fa-search form-control-feedback"></div>
+
+                <%= form.text_field :query,
+                                    required: true,
+                                    placeholder: "Search people or quotes",
+                                    autocomplete: "off",
+                                    spellcheck: false,
+                                    id: "mainsearchinput",
+                                    class: "form-control ds-input" %>
+
+            <% end %>
+            <div id="search-results"></div>
+          </div>
         <% end %>
 
 
