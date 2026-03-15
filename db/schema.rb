@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_15_125146) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_15_161203) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -225,6 +225,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_15_125146) do
     t.boolean "emailnotifications"
     t.boolean "private_profile", default: false, null: false
     t.text "pending_follow_requests", default: "[]"
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
     t.index "lower((name)::text)", name: "index_users_on_lower_name"
     t.index "lower((username)::text)", name: "index_users_on_lower_username"
     t.index ["name"], name: "index_users_on_name_trigram", opclass: :gist_trgm_ops, using: :gist

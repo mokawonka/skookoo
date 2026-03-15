@@ -1,0 +1,23 @@
+<div class="auth-card-wrap">
+  <div class="auth-card">
+    <div class="auth-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0951a9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+    </div>
+
+    <h4 class="auth-title">Forgot your password?</h4>
+    <p class="auth-sub">Enter your email and we'll send you a link to reset your password.</p>
+
+    <%= form_with url: password_resets_path, data: { turbo: false } do |f| %>
+      <div class="auth-field">
+        <label class="auth-label">Email address</label>
+        <%= f.email_field :email, placeholder: "your@email.com", required: true, class: "auth-input" %>
+      </div>
+      <%= f.submit "Send reset link", class: "auth-btn" %>
+    <% end %>
+
+    <%= link_to "← Back to login", login_path, class: "auth-back" %>
+  </div>
+</div>

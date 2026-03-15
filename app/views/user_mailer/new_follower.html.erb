@@ -1,9 +1,29 @@
-<p>Hello <%= @user.username %>,</p>
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; line-height: 1.6;">
 
-<p>
-  <strong><%= @follower.username %></strong> just started following you 🎉
-</p>
+  <p style="font-size: 16px;">
+      Hello <strong><%= @user.username %></strong>,
+  </p>
 
-<p>
-  <%= link_to "View profile", @url %>
-</p>
+  <p>
+    <strong><%= @follower.username %></strong> just started following you 🎉
+  </p>
+
+  <p style="margin-top: 25px;">
+    <%= link_to 'View profile', @url,
+      style: '
+        display: inline-block;
+        padding: 10px 16px;
+        background-color: #0951a9;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+      '
+    %>
+  </p>
+
+  <p style="margin-top: 30px; font-size: 13px; color: #888;">
+    You’re receiving this because you have email notifications enabled.
+  </p>
+
+</div>

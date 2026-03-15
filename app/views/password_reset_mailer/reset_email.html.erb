@@ -1,0 +1,24 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; line-height: 1.6;">
+
+    <p style="font-size: 16px;">
+        Hello <strong><%= @user.username %></strong>,
+    </p>
+
+    <p>Click the link below to reset your password. This link expires in 2 hours.</p>
+
+    <p style="margin-top: 25px;">
+    <%= link_to 'Reset my password', @reset_url,
+        style: '
+        display: inline-block;
+        padding: 10px 16px;
+        background-color: #0951a9;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        '
+    %>
+    </p>
+    <p>If you didn't request this, ignore this email.</p>
+
+</div>

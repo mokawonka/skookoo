@@ -83,6 +83,16 @@ class User < ApplicationRecord
         pending_follow_requests.include?(viewer.id)
     end
 
+    def generate_password_reset_token
+        self.reset_password_token = SecureRandom.urlsafe_base64
+        self.reset_password_sent_at = Time.current
+        save(validate: false)
+    end
+
+    def password_reset_expired?
+        reset_password_sent_at < 2.hours.ago
+    end
+
     private
     
     def store_previous_followers

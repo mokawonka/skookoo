@@ -131,6 +131,8 @@ Rails.application.routes.draw do
 
   resources :feature_requests, only: [:new, :create]
 
+  resources :password_resets, only: [:new, :create, :edit, :update]
+
   resources :subscriptions, only: [:new, :create] do
     collection do
       get :success
