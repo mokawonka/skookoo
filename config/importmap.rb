@@ -18,5 +18,7 @@ pin "dictionary", to: "dictionary.js"
 pin "readmore", to: "readmore.js"
 pin "mentions", to: "mentions.js"
 pin "livesearch", to: "livesearch.js"
+pin "hovercard", to: "hovercard.js"
+
 
 

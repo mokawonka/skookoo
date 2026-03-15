@@ -37,13 +37,6 @@ class Highlight < ApplicationRecord
       end
     end
 
-    include PgSearch::Model
-    pg_search_scope :global_search,
-        against: [:quote, :fromauthors, :fromtitle, :comment],
-    using: {
-        tsearch: { prefix: true }
-    }
-
   private
 
   def generate_og_image

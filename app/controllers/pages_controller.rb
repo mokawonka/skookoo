@@ -42,25 +42,50 @@ class PagesController < ApplicationController
       .limit(5)
 
     @highlights = Highlight
-          .where("quote ILIKE ?", "%#{q}%")
-          .order(Arel.sql("similarity(quote, #{ActiveRecord::Base.connection.quote(q)}) DESC"))
-          .limit(5)
+              .where(
+                "quote ILIKE :q OR fromauthors ILIKE :q OR fromtitle ILIKE :q",
+                q: "%#{q}%"
+              )
+              .order(Arel.sql(
+                "GREATEST(
+                  similarity(quote, #{ActiveRecord::Base.connection.quote(q)}),
+                  similarity(fromauthors, #{ActiveRecord::Base.connection.quote(q)}),
+                  similarity(fromtitle, #{ActiveRecord::Base.connection.quote(q)})
+                ) DESC"
+              )).limit(5)
 
     render partial: "pages/live_results"
 
   end
 
 
-  def search
-    @query = params[:query]
+def search
+  @query = params[:query]
 
-    if @query.blank?
-      redirect_to root_path
-    else
-      @fromhighlights = Highlight.global_search(@query)
-      @pagy, @highlights = pagy(@fromhighlights, items: 21)
-    end
+  if @query.blank?
+    redirect_to root_path
+  else
+    @users = User
+      .where("username % :q OR name % :q", q: @query)
+      .order(Arel.sql("GREATEST(similarity(username, #{ActiveRecord::Base.connection.quote(@query)}), similarity(name, #{ActiveRecord::Base.connection.quote(@query)})) DESC"))
+      .limit(6)
+
+    @fromhighlights = Highlight
+          .where(
+            "quote ILIKE :q OR fromauthors ILIKE :q OR fromtitle ILIKE :q",
+            q: "%#{@query}%"
+          )
+          .order(Arel.sql(
+            "GREATEST(
+              similarity(quote, #{ActiveRecord::Base.connection.quote(@query)}),
+              similarity(fromauthors, #{ActiveRecord::Base.connection.quote(@query)}),
+              similarity(fromtitle, #{ActiveRecord::Base.connection.quote(@query)})
+            ) DESC"
+          ))
+
+    @pagy, @highlights = pagy(@fromhighlights, items: 21)
   end
+end
 
 
 

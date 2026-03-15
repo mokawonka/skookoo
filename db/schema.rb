@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_14_163653) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_15_125146) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -138,6 +138,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_14_163653) do
     t.string "emojiid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["fromauthors"], name: "index_highlights_on_fromauthors_trigram", opclass: :gin_trgm_ops, using: :gin
+    t.index ["fromtitle"], name: "index_highlights_on_fromtitle_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["quote"], name: "index_highlights_on_quote_trigram", opclass: :gin_trgm_ops, using: :gin
   end
 
