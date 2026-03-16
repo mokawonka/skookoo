@@ -164,16 +164,14 @@ class DocumentsController < ApplicationController
 
     if logged_in? 
       @highlights = Highlight.where(docid: @document.id, userid: current_user.id)
+      @vocabs = Expression.where(:docid => @document.id, userid: current_user.id)
     end
 
     if logged_in? && current_user.id == @document.userid
-
-      @giphyApiKey = "Vsa6RyTveLS9mFOQVsTPmE8vndGnKc6G"
       @document.update_column(:last_accessed_at, Time.current)
       if params[:cfi].present?
         @target_highlight = @highlights.find_by(cfi: params[:cfi])
       end 
-      @vocabs = Expression.where(:docid => @document.id)
     else
       if !@document.ispublic
         redirect_to document_not_public_path and return
