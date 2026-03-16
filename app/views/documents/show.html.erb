@@ -848,23 +848,6 @@ document.addEventListener("turbo:load", function () {
           <% end %>
         });
 
-        // loading highlights (berries) / public
-        <% @highlights.each do |berry| %>          
-          rendition.annotations.add("highlight", "<%=berry.cfi%>", 
-                                    {}, 
-                                    (e) => {
-                                        var content = "<div>" + 
-                                                      "<%=escape_javascript render 'shared/onehighlight' , highlight: berry, document: @document, from: 'document' %> <br>" +
-                                                      "<%=escape_javascript render 'shared/createreply', reply: Reply.new, highlight_id: berry.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
-                                                      "<div id=allreplies>" + "<%=escape_javascript render 'shared/highlightreplies', replies: Reply.where(:highlightid => berry.id).where(:deleted => false).where(:recipientid => nil), highlight: berry, type: "parent" %>" + "</div></div>";
-
-                                        $('#conversationmodalcontent').html(content);
-                                        $('#conversationmodal').modal('show');
-                                    }, 
-                                    "hl", {"fill": "#0951a9", "fill-opacity": "0.2", "mix-blend-mode": "multiply", "pointer-events": "all",
-                                           "style": "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;", "onmouseenter": "this.style.fillOpacity='0.4'", "onmouseleave": "this.style.fillOpacity='0.2'"})
-        <% end %>
-
         <% if logged_in? && current_user.id == @document.userid %> // if user is owner of the document
 
 
@@ -998,6 +981,24 @@ document.addEventListener("turbo:load", function () {
                                       } , 
                                       "hl", {"fill": "green", "fill-opacity": "0.3", "mix-blend-mode": "multiply"})
 
+          <% end %>
+
+
+          // loading highlights (berries) / private
+          <% @highlights.each do |berry| %>          
+            rendition.annotations.add("highlight", "<%=berry.cfi%>", 
+                                      {}, 
+                                      (e) => {
+                                          var content = "<div>" + 
+                                                        "<%=escape_javascript render 'shared/onehighlight' , highlight: berry, document: @document, from: 'document' %> <br>" +
+                                                        "<%=escape_javascript render 'shared/createreply', reply: Reply.new, highlight_id: berry.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
+                                                        "<div id=allreplies>" + "<%=escape_javascript render 'shared/highlightreplies', replies: Reply.where(:highlightid => berry.id).where(:deleted => false).where(:recipientid => nil), highlight: berry, type: "parent" %>" + "</div></div>";
+
+                                          $('#conversationmodalcontent').html(content);
+                                          $('#conversationmodal').modal('show');
+                                      }, 
+                                      "hl", {"fill": "#0951a9", "fill-opacity": "0.2", "mix-blend-mode": "multiply", "pointer-events": "all",
+                                            "style": "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;", "onmouseenter": "this.style.fillOpacity='0.4'", "onmouseleave": "this.style.fillOpacity='0.2'"})
           <% end %>
 
 

@@ -187,7 +187,7 @@
 
         const isPomologist = <%= current_user&.pomologist? ? 'true' : 'false' %>;
 
-        if (!isPomologist) {
+        if (isPomologist) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -407,15 +407,15 @@
     $('#highlightmodal').on('click', '#gifaddbutton', function(e) {
         e.preventDefault();
 
+        const gifid = $('#gifid').val();
+        if (!gifid) {
+            alert("No GIF selected");
+            return;
+        }
+
         const isIframe = window.self !== window.top;
 
         if (isIframe) {
-
-            const gifid = $('#gifid').val();
-            if (!gifid) {
-                alert("No GIF selected");
-                return;
-            }
 
             const token = $('#auth-token').val() || '';
 
@@ -459,7 +459,7 @@
             $('#gdocid').val(documentid);
             $('#gfromauthors').val($('#authors').text());
             $('#gfromtitle').val($('#title').text());
-            $('#gifid').val(gifid);
+            // gifid is already in #gifid – no need to set again
 
             $('#railsgifbutton').click();
         }
