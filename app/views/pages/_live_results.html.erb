@@ -15,6 +15,9 @@
         <div class="search-user-meta">
           <div class="search-user-name">
             <%= user.name %>
+            <% if user.pomologist? %>
+                <%= render 'shared/premiumbadge' %>
+            <% end %>
             <% if logged_in? %>
               <% if current_user.following.include?(user.id) %>
                 <span class="following-badge">Following</span>

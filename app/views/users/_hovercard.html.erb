@@ -27,6 +27,9 @@
 
   <div class="hover-name">
     <%= link_to user.name, user_path(user.username) %>
+    <% if user.pomologist? %>
+        <%= render 'shared/premiumbadge' %>
+    <% end %>
   </div>
 
   <div class="hover-handle">@<%= user.username %></div>

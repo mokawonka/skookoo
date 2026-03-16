@@ -36,7 +36,12 @@
                 <% end %>
               </div>
               <div class="sr-person-meta">
-                <div class="sr-person-name"><%= user.name %></div>
+                <div class="sr-person-name">
+                  <%= user.name %>
+                  <% if user.pomologist? %>
+                      <%= render 'shared/premiumbadge' %>
+                  <% end %>
+                </div>
                 <div class="sr-person-handle">@<%= user.username %></div>
               </div>
             </a>
