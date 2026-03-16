@@ -986,13 +986,6 @@ document.addEventListener("turbo:load", function () {
                       win.getSelection().removeAllRanges();
                   }
               }
-
-              // Inject external font CSS
-              const contents = view.contents;
-              if (contents) {
-                contents.addStylesheet('<%= asset_path("fontnames.css") %>')
-                  .catch(err => console.error("Failed to load font CSS:", err));
-              }
           });
 
           // loading vocabulary / private
@@ -1010,6 +1003,13 @@ document.addEventListener("turbo:load", function () {
 
         <% end %> // if user is owner
 
+        rendition.on("rendered", (section, view) => {
+          const contents = view.contents;
+          if (contents) {
+            contents.addStylesheet('<%= asset_path("fontnames.css") %>')
+              .catch(err => console.error("Failed to load font CSS:", err));
+          }
+        });
 
       </script>
 
