@@ -91,7 +91,7 @@
 
     <form id="gifform" method="post" class="flex-form text-center" role="form">
         <input id="gifsearch" type="search" autocomplete="off" placeholder="Search GIF" aria-label="Search">
-        <button id="gifbutton" type=submit class="btn btn-sm btn-primary">Ok</button>
+        <button id="gifbutton" type=submit class="btn btn-sm btn-primary">Search</button>
     </form>
 
     <form hidden action="/highlights" method="post" data-remote="true" role="form">
@@ -249,8 +249,8 @@
             {
               if(gifs[g] != e.target) 
               {
-                gifs[g].style.border = '3px solid';
-                gifs[g].style.borderColor = 'black';
+                gifs[g].style.border = 'none';
+                gifs[g].style.borderColor = '';
 
 
                 if(gifs[g].parentNode.getElementsByTagName('button').length)

@@ -753,7 +753,7 @@ document.addEventListener("turbo:load", function () {
                     $('#conversationmodal').modal('show');
                   },
                   "hl", {
-                    fill: "yellow",
+                    fill: "rgb(255, 214, 11)",
                     "fill-opacity": "0.2",
                     "mix-blend-mode": "multiply",
                     "pointer-events": "all",
@@ -764,7 +764,7 @@ document.addEventListener("turbo:load", function () {
                 );
               <% else %>
                 rendition.annotations.add("highlight", highlightCfi, {}, null, "highlight", {
-                  fill: "yellow",
+                  fill: "rgb(255, 214, 11)",
                   "fill-opacity": "0.2"
                 });
               <% end %>
@@ -847,6 +847,9 @@ document.addEventListener("turbo:load", function () {
             timeoutHandle = window.setTimeout(function(){updateProgressinDB();}, 7000);
           <% end %>
         });
+
+
+        <% if logged_in? %>
 
           // ability to add highlights
 
@@ -968,8 +971,6 @@ document.addEventListener("turbo:load", function () {
               }
           });
 
-        <% if logged_in? %> // if user is owner of the document
-
           // loading vocabulary / private
           <% @vocabs.each do |vocab| %>
 
@@ -1001,7 +1002,7 @@ document.addEventListener("turbo:load", function () {
           <% end %>
 
 
-        <% end %> // if user is owner
+        <% end %> // if logged in
 
         rendition.on("rendered", (section, view) => {
           const contents = view.contents;
