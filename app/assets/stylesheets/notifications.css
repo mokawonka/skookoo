@@ -96,6 +96,17 @@
   color: #0951a9; 
 }
 
+.notiftext {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
 .close-btn {
   position: absolute;    /* absolute inside the li */
   top: 0.25rem;          /* small margin from top */

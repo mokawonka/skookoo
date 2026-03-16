@@ -1,0 +1,31 @@
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; line-height: 1.6;">
+
+    <p style="font-size: 16px;">
+        Hello <strong><%= @recipient.username %></strong>,
+    </p>
+
+
+    <p>
+    <strong><%= @author.username %></strong> just published a new <%= @document.nature %>:
+    <strong>"<%= @document.title %>"</strong>
+    </p>
+
+    <p style="margin-top: 25px;">
+    <%= link_to 'Read it now', document_url(@document),
+        style: '
+        display: inline-block;
+        padding: 10px 16px;
+        background-color: #0951a9;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        '
+    %>
+    </p>
+
+    <p style="margin-top: 30px; font-size: 13px; color: #888;">
+        You’re receiving this because you have email notifications enabled.
+    </p>
+
+</div>

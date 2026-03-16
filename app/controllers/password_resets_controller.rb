@@ -8,7 +8,7 @@ class PasswordResetsController < ApplicationController
     user = User.find_by(email: params[:email].to_s.downcase.strip)
     if user
       user.generate_password_reset_token
-      PasswordResetMailer.reset_email(user).deliver_later
+      UserMailer.reset_email(user).deliver_later
     end
     redirect_to login_path, notice: "If that email exists, a reset link has been sent."
   end

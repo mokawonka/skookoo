@@ -1,13 +1,27 @@
 class Document < ApplicationRecord
-    # belongs_to :user
-    # has_many :highlights
-    belongs_to :epub, optional: true, foreign_key: :epubid
+  belongs_to :epub, optional: true, foreign_key: :epubid
 
-    attribute :ispublic, :boolean, default: true
-    attribute :progress, :decimal, default: 0.00000000
-    attribute :opened, :integer, default: 0
+  attribute :ispublic, :boolean, default: true
+  attribute :progress, :decimal, default: 0.00000000
+  attribute :opened, :integer, default: 0
 
-    validates :epubid, presence: true
-    validates :userid, presence: true
+  validates :epubid, presence: true
+  validates :userid, presence: true
 
+  after_create :notify_followers
+
+  private
+
+  def notify_followers
+    return unless ispublic? && user_created?
+
+    author = User.find_by(id: userid)
+    return unless author
+
+    followers = User.where(id: author.followers || [])
+    return if followers.empty?
+
+    WritingNotifier.with(author: author, document: self).deliver_later(followers)
+  end
+  
 end

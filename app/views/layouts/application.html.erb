@@ -83,8 +83,8 @@
                 <%=image_tag('dictionary.png', class: 'mini-icon') %>
               </button>
       
-              <button id="notificationbutton" type="button" class="btn p-0" data-bs-toggle="dropdown" aria-expanded="false">
-                <%= image_tag('wind_chime.svg', class: 'mini-icon') %>
+              <button id="notificationbutton" type="button" class="btn pe-3" data-bs-toggle="dropdown" aria-expanded="false">
+                <%= image_tag('wind_chime.svg', size: '32x32') %>
                 <% count = current_user.notifications.unread.count %>
                   <span id="notification-count">
                     <%= render "notifications/notification_count", count: count %>
