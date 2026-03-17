@@ -115,6 +115,7 @@ Rails.application.routes.draw do
       patch :update_locations
       patch :update_settings
     end
+    resources :bookmarks, only: [:create, :destroy]
   end
 
   resources :highlights do

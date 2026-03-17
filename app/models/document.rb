@@ -1,5 +1,7 @@
 class Document < ApplicationRecord
   belongs_to :epub, optional: true, foreign_key: :epubid
+  has_many :bookmarks, dependent: :destroy
+
 
   attribute :ispublic, :boolean, default: true
   attribute :progress, :decimal, default: 0.00000000

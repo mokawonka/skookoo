@@ -160,26 +160,24 @@ class DocumentsController < ApplicationController
 
   def show
     @document = Document.find(params[:id])
-    @affiliated_epub = Epub.find(@document.epubid)
+
+    if logged_in? && current_user.id == @document.userid
+      @document.update_column(:last_accessed_at, Time.current)
+    else
+      if !@document.ispublic
+        redirect_to document_not_public_path and return
+      end
+    end
+
+    @affiliated_epub = @document.epub
 
     if logged_in? 
       @highlights = Highlight.where(docid: @document.id, userid: current_user.id)
       @vocabs = Expression.where(:docid => @document.id, userid: current_user.id)
     end
 
-    if logged_in? && current_user.id == @document.userid
-      @document.update_column(:last_accessed_at, Time.current)
-      if params[:cfi].present?
-        @target_highlight = @highlights.find_by(cfi: params[:cfi])
-      end 
-    else
-      if !@document.ispublic
-        redirect_to document_not_public_path and return
-      else
-        if params[:cfi].present?
-          @target_highlight = @highlights.find_by(cfi: params[:cfi])
-        end
-      end
+    if params[:cfi].present?
+      @target_highlight = @highlights.find_by(cfi: params[:cfi])
     end
 
   end

@@ -174,6 +174,7 @@ document.addEventListener("turbo:load", function () {
           <div id="toc-toolbar" class="toolbar">
             <button id="toc-button">Table</button>
             <button id="settings-button">Settings</button>
+            <button id="bookmark-button">Marks</button>
           </div>
 
           <div id="toc-sidebar" class="toc-sidebar">
@@ -264,11 +265,38 @@ document.addEventListener("turbo:load", function () {
             </div>
           </div>
 
+          <%# ── BOOKMARK SIDEBAR ── %>
+          <div id="bookmark-sidebar" class="bookmark-sidebar" data-bookmarks="<%= @document.bookmarks.to_json.html_safe %>">
+            <div class="bookmark-header">
+              <h2><svg width="18" height="18" viewBox="0 0 24 24" fill="white" style="margin-right:7px;flex-shrink:0"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>Bookmarks</h2>
+              <button id="close-bookmark">✕</button>
+            </div>
+
+            <div class="bookmark-add-section">
+              <button id="add-bookmark-btn" class="add-bookmark-btn">
+                <svg id="bookmark-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
+                <span id="bookmark-btn-text">Bookmark this page</span>
+              </button>
+            </div>
+
+            <div id="bookmark-list" class="bookmark-list"></div>
+
+            <div id="no-bookmarks" class="no-bookmarks">
+              <div class="no-bookmarks-icon">
+                <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.3" stroke-linecap="round"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
+              </div>
+              <p>No bookmarks yet</p>
+              <p class="no-bookmarks-sub">Navigate to any page and tap<br><strong>Bookmark this page</strong> above.</p>
+            </div>
+          </div>
+
+          <div id="bookmark-toast" class="bookmark-toast"></div>
+
       </div>
 
       <script>
 
-        var rendition = book.renderTo("viewer", {flow: "scrolled",  width: "100%" , iframe: true});
+        var rendition = book.renderTo("viewer", {flow: "paginated",  width: "100%" , iframe: true});
 
         /* ─────────────────────────────────────────────
           GLOBAL SETTINGS
@@ -622,10 +650,219 @@ document.addEventListener("turbo:load", function () {
           }
         }
 
+        var bookmarks = <%= raw @document.bookmarks.map { |b| { id: b.id, cfi: b.cfi, percentage: b.percentage, label: b.label } }.to_json %>;
+
+        /* ── Utility: get current CFI + percentage ── */
+        function getCurrentBookmarkData() {
+          if (!rendition || !book || !book.locations) return null;
+          try {
+            var loc = rendition.currentLocation();
+            if (!loc?.start?.cfi) return null;
+
+            var cfi = loc.start.cfi;
+            var pct = book.locations.percentageFromCfi(cfi);
+
+            /* Try to resolve chapter label from TOC */
+            var label = '';
+            if (book?.navigation?.toc) {
+              var href = loc.start.href || '';
+              var base = href.split('/').pop().split('#')[0];
+              var matched = (function findToc(items) {
+                for (var i = 0; i < items.length; i++) {
+                  var item = items[i];
+                  if (item.href && item.href.split('/').pop().split('#')[0] === base) return item.label;
+                  if (item.subitems?.length) {
+                    var sub = findToc(item.subitems);
+                    if (sub) return sub;
+                  }
+                }
+                return null;
+              })(book.navigation.toc);
+              label = matched || '';
+            }
+            if (!label) label = Math.round(pct * 100) + '% through';
+
+            return { cfi: cfi, percentage: pct, label: label };
+          } catch(e) { return null; }
+        }
+
+        /* ── Check if current page already has a bookmark ── */
+        function findCurrentBookmark() {
+          var data = getCurrentBookmarkData();
+          if (!data) return null;
+          return bookmarks.find(function(b) {
+            return Math.abs(b.percentage - data.percentage) < 0.012;
+          }) || null;
+        }
+
+        /* ── Add bookmark via PATCH/POST ── */
+        <% if logged_in? && current_user.id == @document.userid %>
+        function addBookmark() {
+          var data = getCurrentBookmarkData();
+          if (!data) return;
+
+          fetch("<%= document_bookmarks_path(@document) %>", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content
+            },
+            body: JSON.stringify({ bookmark: { cfi: data.cfi, percentage: data.percentage, label: data.label } })
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(newBm) {
+            bookmarks.push(newBm);
+            afterBookmarkChange(true);
+          })
+          .catch(function(err) { console.error('Bookmark add failed:', err); });
+        }
+
+        function removeBookmark(id) {
+          fetch("<%= document_bookmarks_path(@document) %>/" + id, {
+            method: "DELETE",
+            headers: { "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").content }
+          })
+          .then(function() {
+            bookmarks = bookmarks.filter(function(b) { return b.id !== id; });
+            afterBookmarkChange(false);
+          })
+          .catch(function(err) { console.error('Bookmark remove failed:', err); });
+        }
+        <% else %>
+        function addBookmark() {}
+        function removeBookmark(id) {}
+        <% end %>
+
+        /* ── Toggle bookmark for current page ── */
+        function toggleCurrentBookmark() {
+          addBookmark();
+        }
+
+        /* ── After add/remove: update all UI ── */
+        function afterBookmarkChange(wasAdd) {
+          renderBookmarkList();
+          showBookmarkToast(wasAdd ? 'Bookmark added' : 'Bookmark removed', wasAdd);
+        }
+
+        /* ── Render bookmark cards ── */
+        function renderBookmarkList() {
+          var list = document.getElementById('bookmark-list');
+          var empty = document.getElementById('no-bookmarks');
+          if (!list) return;
+
+          list.innerHTML = '';
+
+          if (bookmarks.length === 0) {
+            if (empty) empty.style.display = 'flex';
+            return;
+          }
+          if (empty) empty.style.display = 'none';
+
+          var sorted = bookmarks.slice().sort(function(a, b) { return a.percentage - b.percentage; });
+
+          sorted.forEach(function(bm, idx) {
+            var card = document.createElement('div');
+            card.className = 'bookmark-card';
+            card.style.animationDelay = (idx * 45) + 'ms';
+
+            var pct = Math.round(bm.percentage * 100);
+            var isCurrentPage = (findCurrentBookmark()?.id === bm.id);
+
+            card.innerHTML =
+              '<div class="bookmark-card-body" data-cfi="' + bm.cfi + '">' +
+                '<div class="bookmark-card-ribbon' + (isCurrentPage ? ' current' : '') + '">' +
+                  '<svg width="14" height="22" viewBox="0 0 14 22" fill="' + (isCurrentPage ? '#d97706' : '#fbbf24') + '">' +
+                    '<path d="M0 0 H14 V19 L7 22 L0 19 Z"/>' +
+                  '</svg>' +
+                '</div>' +
+                '<div class="bookmark-info">' +
+                  '<div class="bookmark-label">' + escapeHTML(bm.label) + '</div>' +
+                  '<div class="bookmark-pct-text">' + pct + '% through the book</div>' +
+                '</div>' +
+                '<button class="bookmark-delete-btn" data-id="' + bm.id + '" title="Remove">✕</button>' +
+              '</div>' +
+              '<div class="bookmark-progress-track">' +
+                '<div class="bookmark-progress-fill" style="width:' + pct + '%"></div>' +
+              '</div>';
+
+            /* Navigate on click */
+            card.querySelector('.bookmark-card-body').addEventListener('click', function(e) {
+              if (e.target.classList.contains('bookmark-delete-btn')) return;
+              closeBookmarkSidebar();
+              rendition.display(bm.cfi);
+            });
+
+            /* Delete */
+            card.querySelector('.bookmark-delete-btn').addEventListener('click', function(e) {
+              e.stopPropagation();
+              var cardEl = e.target.closest('.bookmark-card');
+              cardEl.style.transform = 'translateX(30px)';
+              cardEl.style.opacity = '0';
+              cardEl.style.transition = 'all 0.22s ease';
+              setTimeout(function() { removeBookmark(bm.id); }, 200);
+            });
+
+            list.appendChild(card);
+          });
+        }
+
+
+        /* ── Toast notification ── */
+        function showBookmarkToast(message, isAdd) {
+          var toast = document.getElementById('bookmark-toast');
+          if (!toast) return;
+
+          toast.textContent = message;
+          toast.className = 'bookmark-toast show ' + (isAdd ? 'bm-add' : 'bm-remove');
+
+          clearTimeout(toast._timer);
+          toast._timer = setTimeout(function() {
+            toast.classList.remove('show');
+          }, 2400);
+        }
+
+        /* ── HTML escape helper ── */
+        function escapeHTML(str) {
+          return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        /* ── Close bookmark sidebar ── */
+        function closeBookmarkSidebar() {
+          var sidebar = document.getElementById('bookmark-sidebar');
+          var toolbar = document.getElementById('toc-toolbar');
+          if (sidebar) sidebar.classList.remove('open');
+          if (toolbar) toolbar.style.display = 'flex';
+        }
+
+        function initBookmarkUI() {
+          var toolbar  = document.getElementById('toc-toolbar');
+          var btn      = document.getElementById('bookmark-button');
+          var sidebar  = document.getElementById('bookmark-sidebar');
+          var closeBtn = document.getElementById('close-bookmark');
+          var addBtn   = document.getElementById('add-bookmark-btn');
+
+          if (!btn || !sidebar) return;
+
+          btn.onclick = function() {
+            var isOpen = sidebar.classList.toggle('open');
+            if (toolbar) toolbar.style.display = isOpen ? 'none' : 'flex';
+            if (isOpen) {
+              renderBookmarkList();
+            }
+          };
+
+          if (closeBtn) closeBtn.onclick = closeBookmarkSidebar;
+          if (addBtn)   addBtn.onclick   = toggleCurrentBookmark;
+
+          renderBookmarkList();
+        }
+
         /* Safe initialization */
         function initializeAll() {
           initTOC();
-          initSettingsUI(); 
+          initSettingsUI();
+          initBookmarkUI();
+
 
           const toolbar = document.getElementById("toc-toolbar");
           const sidebar = document.getElementById("toc-sidebar");
@@ -646,8 +883,6 @@ document.addEventListener("turbo:load", function () {
               //console.log("Loaded existing locations from DB");
             } catch (err) {
               console.error("Failed to load stored locations:", err);
-              // Optional: fallback to generate ONLY if really needed (rare)
-              // book.locations.generate(1500);
             }
           } else {
             console.log("No stored locations found.");
@@ -665,53 +900,6 @@ document.addEventListener("turbo:load", function () {
               return cfi;
             } catch (e) {
               return raw.indexOf('epubcfi(') === 0 ? raw : 'epubcfi(' + raw + ')';
-            }
-          }
-
-          async function scrollToHighlight(highlightCfi) {
-            if (!highlightCfi) {
-              rendition.display();
-              return;
-            }
-
-            try {
-              await rendition.display(highlightCfi);
-
-              await new Promise(resolve => {
-                const onRendered = () => {
-                  rendition.off("rendered", onRendered);
-                  resolve();
-                };
-                rendition.on("rendered", onRendered);
-                setTimeout(resolve, 900); // safety
-              });
-
-              await new Promise(r => setTimeout(r, 300));
-
-              let range = null;
-              for (let content of rendition.getContents()) {
-                try {
-                  range = content.range(highlightCfi);
-                  if (range) break;
-                } catch (e) {}
-              }
-
-              if (range && range.startContainer) {
-                void range.startContainer.parentElement.offsetHeight;
-                const rect = range.getBoundingClientRect();
-                const targetTop = rect.top + window.scrollY 
-                                  - (window.innerHeight * 0.38) 
-                                  + (rect.height / 2) 
-                                  - 120;
-
-                window.scrollTo({
-                  top: Math.max(0, targetTop),
-                  behavior: "smooth"
-                });
-              }
-            } catch (err) {
-              console.error("goToHighlight failed:", err);
-              rendition.display(highlightCfi);
             }
           }
 
@@ -737,37 +925,56 @@ document.addEventListener("turbo:load", function () {
             var highlightCfi = getCfiFromUrl();
 
             if (highlightCfi) {
-              scrollToHighlight(highlightCfi);
 
-              <% if @target_highlight %>
-                rendition.annotations.add("highlight", highlightCfi, {}, 
-                  (e) => {
-                    var content = "<div>" +
-                      "<%= escape_javascript render('shared/onehighlight', highlight: @target_highlight, document: @document, from: 'document') %> <br>" +
-                      "<%= escape_javascript render('shared/createreply', reply: Reply.new, highlight_id: @target_highlight.id, recipient_id: '', formwhatfor: 'creation') %> <br>" +
-                      "<div id=allreplies>" +
-                      "<%= escape_javascript render('shared/highlightreplies', replies: Reply.where(highlightid: @target_highlight.id).where(deleted: false).where(recipientid: nil), highlight: @target_highlight, type: 'parent') %>" +
-                      "</div></div>";
+              rendition.display(highlightCfi);
 
-                    $('#conversationmodalcontent').html(content);
-                    $('#conversationmodal').modal('show');
-                  },
-                  "hl", {
-                    fill: "rgb(255, 214, 11)",
-                    "fill-opacity": "0.2",
-                    "mix-blend-mode": "multiply",
-                    "pointer-events": "all",
-                    style: "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;",
-                    onmouseenter: "this.style.fillOpacity='0.4'",
-                    onmouseleave: "this.style.fillOpacity='0.2'"
-                  }
-                );
-              <% else %>
-                rendition.annotations.add("highlight", highlightCfi, {}, null, "highlight", {
-                  fill: "rgb(255, 214, 11)",
-                  "fill-opacity": "0.2"
+              rendition.on("relocated", function handleRelocated(location) {
+
+                if (!location?.start?.cfi) return;
+
+                rendition.off("relocated", handleRelocated);
+
+                requestAnimationFrame(() => {
+
+                  rendition.display(highlightCfi);
+
+                  setTimeout(() => {
+
+                    <% if @target_highlight %>
+                      rendition.annotations.add("highlight", highlightCfi, {}, 
+                        (e) => {
+                          var content = "<div>" +
+                            "<%= escape_javascript render('shared/onehighlight', highlight: @target_highlight, document: @document, from: 'document') %> <br>" +
+                            "<%= escape_javascript render('shared/createreply', reply: Reply.new, highlight_id: @target_highlight.id, recipient_id: '', formwhatfor: 'creation') %> <br>" +
+                            "<div id=allreplies>" +
+                            "<%= escape_javascript render('shared/highlightreplies', replies: Reply.where(highlightid: @target_highlight.id).where(deleted: false).where(recipientid: nil), highlight: @target_highlight, type: 'parent') %>" +
+                            "</div></div>";
+
+                          $('#conversationmodalcontent').html(content);
+                          $('#conversationmodal').modal('show');
+                        },
+                        "hl", {
+                          fill: "rgb(255, 214, 11)",
+                          "fill-opacity": "0.2",
+                          "mix-blend-mode": "multiply",
+                          "pointer-events": "all",
+                          style: "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;",
+                          onmouseenter: "this.style.fillOpacity='0.4'",
+                          onmouseleave: "this.style.fillOpacity='0.2'"
+                        }
+                      );
+                    <% else %>
+                      rendition.annotations.add("highlight", highlightCfi, {}, null, "highlight", {
+                        fill: "rgb(255, 214, 11)",
+                        "fill-opacity": "0.2"
+                      });
+                    <% end %>
+
+                  }, 60);
+
                 });
-              <% end %>
+              });
+   
             } else {
               rendition.display();
             }
@@ -841,6 +1048,10 @@ document.addEventListener("turbo:load", function () {
         var timeoutHandle;
         rendition.on('relocated', function(location){
           updateProgressbar();
+            // update sidebar if open
+            if (document.getElementById('bookmark-sidebar')?.classList.contains('open')) {
+              renderBookmarkList();
+            }
           <% if logged_in? && current_user.id == @document.userid %>
             // wait 7 seconds before updating progress
             window.clearTimeout(timeoutHandle);
@@ -971,24 +1182,19 @@ document.addEventListener("turbo:load", function () {
               }
           });
 
+        function loadAllAnnotations() {
+
           // loading vocabulary / private
           <% @vocabs.each do |vocab| %>
 
-            rendition.annotations.add("highlight", "<%=vocab.cfi%>", 
-                                      {}, 
-                                      (e) => {
-                                      
-                                      } , 
+            rendition.annotations.add("highlight", "<%=vocab.cfi%>", {}, (e) => {} , 
                                       "hl", {"fill": "green", "fill-opacity": "0.3", "mix-blend-mode": "multiply"})
 
           <% end %>
 
-
-          // loading highlights (berries) / private
+           // loading highlights (berries) / private
           <% @highlights.each do |berry| %>          
-            rendition.annotations.add("highlight", "<%=berry.cfi%>", 
-                                      {}, 
-                                      (e) => {
+            rendition.annotations.add("highlight", "<%=berry.cfi%>", {}, (e) => {
                                           var content = "<div>" + 
                                                         "<%=escape_javascript render 'shared/onehighlight' , highlight: berry, document: @document, from: 'document' %> <br>" +
                                                         "<%=escape_javascript render 'shared/createreply', reply: Reply.new, highlight_id: berry.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
@@ -1000,7 +1206,16 @@ document.addEventListener("turbo:load", function () {
                                       "hl", {"fill": "#0951a9", "fill-opacity": "0.2", "mix-blend-mode": "multiply", "pointer-events": "all",
                                             "style": "fill-opacity: 0.2; transition: fill-opacity 0.35s ease;", "onmouseenter": "this.style.fillOpacity='0.4'", "onmouseleave": "this.style.fillOpacity='0.2'"})
           <% end %>
+        }
 
+        var annotationsLoaded = false;
+        rendition.on("relocated", function onceLoaded() {
+          if (annotationsLoaded) return;
+          annotationsLoaded = true;
+          setTimeout(() => {
+            loadAllAnnotations();
+          }, 80);
+        });
 
         <% end %> // if logged in
 
