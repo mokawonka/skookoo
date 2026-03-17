@@ -178,8 +178,10 @@
                 <span>Hooked</span><%= image_tag 'hook.svg', size:'21x21'%>
                 </span>
             <% end %>
-            <%= render 'shared/post', highlight: @hookedhighlight %>
-            <hr>
+            <div class="hooked-post-wrapper"> 
+                <%= render 'shared/post', highlight: @hookedhighlight %>
+            </div>
+            <hr style="margin-top:0;">
         <% end %>
 
         <% if @totalH > 0 %>

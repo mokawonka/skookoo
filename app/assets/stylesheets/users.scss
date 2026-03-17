@@ -482,10 +482,6 @@ button.smallinput {
   overflow-y: auto;
 }
 
-#highlights {
-  padding-top: 16px;
-}
-
 #nameprofile{
   color: #0951a9;
   font-size: 20px;
@@ -555,6 +551,15 @@ button.smallinput {
 
 .hookedhighlight a{
   cursor: pointer;
+}
+
+.hooked-post-wrapper {
+  background: #ffefb0;
+  padding: 16px 0 16px 0;
+}
+
+#highlights > :not(.hookedhighlight):first-child > *:first-child {
+  padding-top: 16px;
 }
 
 

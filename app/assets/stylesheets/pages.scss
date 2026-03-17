@@ -158,7 +158,7 @@
 
 .hactions{
     font-size: 12px;
-    padding-top: 0px;
+    padding-top: 10px;
     padding-bottom: 0px;
 }
 
@@ -166,6 +166,10 @@
     text-decoration: none;
     color:gray;
     padding-right:10px;
+}
+
+.hactions a:hover {
+    color:#0951a9;
 }
 
 
