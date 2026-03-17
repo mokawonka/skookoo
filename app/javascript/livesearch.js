@@ -45,6 +45,37 @@ input.addEventListener("input", async () => {
 
 })
 
+let selectedIndex = -1;
+
+input.addEventListener("input", () => {
+  selectedIndex = -1;
+});
+
+input.addEventListener("keydown", function(e) {
+  var items = results.querySelectorAll("a, [data-url]");
+  if (!items.length) return;
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    selectedIndex = Math.max(selectedIndex - 1, 0);
+  } else if (e.key === "Enter" && selectedIndex >= 0) {
+    e.preventDefault();
+    items[selectedIndex].click();
+    return;
+  } else {
+    return;
+  }
+
+  items.forEach(function(item, i) {
+    item.classList.toggle("search-result-active", i === selectedIndex);
+  });
+
+  items[selectedIndex].scrollIntoView({ block: "nearest", behavior: "smooth" });
+});
+
 document.addEventListener("click", e => {
     if(!container.contains(e.target)){
         container.classList.remove("active")
