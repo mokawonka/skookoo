@@ -32,7 +32,7 @@
 
 
 body{
-    min-width: 400px;
+    min-width: 0px;
 }
 
 html, body {
@@ -674,7 +674,7 @@ textarea {
     top: 0;
     width: 100%;
     z-index: 99;
-    min-width: 400px;
+    min-width: 320px;
 
     display: flex;
     align-items: center;

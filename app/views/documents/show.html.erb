@@ -295,8 +295,11 @@ document.addEventListener("turbo:load", function () {
       </div>
 
       <script>
+        
+        // viewport - headbar - bottom gap
+        var viewerHeight = window.innerHeight - 75 - 30; 
 
-        var rendition = book.renderTo("viewer", {flow: "paginated",  width: "100%" , iframe: true});
+        var rendition = book.renderTo("viewer", {flow: "paginated",  width: "100%" , iframe: true, height: viewerHeight});
 
         /* ─────────────────────────────────────────────
           GLOBAL SETTINGS
@@ -379,7 +382,9 @@ document.addEventListener("turbo:load", function () {
               "color": textColor + " !important",
               "font-size": fontSize + "px !important",
               "line-height": lineHeight + "em !important",
-              "font-family": `'${fontFamily}', sans-serif !important`
+              "font-family": `'${fontFamily}', sans-serif !important`,
+              "text-align": "justify !important",      
+              "text-align-last": "left !important"
             }
           };
 

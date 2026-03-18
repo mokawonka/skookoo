@@ -91,8 +91,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-.epub-container{
-  overflow-x: hidden !important;
+.epub-container {
+  overflow: hidden !important;
 }
 
 #prev {
@@ -181,9 +181,13 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
-  z-index: 10;                    /* ← keep it above other page elements if needed */
-  pointer-events: none;           /* ← CRITICAL: makes the toolbar itself ignore touches */
+  z-index: 100;
+  pointer-events: none;  // toolbar div itself is click-through
+
+  // Re-enable only the actual buttons
+  button {
+    pointer-events: auto;
+  }
 }
 
 /* Re-enable pointer events ONLY on the actual interactive buttons */
@@ -442,6 +446,19 @@ input[type="range"] {
 
 /* ────── MOBILE: Smaller vertical buttons ────── */
 @media (max-width: 768px) {
+
+  #viewer {
+    left: 36px;
+  }
+
+  #prev {
+    top: 60%;  
+  }
+
+  #next {
+    top: 60%;
+  }
+
   .toolbar {
     gap: 6px;                    /* tighter spacing between buttons */
   }
@@ -502,15 +519,20 @@ input[type="range"] {
 }
 
 #viewer {
-  width: 100%;
-  min-height: 100vh;         
-  height: 100%;              
-  margin: 0;
+  position: fixed;
+  top: var(--headbar-height);
+  left: 44px;
+  right: 44px;
+  bottom: 7px;       
+  width: auto;
+  height: auto;
+  min-height: unset;
   padding: 0;
-  padding-top: 50px;
-  padding-bottom: 50px;
-  background-color: #ffffff; 
+  overflow: hidden;
+  background-color: #ffffff;
+  box-sizing: border-box;
 }
+
 
 .spinner-wrapper{
   position:relative;
@@ -846,24 +868,6 @@ body:has(.dropdown-menu.show) #viewer iframe {
   line-height: 1.55;
 }
 
-/* ── Ribbon Indicator (top-right) ── */
-.bookmark-ribbon {
-  position: fixed;
-  top: var(--headbar-height);
-  right: 18px;
-  z-index: 200;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-100%);
-  transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  filter: drop-shadow(2px 4px 10px rgba(217, 119, 6, 0.45));
-}
-
-.bookmark-ribbon.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ── Toast Notification ── */
 .bookmark-toast {
   position: fixed;
@@ -880,7 +884,10 @@ body:has(.dropdown-menu.show) #viewer iframe {
   transition: opacity 0.28s ease, transform 0.28s ease;
   z-index: 99999;
   pointer-events: none;
-  white-space: nowrap;
+  white-space: nowrap;    // ← keeps it pill-shaped and text on one line
+  width: auto;            // ← don't stretch to full width
+  max-width: 90vw;        // ← safety cap on very long messages
+  text-align: center;     // ← center the text
   box-shadow: 0 6px 24px rgba(0,0,0,0.3);
   letter-spacing: 0.1px;
 }
@@ -915,7 +922,4 @@ body:has(.dropdown-menu.show) #viewer iframe {
     max-width: 340px;
   }
 
-  .bookmark-ribbon {
-    right: 10px;
-  }
 }
