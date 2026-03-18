@@ -1,7 +1,6 @@
 class UsersController < ApplicationController
     protect_from_forgery
     skip_before_action :require_user, only: [:new, :create, :show, :hovercard] 
-    before_action :check_timestamp, only: [:update_votes, :follow, :unfollow]
 
 
     def new
@@ -107,54 +106,29 @@ class UsersController < ApplicationController
     
 
     def update_votes
-        
         @user = User.find(params[:id])
-        
-        # deleting passwords, otherwise it wont update
-        if params[:password].blank?
-            params.delete(:password)
-            params.delete(:password_confirmation)
-        end
+        entity_id = params[:entity_id]
+        new_vote = params[:vote].to_s
+        current_vote = @user.getvote(entity_id)
 
-        params[:user].each do |thekey, thevalue|
-
-            #get previous vote if present
-            @thevote = @user.getvote(thekey)
-            @thekey = thekey
-            @thevalue = thevalue
-
-            if @thevote == 1 # already upvoted
-
-                if thevalue == "1"
-                    @user.votes.delete(thekey)
-                elsif thevalue == "-1"
-                    @user.votes[thekey] = thevalue
-                end
-
-            elsif @thevote == -1 # already downvoted
-
-                if thevalue == "-1"
-                    @user.votes.delete(thekey)
-                elsif thevalue == "1"
-                    @user.votes[thekey] = thevalue
-                end
-
-            else # 0 / not present
-                @user.votes.store(thekey, thevalue)
+        if current_vote == 1
+            if new_vote == "1"
+            @user.votes.delete(entity_id)        # undo upvote
+            elsif new_vote == "-1"
+            @user.votes[entity_id] = new_vote    # switch to downvote
             end
-
-        end
-
-        respond_to do |format|
-  
-            if @user.update(user_params)
-                format.js 
-            else
-                format.js
+        elsif current_vote == -1
+            if new_vote == "-1"
+            @user.votes.delete(entity_id)        # undo downvote
+            elsif new_vote == "1"
+            @user.votes[entity_id] = new_vote    # switch to upvote
             end
-    
+        else
+            @user.votes.store(entity_id, new_vote) # fresh vote
         end
-        
+
+        @user.save
+        render json: { vote: @user.getvote(entity_id) }
     end
 
     

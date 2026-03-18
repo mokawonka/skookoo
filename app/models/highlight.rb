@@ -1,5 +1,9 @@
 class Highlight < ApplicationRecord
-    # belongs_to :document
+   
+    belongs_to :user, foreign_key: :userid
+    belongs_to :document, foreign_key: :docid, optional: true
+    has_many :replies, foreign_key: :highlightid
+
     after_create_commit :generate_og_image
     before_destroy :soft_delete_replies
 

@@ -1,29 +1,9 @@
-
 <% eid = entity.id.to_s %>
+<% entity_path = entity.class.name.downcase.pluralize %>
+
 
 <% if fromuser != nil && touser != nil %>
-
     <% myvote = fromuser.getvote(eid) %>
-
-    <%= form_with(model: fromuser, url: [fromuser, :update_votes], local: false,  class: "d-none") do |form| %>
-        <div class="field">
-            <%= form.text_field eid, { :id => 'vote-' + eid } %>
-        </div>
-        <div class="actions">
-            <%= form.submit "submit", id: 'submitvote-' + eid %>
-        </div>
-    <% end %>
-
-    <%= form_with(model: entity, url: [entity, :update_score], local: false,  class: "d-none") do |form| %>
-        <div class="field">
-            <%= form.text_field eid, { :id => 'increment-' + eid } %>
-        </div>
-        <div class="actions">
-            <%= form.submit "submit", id: 'submitscore-' + eid %>
-        </div>
-    <% end %>
-
-
 <% else %>
     <% myvote = 0 %>
 <% end %>
@@ -32,11 +12,14 @@
 
 <div class="hrating">
     <% if myvote == 1 %>
-        <%=link_to image_tag("upvote-arrow-active.svg", size:"21x21"), login_path(return_to: request.fullpath), class:"active", id: "upvote-" + eid %>
+        <%= link_to image_tag("upvote-arrow-active.svg", size:"21x21",
+                data: { default: asset_path('upvote-arrow.svg'), active: asset_path('upvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), class:"active", id: "upvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("upvote-arrow.svg", size:"21x21"), login_path(return_to: request.fullpath), id: "upvote-" + eid %>
+        <%= link_to image_tag("upvote-arrow.svg", size:"21x21",
+                data: { default: asset_path('upvote-arrow.svg'), active: asset_path('upvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), id: "upvote-" + eid %>
     <% end %>
-
 
     <% if myvote == 1 %>
         <p class=oscore id="score-<%=eid%>"><%=entity.score%></p>
@@ -46,23 +29,29 @@
         <p class=hscore id="score-<%=eid%>"><%=entity.score%></p>
     <% end %>
 
-
     <% if myvote == -1 %>
-        <%=link_to image_tag("downvote-arrow-active.svg", size:"21x21"), login_path(return_to: request.fullpath), class:"active", id: "downvote-" + eid %>
+        <%= link_to image_tag("downvote-arrow-active.svg", size:"21x21",
+                data: { default: asset_path('downvote-arrow.svg'), active: asset_path('downvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), class:"active", id: "downvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("downvote-arrow.svg", size:"21x21") , login_path(return_to: request.fullpath), id: "downvote-" + eid %>
+        <%= link_to image_tag("downvote-arrow.svg", size:"21x21",
+                data: { default: asset_path('downvote-arrow.svg'), active: asset_path('downvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), id: "downvote-" + eid %>
     <% end %>
 </div>
 
 <% elsif type == "minor" %>
 
     <% if myvote == 1 %>
-        <%=link_to image_tag("upvote-arrow-active.svg", size:"15x15"), login_path(return_to: request.fullpath), class:"active", id: "upvote-" + eid %>
+        <%= link_to image_tag("upvote-arrow-active.svg", size:"15x15",
+                data: { default: asset_path('upvote-arrow.svg'), active: asset_path('upvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), class:"active", id: "upvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("upvote-arrow.svg", size:"15x15"), login_path(return_to: request.fullpath), id: "upvote-" + eid %>
+        <%= link_to image_tag("upvote-arrow.svg", size:"15x15",
+                data: { default: asset_path('upvote-arrow.svg'), active: asset_path('upvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), id: "upvote-" + eid %>
     <% end %>
 
-    
     <% if myvote == 1 %>
         <b class=moscore id="score-<%=eid%>"><%=entity.score%></b>
     <% elsif myvote == -1 %>
@@ -71,11 +60,14 @@
         <b class=mhscore id="score-<%=eid%>"><%=entity.score%></b>
     <% end %>
 
-
     <% if myvote == -1 %>
-        <%=link_to image_tag("downvote-arrow-active.svg", size:"15x15"), login_path(return_to: request.fullpath), class:"active", id: "downvote-" + eid %>
+        <%= link_to image_tag("downvote-arrow-active.svg", size:"15x15",
+                data: { default: asset_path('downvote-arrow.svg'), active: asset_path('downvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), class:"active", id: "downvote-" + eid %>
     <% else %>
-        <%=link_to image_tag("downvote-arrow.svg", size:"15x15") , login_path(return_to: request.fullpath), id: "downvote-" + eid %>
+        <%= link_to image_tag("downvote-arrow.svg", size:"15x15",
+                data: { default: asset_path('downvote-arrow.svg'), active: asset_path('downvote-arrow-active.svg') }),
+                login_path(return_to: request.fullpath), id: "downvote-" + eid %>
     <% end %>
 
 <% end %>
@@ -85,66 +77,136 @@
 
 <script>
 
+    function updateArrows(eid, vote) {
+        const upBtn   = $("#upvote-"   + eid);
+        const downBtn = $("#downvote-" + eid);
+        const score   = $("#score-"    + eid);
+        const isMinor = score.is('b');
+
+        const upDefault   = upBtn.find('img').data('default');
+        const upActive    = upBtn.find('img').data('active');
+        const downDefault = downBtn.find('img').data('default');
+        const downActive  = downBtn.find('img').data('active');
+
+        upBtn.removeClass('active').find('img').attr('src', upDefault);
+        downBtn.removeClass('active').find('img').attr('src', downDefault);
+
+        if (vote === 1) {
+            upBtn.addClass('active').find('img').attr('src', upActive);
+            score.removeClass(isMinor ? 'mhscore mbscore' : 'hscore bscore')
+                .addClass(isMinor ? 'moscore' : 'oscore');
+        } else if (vote === -1) {
+            downBtn.addClass('active').find('img').attr('src', downActive);
+            score.removeClass(isMinor ? 'mhscore moscore' : 'hscore oscore')
+                .addClass(isMinor ? 'mbscore' : 'bscore');
+        } else {
+            score.removeClass(isMinor ? 'moscore mbscore' : 'oscore bscore')
+                .addClass(isMinor ? 'mhscore' : 'hscore');
+        }
+    }
+
     $("#upvote-<%=eid%>").on('click', function(e){
         e.preventDefault();
         
         var incval = 0;
-        var actionurl;
+        var manaAction;
 
         if($(this).hasClass('active')){ 
             incval = -1; 
-            actionurl = "/users/" + "<%=touser.id%>" + "/minusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
-        }
-        else if($("#downvote-<%=eid%>").hasClass('active')){ 
+            manaAction = "minusonemana";
+        } else if($("#downvote-<%=eid%>").hasClass('active')){ 
             incval = 2; 
-            actionurl = "/users/" + "<%=touser.id%>" + "/plustwomana?authenticity_token=" + "<%=form_authenticity_token%>";
-        }
-        else { 
+            manaAction = "plustwomana";
+        } else { 
             incval = 1;
-            actionurl = "/users/" + "<%=touser.id%>" + "/plusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
+            manaAction = "plusonemana";
         }
 
-        // updating entity score in DB
-        $("#increment-<%=eid%>").val(incval);
-        $("#submitscore-<%=eid%>").click();
+        const token = "<%=form_authenticity_token%>";
 
-        // updating fromuser votes in DB
-        $("#vote-<%=eid%>").val(1);
-        $("#submitvote-<%=eid%>").click();
+        $.ajax({
+            url: "/users/<%=fromuser.id%>/update_votes",
+            type: "PATCH",
+            data: { entity_id: "<%=eid%>", vote: 1 },
+            headers: { "X-CSRF-Token": token },
+            success: function(response) {
+                updateArrows("<%=eid%>", response.vote);
+            },
+            error: function(xhr) {
+                if (xhr.status === 429) eval(xhr.responseText);
+            }
+        });
 
-        // updating touser mana in DB
-        $.post(actionurl);
+        $.ajax({
+            url: "/<%=entity_path%>/<%=eid%>/update_score",
+            type: "PATCH",
+            data: { score_increment: incval },
+            headers: { "X-CSRF-Token": token },
+            success: function(response) {
+                $("#score-<%=eid%>").text(response.score);
+            },
+            error: function(xhr) {
+                if (xhr.status === 429) eval(xhr.responseText);
+            }
+        });
+
+        $.ajax({
+            url: "/users/<%=touser.id%>/" + manaAction,
+            type: "POST",
+            headers: { "X-CSRF-Token": token }
+        });
     });
 
     $("#downvote-<%=eid%>").on('click', function(e){
         e.preventDefault();
 
         var incval = 0;
-        var actionurl;
+        var manaAction;
 
-        if($(this).hasClass('active')) { 
+        if($(this).hasClass('active')){ 
             incval = 1; 
-            actionurl = "/users/" + "<%=touser.id%>" + "/plusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
-        }
-        else if($("#upvote-<%=eid%>").hasClass('active')) {
-             incval = -2;
-            actionurl = "/users/" + "<%=touser.id%>" + "/minustwomana?authenticity_token=" + "<%=form_authenticity_token%>";
-        }
-        else { 
+            manaAction = "plusonemana";
+        } else if($("#upvote-<%=eid%>").hasClass('active')){ 
+            incval = -2;
+            manaAction = "minustwomana";
+        } else { 
             incval = -1;
-            actionurl = "/users/" + "<%=touser.id%>" + "/minusonemana?authenticity_token=" + "<%=form_authenticity_token%>";
+            manaAction = "minusonemana";
         }
 
-        // updating entity score in DB
-        $("#increment-<%=eid%>").val(incval);
-        $("#submitscore-<%=eid%>").click();
+        const token = "<%=form_authenticity_token%>";
 
-        // updating fromuser votes in DB
-        $("#vote-<%=eid%>").val(-1);
-        $("#submitvote-<%=eid%>").click();
+        $.ajax({
+            url: "/users/<%=fromuser.id%>/update_votes",
+            type: "PATCH",
+            data: { entity_id: "<%=eid%>", vote: -1 },
+            headers: { "X-CSRF-Token": token },
+            success: function(response) {
+                updateArrows("<%=eid%>", response.vote);
+            },
+            error: function(xhr) {
+                if (xhr.status === 429) eval(xhr.responseText);
+            }
+        });
 
-        // updating touser mana in DB
-        $.post(actionurl);
+        $.ajax({
+            url: "/<%=entity_path%>/<%=eid%>/update_score",
+            type: "PATCH",
+            data: { score_increment: incval },
+            headers: { "X-CSRF-Token": token },
+            success: function(response) {
+                $("#score-<%=eid%>").text(response.score);
+            },
+            error: function(xhr) {
+                if (xhr.status === 429) eval(xhr.responseText);
+            }
+        });
+
+        $.ajax({
+            url: "/users/<%=touser.id%>/" + manaAction,
+            type: "POST",
+            headers: { "X-CSRF-Token": token }
+        });
     });
 </script>
 

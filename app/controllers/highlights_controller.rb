@@ -1,7 +1,6 @@
 class HighlightsController < ApplicationController
   skip_before_action :require_user, only: [:show]
   skip_before_action :verify_authenticity_token
-  before_action :check_timestamp , only: [:create, :destroy, :update_score]
   skip_before_action :require_user, if: -> { params[:token].present? }
 
   
@@ -87,25 +86,23 @@ class HighlightsController < ApplicationController
   end
 
 
-
   def update_score
-
     @highlight = Highlight.find(params[:id])
+    
+    increment = params[:score_increment].to_i
+    return head :ok if increment == 0
 
-    params[:highlight].each do |increment, value|
-      @highlight.increment!(:score, value.to_i)
-    end
+    @highlight.increment!(:score, increment)
 
-    respond_to do |format|
-  
-      if @highlight.update(highlight_params)
-          format.js
-      end
-
-    end
-
+    render json: { score: @highlight.score }
   end
+
   
+
+  def social_shares
+    @highlight = Highlight.find(params[:id])
+    render partial: 'shared/socialmedia', locals: { highlight: @highlight }
+  end
 
 
   def destroy

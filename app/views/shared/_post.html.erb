@@ -1,7 +1,11 @@
 <div class="post container-fluid">
 
+    <% poster = highlight.user %>
+    <% document = highlight.document %>
+    <% replies = highlight.replies.reject { |r| r.recipientid.present? || r.deleted? } %>
+
     <%= render 'shared/voting_system', entity: highlight, fromuser: current_user, 
-                                                          touser: User.find(highlight.userid), 
+                                                          touser: poster, 
                                                           type: "major" %>
 
     <div class=hreaction>
@@ -23,10 +27,6 @@
             <%=link_to image_tag("gif.svg", size:"66x66") , highlight %>
         <%end%>
     </div>
-
-    <% poster = User.find_by_id(highlight.userid) %>
-    <% document = Document.find_by_id(highlight.docid) %>
-    <% replies = Reply.where(:highlightid => highlight.id).where(:recipientid => nil).where(:deleted => false) %>
 
     <small class=hposter>Submitted <%=time_ago_in_words(highlight.created_at)%> ago by <%=link_to poster.username, user_path(poster.username), class: "user-hover-trigger", data: { user_id: poster.id }%> </small>  
     <br>
@@ -60,10 +60,19 @@
 
 
         <script>
+            
             $("#share-<%=highlight.id%>").on('click', function(e){
                 e.preventDefault();
-                if($(document).find("#socialshares").length != 0) $("#socialshares").remove();
-                else $(this).parent().parent().append("<%=escape_javascript render 'shared/socialmedia', highlight: highlight%>");
+                const container = $(this).parent().parent();
+                
+                if (container.find("#socialshares").length !== 0) {
+                    $("#socialshares").remove();
+                    return;
+                }
+
+                $.get("/highlights/<%=highlight.id%>/social_shares", function(html) {
+                    container.append(html);
+                });
             });
 
             $('#fromauthors-<%=highlight.id%>').on('click', function(){

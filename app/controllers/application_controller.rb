@@ -49,23 +49,6 @@ class ApplicationController < ActionController::Base
         end
     end
 
-
-    def check_timestamp
-        return unless logged_in?
-
-        last_action = session[:last_action_at]
-
-        if last_action && Time.current - last_action < 2.seconds
-            respond_to do |format|
-            format.js { render "layouts/check_timestamp" }
-            format.html { redirect_back fallback_location: root_path, alert: "Please retry in 2 seconds" }
-            end
-            return   #  stops the controller action
-        end
-
-        session[:last_action_at] = Time.current
-    end
-
     private
 
     

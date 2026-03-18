@@ -1,8 +1,6 @@
 class RepliesController < ApplicationController
 
-    skip_before_action :verify_authenticity_token
-    before_action :check_timestamp, only: [:create, :update, :update_score , :edit, :destroy]
-  
+    skip_before_action :verify_authenticity_token  
   
     def index
   
@@ -90,21 +88,14 @@ class RepliesController < ApplicationController
 
 
     def update_score
-
       @reply = Reply.find(params[:id])
-  
-      params[:reply].each do |increment, value|
-        @reply.increment!(:score, value.to_i)
-      end
-  
-      respond_to do |format|
-    
-        if @reply.update(reply_params)
-            format.js
-        end
-  
-      end
-  
+      
+      increment = params[:score_increment].to_i
+      return head :ok if increment == 0
+
+      @reply.increment!(:score, increment)
+
+      render json: { score: @reply.score }
     end
 
     

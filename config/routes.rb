@@ -120,6 +120,9 @@ Rails.application.routes.draw do
 
   resources :highlights do
       patch 'update_score'
+      member do
+        get :social_shares
+      end
   end
   
   resources :replies do
