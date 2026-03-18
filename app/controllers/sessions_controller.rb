@@ -3,7 +3,9 @@ class SessionsController < ApplicationController
 
 
     def create
-      user = User.find_by(username: params[:session][:username].downcase)
+      login = params[:session][:username].downcase.strip
+
+      user = User.find_by(username: login) || User.find_by(email: login)
 
       if user&.authenticate(params[:session][:password])
         session[:user_id] = user.id
@@ -12,7 +14,6 @@ class SessionsController < ApplicationController
       else
         redirect_to login_path, alert: "Invalid username or password."
       end
-
     end
 
 

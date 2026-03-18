@@ -4,7 +4,7 @@
 
     <%= form_with(scope: :session, url: login_path(return_to: local_assigns[:return_to]), data: { turbo: false }) do |f| %>
         <div class="form-group">
-            <%= f.text_field :username, spellcheck: false, placeholder: "username", required: true, class: "form-control" %>
+            <%= f.text_field :username, spellcheck: false, placeholder: "email or username", required: true, class: "form-control" %>
         </div>
         <br>
         <div class="form-group">
