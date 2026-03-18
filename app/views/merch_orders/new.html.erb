@@ -13,6 +13,8 @@
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
 
         <% products = [
+          {name: "Candies", image: "merch/candies.png", description: "Your quote, wrapping candies.", price: 19.99},
+          {name: "Chocolate tablet", image: "merch/chocolate.png", description: "Your quote, crafted in chocolate", price: 19.99},
           {name: "Shirt", image: "merch/shirt.png", description: "Premium cotton shirt with custom print", price: 24.99},
           {name: "Mug", image: "merch/mug.png", description: "Ceramic mug with durable quote engraving", price: 24.99},
           {name: "Hat", image: "merch/hat.png", description: "Adjustable cap with printed highlight", price: 24.99},
@@ -29,7 +31,7 @@
         <% products.each do |product| %>
           <div class="col">
             <div class="card">
-              <div class="card-img-top">
+              <div class="card-img-top  zoom-trigger" data-img="<%= image_path(product[:image]) %>">
                 <%= image_tag product[:image], alt: product[:name], class: "img-fluid" %>
               </div>
 
@@ -44,6 +46,9 @@
                 <%= f.hidden_field :design_text, value: @highlight.quote %>
                 <%= f.hidden_field :product_type, value: product[:name] %>
 
+                <% if ["Candies", "Chocolate tablet"].include?(product[:name]) %>
+                  <%= f.hidden_field :color, value: "N/A" %> 
+                <% else %>
                 <div class="color-picker">
                   <% colors.each_with_index do |color, index| %>
                     <label class="color-option">
@@ -52,6 +57,7 @@
                     </label>
                   <% end %>
                 </div>
+                <% end %>
 
                 <div class="quantity-wrapper">
                   <label class="quantity-label">Quantity</label>
@@ -80,3 +86,29 @@
     </div>
   </section>
 </div>
+
+<div class="zoom-overlay" id="zoomOverlay">
+  <span class="zoom-close" id="zoomClose">&times;</span>
+  <img src="" id="zoomImg" alt="Zoomed product">
+</div>
+
+<script>
+  const overlay = document.getElementById('zoomOverlay');
+  const zoomImg = document.getElementById('zoomImg');
+
+  document.querySelectorAll('.zoom-trigger').forEach(el => {
+    el.addEventListener('click', () => {
+      zoomImg.src = el.dataset.img;
+      overlay.classList.add('active');
+    });
+  });
+
+  overlay.addEventListener('click', () => {
+    overlay.classList.remove('active');
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') overlay.classList.remove('active');
+  });
+</script>

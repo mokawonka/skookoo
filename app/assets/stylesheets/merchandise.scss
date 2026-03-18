@@ -113,6 +113,7 @@
 }
 
 .quantity-label {
+  text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
   color: #6c757d;
@@ -144,4 +145,52 @@
   font-weight: 600;
   width: 100%;
   cursor: not-allowed;
+}
+
+
+/* Hover hint */
+.zoom-trigger {
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.zoom-trigger img {
+  transition: transform 0.2s ease;
+}
+
+.zoom-trigger:hover img {
+  transform: scale(1.05);
+}
+
+.zoom-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgb(255, 255, 255);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.zoom-overlay.active {
+  display: flex;
+}
+
+.zoom-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.zoom-close {
+  position: fixed;
+  top: 20px;
+  right: 28px;
+  font-size: 28px;
+  color: #555;
+  cursor: pointer;
+  line-height: 1;
+  z-index: 10000;
 }
