@@ -327,6 +327,24 @@
     border-top:1px solid #f0f0f0;
 }
 
+.search-history-remove {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color .15s;
+}
+
+.search-history-remove:hover {
+  color: #888;
+}
+
 .following-badge {
   display: inline-block;
   background-color: #e0f7ea;   
