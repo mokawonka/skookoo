@@ -799,44 +799,6 @@ textarea {
 }
 
 
-/* documents index */
-
-.docu {
-    padding-top:1em;
-    padding-bottom:1em;
-    margin-bottom:3em;
-    border: solid 5px rgb(138, 97, 61);
-    border-radius: 21px;
-}
-
-.coverpic {
-    border-radius: 7px;
-    margin-bottom: 2em;
-    max-width: 200px;
-    max-height: 200px;
-}
-
-.docutitle{
-    font-size: larger;
-    color: rgb(138, 97, 61);
-}
-
-.docuauthor{
-    font-size: larger;
-    color:#444444;
-}
-
-.docufile{
-    font-size: smaller;
-    color: gray;
-}
-
-.docudate{
-    font-size: smaller;
-    color: gray;
-}
-
-
 /* Show highlight */
 
 .hsource{

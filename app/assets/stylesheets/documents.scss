@@ -3,6 +3,226 @@
   padding-bottom: 100px;
 }
 
+ 
+#documents .documents-container {
+  padding: 30px 10px;
+}
+ 
+#documents .documents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 26px;
+  padding-top: 24px;
+}
+ 
+/* ── Card shell ── */
+#documents .document-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background: white;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: relative;        /* anchor for absolute action buttons */
+}
+ 
+#documents .document-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+ 
+/* ── Cover ── */
+#documents .document-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  cursor: pointer;
+}
+ 
+#documents .document-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+ 
+#documents .document-card:hover .document-cover img {
+  transform: scale(1.04);
+}
+ 
+/* ── Type badge (top-left) ── */
+#documents .document-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+}
+ 
+#documents .document-type {
+  background: white;
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 30px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+ 
+/* ── Action buttons (top-right corner) ── */
+#documents .document-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+ 
+#documents .document-card:hover .document-actions {
+  opacity: 1;
+}
+ 
+#documents .action-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  text-decoration: none;
+  line-height: 1;
+}
+ 
+/* Delete — red tint */
+#documents .action-btn.btn-delete {
+  background: white;
+  color: #d85a30;
+}
+ 
+#documents .action-btn.btn-delete:hover {
+  background: #d85a30;
+  color: white;
+}
+ 
+/* Share — blue tint */
+#documents .action-btn.btn-share {
+  background: white;
+  color: #185fa5;
+}
+ 
+#documents .action-btn.btn-share:hover {
+  background: #185fa5;
+  color: white;
+}
+ 
+/* ── Progress bar (sits below cover, above meta) ── */
+#documents .document-progress-track {
+  height: 4px;
+  background: #f0ede8;
+  width: 100%;
+}
+ 
+#documents .document-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8a613d, #b07b52);
+  border-radius: 0 2px 2px 0;
+  min-width: 4px;
+  transition: width 0.5s ease;
+}
+ 
+/* ── Meta section ── */
+#documents .document-meta {
+  padding: 14px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+ 
+#documents .document-date {
+  font-size: 11px;
+  color: #aaa;
+  letter-spacing: 0.2px;
+}
+ 
+#documents .document-title {
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.3;
+  color: #222;
+  margin-top: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+ 
+#documents .document-author {
+  font-size: 12px;
+  color: #888;
+}
+ 
+#documents .document-progress-label {
+  font-size: 11px;
+  color: #8a613d;
+  font-weight: 600;
+  margin-top: auto;
+  padding-top: 8px;
+}
+ 
+/* ── Footer row: Open button + progress % ── */
+#documents .document-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 14px;
+  gap: 8px;
+}
+ 
+#documents .btn-open {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 30px;
+  background: #8a613d;
+  color: white;
+  border: none;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+}
+ 
+#documents .btn-open:hover {
+  background: #6e4c2e;
+  color: white;
+  text-decoration: none;
+}
+ 
+/* ── Empty state ── */
+#documents .documents-empty {
+  text-align: center;
+  padding: 80px 20px;
+  opacity: 0.5;
+}
+ 
+/* ── Add button row ── */
+#documents .documents-add-row {
+  text-align: center;
+  padding: 12px 0 4px;
+}
 
 //////////////////////////////////////
 .flex-container {
