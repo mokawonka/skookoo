@@ -733,12 +733,22 @@ button.smallinput {
     flex: 1;
     min-width: 0;
 
+    .followname-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .followusername-row {
+      display: block;
+    }
+
     .followname {
       font-weight: 600;
       font-size: 0.92rem;
       color: #111;
       text-decoration: none;
-      display: block;
+      display: inline;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;

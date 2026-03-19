@@ -8,18 +8,23 @@
     <%= link_to image_tag(pathtoavatar, size: '50x50', class: 'followpic'), user_path(user.username) %>
 
     <div class="followinfo">
-    <% if user.name.present? %>
-        <span><%= link_to "#{user.name}", user_path(user.username), class: "followname" %></span>
-    <% end %>
-    <span>
-        <%= link_to "@#{user.username}", user_path(user.username), class: 'followusername' %>
-        <% if user.following.include?(current_user.id) %>
-            <span class="following-badge">Follows you</span>
+        <% if user.name.present? %>
+        <span class="followname-row">
+            <%= link_to user.name, user_path(user.username), class: "followname" %>
+            <% if !user.pomologist? %>
+            <%= render 'shared/premiumbadge' %>
+            <% end %>
+        </span>
         <% end %>
-    </span>
-    <% if user.bio.present? %>
-        <p class="followbio"><%= truncate(user.bio, length: 30) %></p>
-    <% end %>
+        <span class="followusername-row">
+            <%= link_to "@#{user.username}", user_path(user.username), class: 'followusername' %>
+            <% if user.following.include?(current_user.id) %>
+                <span class="following-badge">Follows you</span>
+            <% end %>
+        </span>
+        <% if user.bio.present? %>
+            <p class="followbio"><%= truncate(user.bio, length: 30) %></p>
+        <% end %>
     </div>
 
     <% if current_user.id != user.id %>
