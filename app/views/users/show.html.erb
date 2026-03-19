@@ -314,12 +314,18 @@
 </div>
 
 <!-- following / followers list -->
-<div class="modal fade" id="followmodal" tabindex="-1" role="dialog" aria-labelledby="followsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-body" id='followbodymodal'> </div>
-        </div>
+<div class="modal fade" id="followmodal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable follow-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="followmodaltitle"></h5>
+        <button type="button" class="follow-modal-close" data-bs-dismiss="modal">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body" id="followbodymodal"></div>
     </div>
+  </div>
 </div>
 
 <script>

@@ -2,20 +2,38 @@
 
 <% if user != nil %>
 
-    <% pathtoavatar = user.avatar.attached? ? user.avatar.variant(resize_to_limit:[200, 200]) : 'default-avatar.svg' %>
+  <% pathtoavatar = user.avatar.attached? ? user.avatar.variant(resize_to_limit:[200, 200]) : 'default-avatar.svg' %>
 
-    <div class=followitem>
-        <%= link_to image_tag(pathtoavatar, size: '50x50', class: 'followpic') , user_path(user.username) %>
-        <span><%=link_to user.username , user_path(user.username), class: 'followusername' %></span>
+  <div class="followitem">
+    <%= link_to image_tag(pathtoavatar, size: '50x50', class: 'followpic'), user_path(user.username) %>
 
-        <% if current_user.id != user.id %>
-            <% if current_user.following.include? user.id %>
-                <%= link_to 'Unfollow', user_unfollow_path(user), remote:true, class: 'btn btn-sm followbutton' %>
-            <% else %>
-                <%= link_to 'Follow', user_follow_path(user), remote:true, class: 'btn btn-sm followbutton' %>
-            <% end %>
+    <div class="followinfo">
+    <% if user.name.present? %>
+        <span><%= link_to "#{user.name}", user_path(user.username), class: "followname" %></span>
+    <% end %>
+    <span>
+        <%= link_to "@#{user.username}", user_path(user.username), class: 'followusername' %>
+        <% if user.following.include?(current_user.id) %>
+            <span class="following-badge">Follows you</span>
         <% end %>
-
+    </span>
+    <% if user.bio.present? %>
+        <p class="followbio"><%= truncate(user.bio, length: 30) %></p>
+    <% end %>
     </div>
+
+    <% if current_user.id != user.id %>
+        <% if current_user.following.include? user.id %>
+            <%= link_to 'Following', user_unfollow_path(user), remote: true,
+                class: 'btn btn-sm followbutton',
+                id: "followbutton-#{user.id}" %>
+        <% else %>
+            <%= link_to 'Follow', user_follow_path(user), remote: true,
+                class: 'btn btn-sm followbutton',
+                id: "followbutton-#{user.id}" %>
+        <% end %>
+    <% end %>
+
+  </div>
 
 <% end %>

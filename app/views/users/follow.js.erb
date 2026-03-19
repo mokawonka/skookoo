@@ -18,9 +18,9 @@
 
 <% else %>
 
-  var isFollowing =
-    $('#hover-followbutton').text().trim() === 'Following' ||
-    $('#followbutton').text().trim() === 'Following';
+  $('#followbutton-<%= @user.id %>')
+  .text('Following')
+  .attr('href', '<%= user_unfollow_path(@user) %>');
 
   $('#followbutton')
     .text('Following')
@@ -30,13 +30,14 @@
     .text('Following')
     .attr('href', '<%= user_unfollow_path(@user) %>');
 
-  if (!isFollowing) {
-
-    var followers = parseInt($('#hover-followers-count').text());
+  var followers = parseInt($('#hover-followers-count').text());
     if (!isNaN(followers)) {
       $('#hover-followers-count').text(followers + 1);
     }
 
-  }
+    document.querySelectorAll('.followbutton').forEach(btn => {
+  btn.addEventListener('click', () => console.log('clicked', btn.id, btn.textContent));
+});
 
 <% end %>
+

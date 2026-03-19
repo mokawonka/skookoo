@@ -1,7 +1,9 @@
-var isFollowing =
-  $('#hover-followbutton').text().trim() === 'Following' ||
-  $('#followbutton').text().trim() === 'Following';
+// Update the button in the followitem list
+$('#followbutton-<%= @user.id %>')
+  .text('Follow')
+  .attr('href', '<%= user_follow_path(@user) %>');
 
+// Update profile page buttons (keep your existing logic)
 $('#followbutton')
   .text('Follow')
   .attr('href', '<%= user_follow_path(@user) %>');
@@ -10,11 +12,8 @@ $('#hover-followbutton')
   .text('Follow')
   .attr('href', '<%= user_follow_path(@user) %>');
 
-if (isFollowing) {
-
-  var followers = parseInt($('#hover-followers-count').text());
-  if (!isNaN(followers)) {
-    $('#hover-followers-count').text(followers - 1);
-  }
-
+// Update follower count
+var followers = parseInt($('#hover-followers-count').text());
+if (!isNaN(followers)) {
+  $('#hover-followers-count').text(followers - 1);
 }
