@@ -31,13 +31,9 @@
     .attr('href', '<%= user_unfollow_path(@user) %>');
 
   var followers = parseInt($('#hover-followers-count').text());
-    if (!isNaN(followers)) {
-      $('#hover-followers-count').text(followers + 1);
-    }
-
-    document.querySelectorAll('.followbutton').forEach(btn => {
-  btn.addEventListener('click', () => console.log('clicked', btn.id, btn.textContent));
-});
+  if (!isNaN(followers)) {
+    $('#hover-followers-count').text(followers + 1);
+  }
 
 <% end %>
 

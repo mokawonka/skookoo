@@ -1,125 +1,150 @@
 @font-face {
     font-family: 'Crimson Pro';
     src: url('crimson-pro.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Crimson Pro Bold';
     src: url('crimson-pro-bold.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Fira Sans';
     src: url('fira-sans.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Fira Mono';
     src: url('fira-mono.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Fira Sans Bold';
     src: url('fira-sans-bold.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Fira Mono Bold';
     src: url('fira-mono-bold.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'League Spartan Bold';
     src: url('league-spartan-bold.woff2');
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'League Spartan Regular';
+    src: url('league-spartan-regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'FredokaOne';
-    src: url('FredokaOne-Regular.ttf');
+    src: url('FredokaOne-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Chalkduster';
-    src: url('chalkduster.ttf');
+    src: url('chalkduster.woff2');
+    font-display: swap;
 }
 
 
 @font-face {
     font-family: 'Times New Roman';
-    src: url('times_new_roman.ttf');
+    src: url('times_new_roman.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Times New Roman Bold';
-    src: url('times_new_roman_bold.ttf');
+    src: url('times_new_roman_bold.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Arimo Regular';
-    src: url('Arimo-Regular.ttf');
+    src: url('Arimo-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Clear Sans Regular';
-    src: url('ClearSans-Regular.ttf');
+    src: url('ClearSans-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Cousine Regular';
-    src: url('Cousine-Regular.ttf');
+    src: url('Cousine-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Droid Sans';
-    src: url('DroidSans.ttf');
+    src: url('DroidSans.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Noto Sans Regular';
-    src: url('NotoSans-Regular.ttf');
+    src: url('NotoSans-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Open Sans Regular';
-    src: url('OpenSans-Regular.ttf');
+    src: url('OpenSans-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Permanent Marker';
-    src: url('PermanentMarker.ttf');
+    src: url('PermanentMarker.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Roboto Regular';
-    src: url('Roboto-Regular.ttf');
+    src: url('Roboto-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Roboto Bold';
-    src: url('Roboto-Bold.ttf');
+    src: url('Roboto-Bold.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Roboto Thin';
-    src: url('Roboto-Thin.ttf');
+    src: url('Roboto-Thin.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Roboto Slab Regular';
-    src: url('RobotoSlab-Regular.ttf');
+    src: url('RobotoSlab-Regular.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Special Elite';
-    src: url('SpecialElite.ttf');
-}
-
-@font-face {
-    font-family: 'Source Han Sans Regular';
-    src: url('SourceHanSans-Regular.otf');
+    src: url('SpecialElite.woff2');
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Tinos Regular';
-    src: url('Tinos-Regular.ttf');
+    src: url('Tinos-Regular.woff2');
+    font-display: swap;
 }
