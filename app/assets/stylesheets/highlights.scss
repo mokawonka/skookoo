@@ -16,8 +16,20 @@
 }
 
 .highlightactions > span > .hshare{
-    padding-right: 1em;
     cursor: pointer;
+}
+
+.highlightactions .hshare-btn {
+  background: none;
+  border: none;
+  padding: 0 1em 0 0; 
+  font: inherit;
+  color: gray;
+  cursor: pointer;
+
+  &:hover {
+    color: #0951a9;
+  }
 }
 
 .highlightactions > span > .hhook{

@@ -1,0 +1,78 @@
+<div id="share-overlay" onclick="closeShareSheet()" aria-hidden="true"></div>
+
+<div id="share-sheet" role="dialog" aria-modal="true" aria-label="Share document">
+    <div class="share-handle"></div>
+
+    <div class="share-book-info">
+    <div class="share-book-icon" id="share-book-icon">📖</div>
+    <div>
+        <div class="share-book-title" id="share-book-title"></div>
+        <div class="share-book-author" id="share-book-author"></div>
+    </div>
+    </div>
+
+    <p class="share-label">Share via</p>
+
+    <div class="share-options">
+
+    <button class="share-option" onclick="copyShareLink()">
+        <div class="share-option-icon share-icon-copy" id="copy-icon">
+        <%= image_tag "copy.png", width: 24, height: 24, id: "copy-img" %>
+        </div>
+        <span id="copy-label">Copy</span>
+    </button>
+
+    <button class="share-option" onclick="emailShare()">
+        <div class="share-option-icon share-icon-email">
+        <%= image_tag "mail.svg", width: 24, height: 24 %>
+        </div>
+        <span>Email</span>
+    </button>
+
+    <button class="share-option" onclick="whatsappShare()">
+        <div class="share-option-icon share-icon-whatsapp">
+        <%= image_tag "whatsapp.svg", width: 24, height: 24 %>
+        </div>
+        <span>WhatsApp</span>
+    </button>
+
+    <button class="share-option" onclick="xShare()">
+        <div class="share-option-icon share-icon-x">
+        <%= image_tag "x.svg", width: 24, height: 24 %>
+        </div>
+        <span>X</span>
+    </button>
+
+    <button class="share-option" onclick="redditShare()">
+        <div class="share-option-icon share-icon-reddit">
+        <%= image_tag "reddit.svg", width: 24, height: 24 %>
+        </div>
+        <span>Reddit</span>
+    </button>
+
+    <button class="share-option" onclick="linkedinShare()">
+        <div class="share-option-icon share-icon-linkedin">
+        <%= image_tag "linkedin.svg", width: 24, height: 24 %>
+        </div>
+        <span>LinkedIn</span>
+    </button>
+
+    <button class="share-option" id="native-share-btn" style="display:none" onclick="nativeShare()">
+        <div class="share-option-icon share-icon-more">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        </div>
+        <span>More</span>
+    </button>
+
+    </div>
+
+    <div class="share-url-row">
+    <input type="text" id="share-url-input" readonly onclick="this.select()">
+    <button class="share-url-copy-btn" onclick="copyShareLink()">Copy</button>
+    </div>
+
+    <button class="share-cancel-btn" onclick="closeShareSheet()">Cancel</button>
+</div>

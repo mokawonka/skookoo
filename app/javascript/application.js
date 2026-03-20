@@ -14,6 +14,8 @@ import "dictionary"
 import "mentions"
 import "livesearch"
 import "hovercard"
+import "share"
+
 
 
 

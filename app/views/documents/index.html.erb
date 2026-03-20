@@ -20,12 +20,19 @@
               <% end %>
 
               <div class="document-overlay">
-                <span class="document-type">EPUB</span>
+                <span class="document-type"> <%= document.nature %> </span>
               </div>
 
               <div class="document-actions">
-                <%# Share button — wire up to your share logic %>
-                <button class="action-btn btn-share" title="Share">↗</button>
+               
+                <button class="action-btn btn-share"
+                        title="Share"
+                        data-share-url="<%= document_url(document) %>"
+                        data-share-title="<%= document.title %>"
+                        data-share-author="<%= document.authors %>"
+                        onclick="openShareSheet(this)">↗</button>
+
+
                 <%= button_to '✕', document, method: :delete,
                       class: "action-btn btn-delete",
                       title: "Delete",
@@ -51,6 +58,7 @@
 
           </div>
         <% end %>
+        <%= render "shared/share"%>
       </div>
     <% else %>
       <div class="documents-empty">
