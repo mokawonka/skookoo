@@ -11,7 +11,7 @@
         <% if user.name.present? %>
         <span class="followname-row">
             <%= link_to user.name, user_path(user.username), class: "followname" %>
-            <% if !user.pomologist? %>
+            <% if user.pomologist? %>
             <%= render 'shared/premiumbadge' %>
             <% end %>
         </span>

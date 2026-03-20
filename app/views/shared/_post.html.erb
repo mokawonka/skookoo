@@ -47,7 +47,15 @@
         %>
         <span><%= link_to text , highlight_path(highlight) %></span>
 
-        <span><a href="" id="share-<%=highlight.id%>">share</a></span>
+        <span>
+            <button class="hshare-btn"
+                    onclick="openShareSheet(this)"
+                    data-share-url="<%= highlight_url(highlight) %>"
+                    data-share-title="<%= highlight.fromtitle %>"
+                    data-share-author="<%= highlight.fromauthors %>">
+                share
+            </button>
+        </span>
 
         <span>
             <% if web_page_highlight?(highlight) %>
@@ -60,20 +68,6 @@
 
 
         <script>
-            
-            $("#share-<%=highlight.id%>").on('click', function(e){
-                e.preventDefault();
-                const container = $(this).parent().parent();
-                
-                if (container.find("#socialshares").length !== 0) {
-                    $("#socialshares").remove();
-                    return;
-                }
-
-                $.get("/highlights/<%=highlight.id%>/social_shares", function(html) {
-                    container.append(html);
-                });
-            });
 
             $('#fromauthors-<%=highlight.id%>').on('click', function(){
                 const query = $(this).text().trim();
@@ -99,3 +93,5 @@
     </div>
 
 </div>
+
+<%= render "shared/share"%>

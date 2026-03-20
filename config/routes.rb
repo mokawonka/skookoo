@@ -118,16 +118,9 @@ Rails.application.routes.draw do
     resources :bookmarks, only: [:create, :destroy]
   end
 
-  resources :highlights do
-      patch 'update_score'
-      member do
-        get :social_shares
-      end
-  end
+  resources :highlights 
   
-  resources :replies do
-      patch 'update_score'
-  end
+  resources :replies 
 
   resources :expressions
 

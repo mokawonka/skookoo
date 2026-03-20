@@ -97,12 +97,6 @@ class HighlightsController < ApplicationController
     render json: { score: @highlight.score }
   end
 
-  
-
-  def social_shares
-    @highlight = Highlight.find(params[:id])
-    render partial: 'shared/socialmedia', locals: { highlight: @highlight }
-  end
 
 
   def destroy

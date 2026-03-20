@@ -49,9 +49,9 @@ document.addEventListener("turbo:load", () => {
 
       return `
         <a href="/users/${escapeHtml(u.username)}"
-           class="search-item search-user"
-           data-history-item
-           data-username="${escapeHtml(u.username)}">
+          class="search-item search-user"
+          data-history-item
+          data-username="${escapeHtml(u.username)}">
           <div class="search-user-avatar">${avatar}</div>
           <div class="search-user-meta">
             <div class="search-user-name">${escapeHtml(u.name)}</div>
@@ -65,7 +65,10 @@ document.addEventListener("turbo:load", () => {
 
     results.innerHTML = `
       <div class="search-section">
-        <div class="search-section-title">Recent</div>
+        <div class="search-section-header">
+          <div class="search-section-title">Recent</div>
+          <button class="search-history-clear" data-clear-all>Clear all</button>
+        </div>
         ${items}
       </div>`
 
@@ -80,7 +83,17 @@ document.addEventListener("turbo:load", () => {
   // ── Intercept clicks inside results ──────────────────────────────
   results.addEventListener("click", e => {
 
-    // Remove button
+    // Clear all button
+    const clearBtn = e.target.closest("[data-clear-all]")
+    if (clearBtn) {
+      e.preventDefault()
+      localStorage.removeItem(HISTORY_KEY)
+      results.innerHTML = ""
+      container.classList.remove("active")
+      return
+    }
+
+    // Remove single item
     const removeBtn = e.target.closest("[data-remove]")
     if (removeBtn) {
       e.preventDefault()
@@ -93,13 +106,12 @@ document.addEventListener("turbo:load", () => {
     // Save user to history when a live-search user row is clicked
     const userLink = e.target.closest(".search-user")
     if (userLink && !userLink.dataset.historyItem) {
-      const handleEl = userLink.querySelector(".search-user-handle")
-      const nameEl   = userLink.querySelector(".search-user-name")
-      const imgEl    = userLink.querySelector(".search-user-avatar img")
+      const handleEl  = userLink.querySelector(".search-user-handle")
+      const nameEl    = userLink.querySelector(".search-user-name")
+      const imgEl     = userLink.querySelector(".search-user-avatar img")
 
-      const username = handleEl?.textContent?.replace("@", "").trim()
-      // childNodes[0] is the raw text node — skips badges / spans
-      const name     = nameEl?.childNodes[0]?.textContent?.trim() || username
+      const username  = handleEl?.textContent?.replace("@", "").trim()
+      const name      = nameEl?.childNodes[0]?.textContent?.trim() || username
       const avatarUrl = imgEl?.src || null
 
       if (username) saveToHistory({ username, name, avatarUrl })

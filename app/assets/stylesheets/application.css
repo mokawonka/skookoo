@@ -801,6 +801,19 @@ textarea {
 
 /* Show highlight */
 
+.hshare-btn {
+  background: none;
+  border: none;
+  padding: 0 1em 0 0; 
+  font: inherit;
+  color: gray;
+  cursor: pointer;
+
+  &:hover {
+    color: #0951a9;
+  }
+}
+
 .hsource{
     color: #444444;
     text-align: center;
