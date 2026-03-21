@@ -7,14 +7,7 @@
     <strong><%= User.where(id: @reply.userid).pick(:username) %></strong> just replied to your post:
   </p>
 
-  <blockquote style="
-    margin: 20px 0;
-    padding: 15px 20px;
-    background-color: #f9f9fb;
-    border-left: 4px solid #0951a9;
-    color: #555;
-    font-style: italic;
-  ">
+  <blockquote style="margin: 20px 0; padding: 15px 20px; background-color: #f9f9fb; border-left: 4px solid #0951a9; color: #555; font-style: italic;">
     <%= @reply.content.to_plain_text %>
   </blockquote>
 

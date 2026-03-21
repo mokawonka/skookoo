@@ -1,4 +1,5 @@
 class Document < ApplicationRecord
+  belongs_to :user, foreign_key: :userid
   belongs_to :epub, optional: true, foreign_key: :epubid
   has_many :bookmarks, dependent: :destroy
 

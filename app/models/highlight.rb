@@ -5,6 +5,8 @@ class Highlight < ApplicationRecord
     has_many :replies, foreign_key: :highlightid
 
     after_create_commit :generate_og_image
+    after_create_commit :notify_document_owner
+
     before_destroy :soft_delete_replies
 
     has_rich_text :comment
@@ -21,13 +23,13 @@ class Highlight < ApplicationRecord
     validates :fromauthors, presence: true
     validates :fromtitle, presence: true
 
-    # Ensure only one reaction type is set: comment, liked, emojiid, or gifid
     validate :only_one_reaction_type
 
     # Helper method for tests to get plain text content
     def comment_plain_text
         comment&.to_plain_text
     end
+
 
     def only_one_reaction_type
       reactions = []
@@ -36,20 +38,33 @@ class Highlight < ApplicationRecord
       reactions << 'emojiid' if emojiid.present?
       reactions << 'gifid' if gifid.present?
 
-      if reactions.length > 1
+      if reactions.empty?
+        errors.add(:base, "A reaction is required: comment, like, emoji, or gif")
+      elsif reactions.length > 1
         errors.add(:base, "Only one reaction type allowed: comment, liked, emojiid, or gifid. Found: #{reactions.join(', ')}")
       end
     end
 
-  private
 
-  def generate_og_image
-    GenerateOgImageJob.perform_later(self)
-  end
+    def notify_document_owner
+      return unless document.present?
 
-  def soft_delete_replies
-    Reply.where(highlightid: id).update_all(deleted: true)
-  end
+      owner = document.user
+      return if owner.nil?
+      return if owner.id == userid
+
+      HighlightNotifier.with(highlight: self).deliver(owner)
+    end
+
+    private
+
+    def generate_og_image
+      GenerateOgImageJob.perform_later(self)
+    end
+
+    def soft_delete_replies
+      Reply.where(highlightid: id).update_all(deleted: true)
+    end
 
     
 end

@@ -1,11 +1,10 @@
-# app/notifiers/reply_notifier.rb
 class ReplyNotifier < Noticed::Event
 
   deliver_by :database
   deliver_by :turbo_broadcast, class: "DeliveryMethods::TurboBroadcast"
   deliver_by :email, 
-                mailer: "ReplyMailer", 
-                method: :notify, 
+                mailer: "UserMailer", 
+                method: :new_reply, 
                 with: ->(event) { { notification: event } },
                 if: -> { recipient&.emailnotifications? }
 
@@ -21,7 +20,7 @@ class ReplyNotifier < Noticed::Event
     highlight_path(params[:reply].highlightid) + "?reply=#{params[:reply].id}"
   end
 
-   def avatar
+  def avatar
     reply = params[:reply]
     author = User.find_by(id: reply.userid)
 

@@ -1,17 +1,21 @@
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; line-height: 1.6;">
 
     <p style="font-size: 16px;">
-        Hello <strong><%= @recipient.username %></strong>,
+        Hello <strong><%= @user.username %></strong>,
     </p>
-
 
     <p style="margin-top: 20px;">
-        <strong><%= @author.username %></strong> just published a new <%= @document.nature %>:
-        <strong>"<%= @document.title %>"</strong>
+        <strong><%= User.find_by(id: @highlight.userid)&.username || "Someone" %></strong>
+        highlighted a passage from <em><%= @highlight.fromtitle %></em>
+        by <%= @highlight.fromauthors %>:
     </p>
 
+    <blockquote style="margin: 20px 0; padding: 15px 20px; background-color: #f9f9fb; border-left: 4px solid #0951a9; color: #555; font-style: italic;">
+    "<%= @highlight.quote.truncate(200) %>"
+    </blockquote>
+
     <p style="margin-top: 25px;">
-    <%= link_to 'Read it now', document_url(@document),
+    <%= link_to 'View highlight', @url,
         style: '
         display: inline-block;
         padding: 10px 16px;
@@ -25,7 +29,7 @@
     </p>
 
     <p style="margin-top: 30px; font-size: 13px; color: #888;">
-        You’re receiving this because you have email notifications enabled.
+    You’re receiving this because you have email notifications enabled.
     </p>
 
 </div>

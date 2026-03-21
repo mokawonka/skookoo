@@ -21,6 +21,26 @@ class UserMailer < ApplicationMailer
   end
 
 
+  def new_reply  
+      notification = params[:notification] # will be provided via `with`
+      @reply = notification.params[:reply]
+      @user  = notification.recipient
+
+      host = "skookoo.com"
+
+      @url = Rails.application.routes.url_helpers.highlight_url(
+        @reply.highlightid,
+        reply: @reply.id,
+        host: host
+      )
+
+      author_name = User.where(id: @reply.userid).pick(:username) || "Someone"
+
+
+      mail(to: @user.email, subject: "New reply from #{author_name}")
+  end
+
+
   def reset_email(user)
     @user = user
     @reset_url = edit_password_reset_url(@user.reset_password_token)
@@ -39,6 +59,28 @@ class UserMailer < ApplicationMailer
     mail(
       to:      @recipient.email,
       subject: "#{@author.username} published a new #{@document.nature}"
+    )
+  end
+
+
+  def new_highlight
+    notification = params[:notification]
+
+    @highlight = notification.params[:highlight]
+    @user      = notification.recipient
+
+    author_name = User.where(id: @highlight.userid).pick(:username) || "Someone"
+
+    host = "skookoo.com"
+
+    @url = Rails.application.routes.url_helpers.highlight_url(
+      @highlight.id,
+      host: host
+    )
+
+    mail(
+      to:      @user.email,
+      subject: "#{author_name} highlighted from #{@highlight.fromtitle.truncate(40)}"
     )
   end
 
