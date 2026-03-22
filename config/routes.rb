@@ -51,7 +51,6 @@ Rails.application.routes.draw do
   get "/documents/not_public", to: "documents#not_public", as: :document_not_public
 
   post 'users/:id/update_font', to: 'users#update_font'
-  patch 'users/:id/hook', to: 'users#update_hooked'
   patch 'users/:id/switch_mode', to: 'users#switch_mode'
   patch 'users/:id/update_votes', to: 'users#update_votes'
 
@@ -91,7 +90,6 @@ Rails.application.routes.draw do
     get 'show_following'
     get 'show_followers'
     get 'show_replies'
-    patch 'hook'
     patch 'switch_mode'
 
     patch 'update_votes'
@@ -118,7 +116,9 @@ Rails.application.routes.draw do
     resources :bookmarks, only: [:create, :destroy]
   end
 
-  resources :highlights 
+  resources :highlights do
+    resource :repost, only: [:create, :destroy]
+  end 
   
   resources :replies 
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_17_132930) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_21_131154) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
@@ -202,6 +202,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_17_132930) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "reposts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "highlight_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["highlight_id"], name: "index_reposts_on_highlight_id"
+    t.index ["user_id", "highlight_id"], name: "index_reposts_on_user_id_and_highlight_id", unique: true
+    t.index ["user_id"], name: "index_reposts_on_user_id"
+  end
+
   create_table "subscriptions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
     t.string "plan"
@@ -249,5 +259,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_17_132930) do
   add_foreign_key "feature_requests", "users"
   add_foreign_key "merch_orders", "highlights"
   add_foreign_key "merch_orders", "users"
+  add_foreign_key "reposts", "highlights"
+  add_foreign_key "reposts", "users"
   add_foreign_key "subscriptions", "users"
 end

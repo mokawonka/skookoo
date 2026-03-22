@@ -1,0 +1,25 @@
+<% reposted ||= logged_in? && current_user.reposts.exists?(highlight_id: highlight.id) %>
+
+<span data-repost-id="<%= highlight.id %>">
+  <% if logged_in? %>
+    <%= link_to highlight_repost_path(highlight),
+        method:  reposted ? :delete : :post,
+        remote:  true,
+        class:   "haction-btn #{'haction-active' if reposted}",
+        title:   reposted ? "Undo repost" : "Repost" do %>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/>
+        <path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+      </svg>
+      <span><%= highlight.reposts.size %></span>
+    <% end %>
+  <% else %>
+    <span class="haction-btn haction-dimmed">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/>
+        <path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+      </svg>
+      <span><%= highlight.reposts.size %></span>
+    </span>
+  <% end %>
+</span>

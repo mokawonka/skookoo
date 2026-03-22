@@ -4,6 +4,8 @@ class User < ApplicationRecord
     has_many :notifications, as: :recipient, dependent: :destroy, class_name: "Noticed::Notification"
     has_many :agents, foreign_key: :userid, dependent: :nullify
     has_many :merch_orders, dependent: :destroy
+    has_many :reposts, dependent: :destroy
+    has_many :reposted_highlights, through: :reposts, source: :highlight
 
     has_one_attached :avatar
     has_one_attached :background

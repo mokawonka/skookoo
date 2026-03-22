@@ -3,9 +3,6 @@
   <%= render 'shared/voting_system', entity: highlight, fromuser: current_user,
                                                         touser: User.find(highlight.userid),
                                                         type: "major" %>
-  <% if logged_in? %>
-    <%= render 'shared/userhook', hid: highlight.id, user: current_user %>
-  <% end %>
 
   <div class="hmeta">
     <% owner = User.find_by_id(highlight.userid) %>
@@ -36,12 +33,6 @@
       </span>
 
       <% if logged_in? %>
-
-        <% if current_user.hooked == highlight.id %>
-          <span class=gray style='padding-right: 1em'>already hooked</span>
-        <% else %>
-          <span><a class="hhook" id="hook-<%= highlight.id %>">hook to profile</a></span>
-        <% end %>
 
         <% if current_user.username == owner.username %>
           <% if from == "highlight" %>

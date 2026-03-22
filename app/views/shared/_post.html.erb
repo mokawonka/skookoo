@@ -1,97 +1,219 @@
-<div class="post container-fluid">
+<div class="post" style="position: relative;">
 
-    <% poster = highlight.user %>
-    <% document = highlight.document %>
-    <% replies = highlight.replies.reject { |r| r.recipientid.present? || r.deleted? } %>
+  <% poster = highlight.user %>
+  <% document = highlight.document %>
+  <% replies = highlight.replies.reject { |r| r.recipientid.present? || r.deleted? } %>
+  <% reposted = logged_in? && current_user.reposts.exists?(highlight_id: highlight.id) %>
+  <% reposter_id = highlight.try(:[], :reposted_by_id) %>
 
-    <%= render 'shared/voting_system', entity: highlight, fromuser: current_user, 
-                                                          touser: poster, 
-                                                          type: "major" %>
+  <% profile_user = logged_in? ? current_user : nil %>
+  <% is_hooked    = profile_user&.hooked == highlight.id.to_s && reposter_id.blank? %>
+  <% can_hook     = profile_user.present? %>
+  <% show_hooked  = @user.present? && @user.hooked == highlight.id.to_s && !can_hook %>
 
-    <div class=hreaction>
-
-        <% if !highlight.comment.nil? %>
-            <%=link_to image_tag("comment.svg", size:"66x66") , highlight %>
-        <%end%>
-
-        <% if highlight.liked %>
-            <%=link_to image_tag("like.png", size:"66x66") , highlight %>
-        <%end%>
-
-        <% if highlight.emojiid %>
-            <% pathtoemoji = "emojis/" + highlight.emojiid%>
-            <%=link_to image_tag(pathtoemoji, size:"66x66") , highlight %>
-        <%end%>
-
-        <% if highlight.gifid %>
-            <%=link_to image_tag("gif.svg", size:"66x66") , highlight %>
-        <%end%>
+  <div class="post-left">
+    <div class="post-voting">
+      <%= render 'shared/voting_system', entity: highlight, fromuser: current_user,
+                                                            touser: poster,
+                                                            type: "major" %>
     </div>
 
-    <small class=hposter>Submitted <%=time_ago_in_words(highlight.created_at)%> ago by <%=link_to poster.username, user_path(poster.username), class: "user-hover-trigger", data: { user_id: poster.id }%> </small>  
-    <br>
-    <%= link_to highlight.quote, highlight_path(highlight), class: "hquote addReadMore showlesscontent" %> - 
-    <span id="fromauthors-<%=highlight.id%>" class="todecode authors_highlight"><%= highlight.fromauthors%></span> - 
-    <span id="fromtitle-<%=highlight.id%>" class="todecode title_highlight"> <%= highlight.fromtitle %> </span>
+    <% if highlight.comment.present? || highlight.liked? || highlight.emojiid.present? || highlight.gifid.present? %>
+      <div class="post-left-divider"></div>
+      <div class="hreaction">
+        <% if highlight.comment.present? %>
+          <%= link_to image_tag("comment.svg", size:"36x36"), highlight %>
+        <% end %>
+        <% if highlight.liked? %>
+          <%= link_to image_tag("like.png", size:"36x36"), highlight %>
+        <% end %>
+        <% if highlight.emojiid.present? %>
+          <%= link_to image_tag("emojis/#{highlight.emojiid}", size:"36x36"), highlight %>
+        <% end %>
+        <% if highlight.gifid.present? %>
+          <%= link_to image_tag("gif.svg", size:"36x36"), highlight %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 
-    <div class=hactions>
+  <div class="post-right">
 
-        <%
-            text = replies.length > 0 ? replies.length.to_s : ""
+    <% if reposter_id.present? %>
+      <% reposter = User.find_by(id: reposter_id) %>
+      <% if reposter %>
+        <div class="post-repost-label">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/>
+            <path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+          </svg>
+          <%= link_to reposter.username, user_path(reposter.username), class: "user-hover-trigger", data: { user_id: reposter.id } %> reposted
+        </div>
+      <% end %>
+    <% end %>
 
-            if replies.length > 1
-                text += " replies"
-            else  
-                text += " reply" 
-            end
-        %>
-        <span><%= link_to text , highlight_path(highlight) %></span>
+    <small class="hposter">
+      Submitted <%= time_ago_in_words(highlight.created_at) %> ago by
+      <%= link_to poster.username, user_path(poster.username), class: "user-hover-trigger", data: { user_id: poster.id } %>
+    </small>
 
+    <%= link_to highlight.quote, highlight_path(highlight), class: "hquote addReadMore showlesscontent" %>
+
+    <div class="post-tags">
+      <span id="fromauthors-<%= highlight.id %>" class="todecode authors_highlight">
+        <%= highlight.fromauthors %>
+      </span>
+      <span class="post-tags-sep">—</span>
+      <span id="fromtitle-<%= highlight.id %>" class="todecode title_highlight">
+        <%= highlight.fromtitle %>
+      </span>
+    </div>
+
+    <div class="hactions">
+
+      <span data-repost-id="<%= highlight.id %>">
+        <% if logged_in? %>
+          <%= link_to highlight_repost_path(highlight),
+              method:  reposted ? :delete : :post,
+              remote:  true,
+              class:   "haction-btn #{'haction-active' if reposted}",
+              title:   reposted ? "Undo repost" : "Repost" do %>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/>
+              <path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+            </svg>
+            <span><%= highlight.reposts.size %></span>
+          <% end %>
+        <% else %>
+          <span class="haction-btn haction-dimmed">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/>
+              <path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+            </svg>
+            <span><%= highlight.reposts.size %></span>
+          </span>
+        <% end %>
+      </span>
+
+      <div class="haction-sep"></div>
+
+      <%= link_to highlight_path(highlight), class: "haction-btn" do %>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
         <span>
-            <button class="hshare-btn"
-                    onclick="openShareSheet(this)"
-                    data-share-url="<%= highlight_url(highlight) %>"
-                    data-share-title="<%= highlight.fromtitle %>"
-                    data-share-author="<%= highlight.fromauthors %>">
-                share
-            </button>
+          <% if replies.length > 0 %>
+            <%= replies.length %> <%= replies.length == 1 ? "reply" : "replies" %>
+          <% else %>
+            reply
+          <% end %>
         </span>
+      <% end %>
 
-        <span>
-            <% if web_page_highlight?(highlight) %>
-                <%= link_to "view web page",  highlight.cfi + "?sk_highlight=" + CGI.escape(highlight.quote),
-                                                target: "_blank", rel: "noopener noreferrer" %>
-            <% elsif document != nil %>
-              <%= link_to "view in book", highlight_source_path(highlight) %>
-            <% end %>
-        </span>
+      <div class="haction-sep"></div>
 
+      <button class="haction-btn"
+              onclick="openShareSheet(this)"
+              data-share-url="<%= highlight_url(highlight) %>"
+              data-share-title="<%= highlight.fromtitle %>"
+              data-share-author="<%= highlight.fromauthors %>">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        <span>share</span>
+      </button>
 
-        <script>
-
-            $('#fromauthors-<%=highlight.id%>').on('click', function(){
-                const query = $(this).text().trim();
-                
-                if (query) {
-                    const url = new URL('/search', window.location.origin);
-                    url.searchParams.set('query', query);
-                    window.location.href = url.toString();
-                }
-            });
-
-            $('#fromtitle-<%=highlight.id%>').on('click', function(){
-                const query = $(this).text().trim();
-                
-                if (query) {
-                    const url = new URL('/search', window.location.origin);
-                    url.searchParams.set('query', query);
-                    window.location.href = url.toString();
-                }
-            });
-        </script>
+      <% if web_page_highlight?(highlight) || document.present? %>
+        <div class="haction-sep"></div>
+        <% if web_page_highlight?(highlight) %>
+          <%= link_to highlight.cfi + "?sk_highlight=" + CGI.escape(highlight.quote),
+                target: "_blank", rel: "noopener noreferrer", class: "haction-btn" do %>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            <span>view page</span>
+          <% end %>
+        <% else %>
+          <%= link_to highlight_source_path(highlight), class: "haction-btn" do %>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+              <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+            </svg>
+            <span>view in book</span>
+          <% end %>
+        <% end %>
+      <% end %>
 
     </div>
+  </div>
+
+  <% if can_hook %>
+    <button class="post-hook-btn <%= 'post-hook-btn--active' if is_hooked %>"
+            id="hook-btn-<%= highlight.id %>"
+            data-highlight-id="<%= highlight.id %>"
+            data-hooked="<%= is_hooked ? '1' : '0' %>"
+            data-hook-url="<%= user_path(profile_user) %>"
+            data-csrf="<%= form_authenticity_token %>"
+            title="<%= is_hooked ? 'Unhook from profile' : 'Hook to profile' %>">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="5" r="3"/>
+        <line x1="12" y1="22" x2="12" y2="8"/>
+        <path d="M5 12a7 7 0 0 0 14 0"/>
+      </svg>
+    </button>
+
+    <script>
+      (function() {
+        var btn = document.getElementById('hook-btn-<%= highlight.id %>');
+        if (!btn) return;
+
+        btn.addEventListener('click', function() {
+          var isHooked  = btn.dataset.hooked === '1';
+          var newValue  = isHooked ? '' : btn.dataset.highlightId;
+
+          $.ajax({
+            url:  btn.dataset.hookUrl,
+            type: 'PATCH',
+            data: { user: { hooked: newValue } },
+            headers: { 'X-CSRF-Token': btn.dataset.csrf },
+            success: function() {
+              var nowHooked = !isHooked;
+              btn.dataset.hooked = nowHooked ? '1' : '0';
+              btn.classList.toggle('post-hook-btn--active', nowHooked);
+              btn.title = nowHooked ? 'Unhook from profile' : 'Hook to profile';
+            },
+            error: function(xhr) {
+              console.error('Hook failed', xhr.responseText);
+            }
+          });
+        });
+      })();
+    </script>
+
+  <% elsif show_hooked %>
+    <div class="post-hooked-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="5" r="3"/>
+        <line x1="12" y1="22" x2="12" y2="8"/>
+        <path d="M5 12a7 7 0 0 0 14 0"/>
+      </svg>
+      hooked
+    </div>
+  <% end %>
+
+  <script>
+    $('#fromauthors-<%= highlight.id %>').on('click', function(){
+      const q = $(this).text().trim();
+      if (q) window.location.href = '/search?query=' + encodeURIComponent(q);
+    });
+    $('#fromtitle-<%= highlight.id %>').on('click', function(){
+      const q = $(this).text().trim();
+      if (q) window.location.href = '/search?query=' + encodeURIComponent(q);
+    });
+  </script>
 
 </div>
 
-<%= render "shared/share"%>
+<%= render "shared/share" %>

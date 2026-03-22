@@ -65,11 +65,29 @@ class UsersController < ApplicationController
         @totalD = @documents.count
 
         highlights = Highlight.where(userid: @user.id)
-        @totalH    = highlights.count
-        highlights = highlights.where.not(id: @hookedhighlight.id) if @hookedhighlight.present?
+        @totalH    = highlights.count + Repost.where(user_id: @user.id).count
 
-        @pagy, @hrecords = pagy(highlights.order(created_at: :desc), items: 7)
-        
+
+        # exclude hooked highlight from both own + reposts
+        excluded_id = @hookedhighlight&.id
+
+        own = Highlight
+                .where(userid: @user.id)
+                .then { |q| excluded_id ? q.where.not(id: excluded_id) : q }
+                .select("highlights.*, highlights.created_at AS sort_at, NULL::uuid AS reposted_by_id")
+
+        reposts = Highlight
+                    .joins(:reposts)
+                    .where(reposts: { user_id: @user.id })
+                    .then { |q| excluded_id ? q.where.not("highlights.id = ?", excluded_id) : q }
+                    .select("highlights.*, reposts.created_at AS sort_at, reposts.user_id AS reposted_by_id")
+
+        combined = Highlight.from(
+                    "(#{own.to_sql} UNION ALL #{reposts.to_sql}) AS highlights"
+                    ).order("sort_at DESC")
+
+        @pagy, @hrecords = pagy(combined, items: 7)
+
         render "highlights/_scrollable_list" if params[:page]
     end
 
@@ -143,22 +161,7 @@ class UsersController < ApplicationController
             end
         end
     end
-
-
-    def update_hooked
-       
-        @user = User.find(params[:id])
-        
-        @user.hooked = params[:user][:hooked]
-
-        respond_to do |format|
-
-            if @user.save
-                format.js {render inline: "$('#hook-<%=@user.hooked%>').text('hooked'); $('.hookedhighlight').hide();"}
-            end
-
-        end
-    end
+    
 
     def plusonemana
         @user = User.find(params[:id])

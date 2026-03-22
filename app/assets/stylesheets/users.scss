@@ -488,8 +488,8 @@ button.smallinput {
 #mydocuments,
 #highlights,
 #myreplies {
-  max-height: calc(100vh - 200px);
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible; 
 }
 
 #nameprofile{
@@ -548,35 +548,26 @@ button.smallinput {
   object-position: center;
 }
 
-.hookedhighlight {
-  display: flex;
-  color: gray;
-  font-size: smaller;
-  float: right !important;
-  text-decoration: none;
-  padding-right: 3px;
-  padding-top: 5px;
-  padding-left: calc(100% - 100px);
-}
-
-.hookedhighlight a{
-  cursor: pointer;
-}
-
 .hooked-post-wrapper {
-  background: #fff8db;
+  background: transparent;
   padding: 16px 0 16px 0;
 }
 
-#highlights > :not(.hookedhighlight):first-child > *:first-child {
-  padding-top: 16px;
+.hooked-post-wrapper .post {
+  background: #cce0ff;
+  border-color: #99c2ff;
+  border-radius: 12px;
 }
 
-
-#unhook:hover{
-  color:#0951a9;
-  cursor: pointer;
+.hooked-post-wrapper .post-left {
+  background: rgba(0, 80, 200, 0.07);
+  border-right-color: rgba(0, 80, 200, 0.1);
 }
+
+.hooked-post-wrapper .hactions {
+  border-top-color: rgba(0, 80, 200, 0.1);
+}
+
 
 .follow{
   font-size: small;

@@ -27,6 +27,7 @@
  *= require actiontext
  *= require mentions
  *= require password
+ *= require post
  *= require_self
  */
 
@@ -804,7 +805,7 @@ textarea {
 .hshare-btn {
   background: none;
   border: none;
-  padding: 0 1em 0 0; 
+  padding: 0 0 0 0; 
   font: inherit;
   color: gray;
   cursor: pointer;

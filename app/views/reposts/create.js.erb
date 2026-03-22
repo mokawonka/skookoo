@@ -1,0 +1,3 @@
+$('[data-repost-id="<%= @highlight.id %>"]').html(
+  '<%= escape_javascript render("shared/repost_button", highlight: @highlight, reposted: true) %>'
+);

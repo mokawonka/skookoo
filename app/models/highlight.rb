@@ -3,6 +3,8 @@ class Highlight < ApplicationRecord
     belongs_to :user, foreign_key: :userid
     belongs_to :document, foreign_key: :docid, optional: true
     has_many :replies, foreign_key: :highlightid
+    has_many :reposts, dependent: :destroy
+
 
     after_create_commit :generate_og_image
     after_create_commit :notify_document_owner

@@ -10,20 +10,21 @@ class PagesController < ApplicationController
   end
 
 
+
   def home
     sort = params[:sort] || 'new'
 
-    highlights = Highlight.all
-    if sort == 'top'
-      highlights = highlights.order(score: :desc)
+    if logged_in?
+      # Include reposts from everyone for logged-in users
+      highlights = build_feed_with_reposts(Highlight.all, User.all.pluck(:id), sort)
     else
-      highlights = highlights.order(created_at: :desc)
+      highlights = sort == 'top' ? Highlight.all.order(score: :desc) : Highlight.all.order(created_at: :desc)
     end
 
     @pagy, @records = pagy(highlights, items: 21)
 
     respond_to do |format|
-      format.js 
+      format.js
       format.html
     end
   end
@@ -91,21 +92,38 @@ class PagesController < ApplicationController
 
   def following
     following_ids = current_user.following || []
+    sort = params[:sort] || 'new'
 
-    sort = params[:sort] || 'new' 
-
-    bulkfiltered = Highlight.where(userid: following_ids)
-    
-    if sort == 'top'
-      bulkfiltered = bulkfiltered.order(score: :desc) 
-    else
-      bulkfiltered = bulkfiltered.order(created_at: :desc)
+    if following_ids.empty?
+      @pagy, @records = pagy(Highlight.none, items: 21)
+      return respond_to { |f| f.js }
     end
 
-    @pagy, @records = pagy(bulkfiltered, items: 21)
+    @pagy, @records = pagy(build_feed_with_reposts(nil, following_ids, sort), items: 21)
 
     respond_to do |format|
-      format.js 
+      format.js
     end
   end
+
+  private
+
+
+  def build_feed_with_reposts(_, user_ids, sort)
+    sort_expr = sort == 'top' ? 'score DESC' : 'sort_at DESC'
+
+    own = Highlight
+            .where(userid: user_ids)
+            .select("highlights.*, highlights.created_at AS sort_at, highlights.score AS sort_score, NULL::uuid AS reposted_by_id")
+
+    reposted = Highlight
+                .joins(:reposts)
+                .where(reposts: { user_id: user_ids })
+                .select("highlights.*, reposts.created_at AS sort_at, highlights.score AS sort_score, reposts.user_id AS reposted_by_id")
+
+    Highlight.from(
+      "(#{own.to_sql} UNION ALL #{reposted.to_sql}) AS highlights"
+    ).order(Arel.sql(sort_expr))
+  end
+
 end

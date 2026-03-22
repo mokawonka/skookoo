@@ -1,10 +1,6 @@
-<%= turbo_frame_tag "highlights-page-#{@pagy.page}", target: "_top"  do %>
-
+<%= turbo_frame_tag "highlights-page-#{@pagy.page}", target: "_top" do %>
   <% @hrecords.each do |highlight| %>
     <%= render 'shared/post', highlight: highlight %>
-    <hr>
   <% end %>
-
-  <%= render 'highlights/next_page' if @pagy.next != nil %>
-
+  <%= render 'highlights/next_page' if @pagy.next %>
 <% end %>
