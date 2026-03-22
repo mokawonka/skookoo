@@ -1,10 +1,11 @@
-var epubid = "<%=@epubid%>";
+var epubid = "<%= @epubid %>";
 
-if (epubid != ""){
-    // createfromdb (epub is already present in db)
+$('#submitepub').hide();
+$('#createfromdb').hide();
+
+if (epubid && epubid !== "") {
+    window.epubid = epubid;
     $('#createfromdb').css('display', 'inline-block');
-}
-else{
-    // create epub by uploading file to db
+} else {
     $('#submitepub').css('display', 'inline-block');
 }

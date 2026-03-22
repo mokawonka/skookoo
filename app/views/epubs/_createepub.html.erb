@@ -1,0 +1,157 @@
+<%= form_with(model: epub, local: false, html: { data: { controller: "uploadprogress" } }) do |form| %>
+
+  <% if epub.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(epub.errors.count, "error") %> prohibited this epub from being saved:</h2>
+      <ul>
+        <% epub.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <br>
+
+  <div class="text-center pb-5">
+
+    <label for="epub_upload" class="upload-zone" id="uploadZone">
+      
+      <div class="upload-inner">
+
+        <h5 class="mb-2">Drop your EPUB here</h5>
+        <p class="text-muted small mb-2">or click to browse</p>
+
+        <!-- File preview -->
+        <div id="filePreview" class="file-preview d-none">
+          <span id="fileName"></span>
+          <span id="fileSize" class="text-muted small"></span>
+        </div>
+      </div>
+
+      <!-- Hidden actual input -->
+      <%= form.file_field :epub_file,
+          direct_upload: true,
+          accept: "application/epub+zip",
+          id: "epub_upload",
+          class: "d-none" %>
+
+    </label>
+
+    <!-- Submit button -->
+    <div class="actions mt-4" id="submitepub">
+      <%= form.submit "Upload EPUB",
+          class: "btn btn-primary px-4",
+          data: { action: "click->uploadprogress#showProgress" } %>
+    </div>
+
+    <!-- Upload progress -->
+    <div id="uploadStatus" style="display:none;" data-target="uploadprogress.progress">
+      <div class="mt-3">
+        Uploading your file...
+        <span id="progressText" data-target="uploadprogress.progressText"></span>
+      </div>
+
+      <div id="progressBar" class="mt-2">
+        <div id="progressWidth" data-target="uploadprogress.progressWidth"></div>
+      </div>
+    </div>
+
+    <!-- Create from DB (existing file shortcut) -->
+    <button type="button"
+            class="btn btn-warning border-3 border-dark mt-3"
+            id="createfromdb">
+      Use existing version
+    </button>
+
+  </div>
+
+<% end %>
+
+<script>
+
+document.addEventListener('turbo:load', () => {
+
+  const uploadInput = document.getElementById('epub_upload');
+  const uploadZone  = document.getElementById('uploadZone');
+  const filePreview = document.getElementById('filePreview');
+  const fileName    = document.getElementById('fileName');
+  const fileSize    = document.getElementById('fileSize');
+
+  if (!uploadInput) return;
+
+  $('#submitepub').hide();
+  $('#createfromdb').hide();
+
+  function formatSize(bytes) {
+    return (bytes / 1024 / 1024).toFixed(2) + " MB";
+  }
+
+  function calculateHash(file, callback) {  
+    let reader = new FileReader();
+    reader.onload = function(event) {
+      let file_sha3 = sha3_256(reader.result);
+      callback(file_sha3);
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  uploadInput.addEventListener("change", function () {
+
+    const file = this.files[0];
+    if (!file) return;
+
+    // UI preview
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    filePreview.classList.remove('d-none');
+
+    // Backend check
+    calculateHash(file, function(file_sha3) {
+      const actionurl = "/epubs/" + file_sha3 + "/check_presence";
+
+      $.post(actionurl, {
+        authenticity_token: "<%= form_authenticity_token %>"
+      });
+    });
+  });
+
+
+  uploadZone.addEventListener("dragover", e => {
+    e.preventDefault();
+    uploadZone.classList.add("dragover");
+  });
+
+  uploadZone.addEventListener("dragleave", () => {
+    uploadZone.classList.remove("dragover");
+  });
+
+  uploadZone.addEventListener("drop", e => {
+    e.preventDefault();
+    uploadZone.classList.remove("dragover");
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      uploadInput.files = files;
+      uploadInput.dispatchEvent(new Event("change"));
+    }
+  });
+
+
+  $('#createfromdb').on('click', function(){
+    const actionurl = "/epubs/" + epubid + "/createfromdb";
+
+    $.post(actionurl, {
+      authenticity_token: "<%= form_authenticity_token %>"
+    })
+    .done(function(){
+      window.location.href = "<%= documents_path %>";
+    })
+    .fail(function(jqXHR, textStatus){
+      alert("Error creating document: " + textStatus);
+    });
+  });
+
+});
+
+</script>

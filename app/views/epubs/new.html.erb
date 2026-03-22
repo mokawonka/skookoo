@@ -1,13 +1,88 @@
-<h3 class="pb-4 pt-4">
-<%=image_tag('branch.svg', class: "header-icon")%>
+<% content_for :hide_global_search, true %>
+
+<h3 class="pt-4 pb-3">
+<%= image_tag('branch.svg', class: "header-icon") %>
 New Document
 </h3>
 
-<% content_for :hide_global_search, true %>
+<div class="newdoc-wrapper">
 
-<%= render 'shared/createepubselection' %>
+  <p class="text-center text-muted mb-4">
+    Choose how you want to create your document
+  </p>
 
-<div class="strike"> <span>OR</span> </div> 
+  <div class="newdoc-grid">
 
-<%= render 'shared/createepub', epub: @epub %>
+    <!-- OPTION 1: LIBRARY -->
+    <div class="newdoc-card" data-target="library">
+      <div class="newdoc-icon"><%= image_tag('books.png', size: '64x64') %> </div>
+      <h5>Browse Library</h5>
+      <p class="text-muted small">Pick from curated collections</p>
+    </div>
 
+    <!-- OPTION 2: UPLOAD -->
+    <div class="newdoc-card" data-target="upload">
+      <div class="newdoc-icon"><%= image_tag('epub.png', size: '64x64') %> </div>
+      <h5>Upload EPUB</h5>
+      <p class="text-muted small">Import your own file</p>
+    </div>
+
+    <!-- OPTION 3: WRITE -->
+    <div class="newdoc-card" data-target="write">
+      <div class="newdoc-icon"><%= image_tag('writing.png', size: '64x64') %> </div>
+      <h5>Start Writing</h5>
+      <p class="text-muted small">Create from scratch</p>
+    </div>
+
+  </div>
+
+  <!-- EXPANDABLE CONTENT AREA -->
+  <div id="newdoc-content" class="mt-4">
+
+    <!-- LIBRARY -->
+    <div id="library" class="newdoc-panel">
+      <%= render 'epubs/createepubselection' %>
+    </div>
+
+    <!-- UPLOAD -->
+    <div id="upload" class="newdoc-panel">
+      <%= render 'epubs/createepub', epub: @epub %>
+    </div>
+
+    <!-- WRITE -->
+    <div id="write" class="newdoc-panel text-center pb-5">
+      <div class="pt-4">
+        <h5 class="mb-3">Start a new document</h5>
+        <%= link_to 'Start Writing', new_document_path, class: "btn btn-primary px-4" %>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+document.addEventListener('turbo:load', () => {
+  const cards = document.querySelectorAll('.newdoc-card');
+  const panels = document.querySelectorAll('.newdoc-panel');
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      
+      const target = card.dataset.target;
+
+      // reset
+      cards.forEach(c => c.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+
+      // activate
+      card.classList.add('active');
+      document.getElementById(target).classList.add('active');
+
+      // smooth scroll into view
+      document.getElementById('newdoc-content')
+        .scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+});
+</script>

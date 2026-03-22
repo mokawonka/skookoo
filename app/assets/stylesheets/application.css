@@ -15,7 +15,7 @@
  *= require cropper.min
  *= require readmore
  *= require documents
- *= require epubselection
+ *= require epubs
  *= require expressions
  *= require fontnames
  *= require highlights

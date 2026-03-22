@@ -1,0 +1,341 @@
+/* ===== New Document Choice UI ===== */
+
+.newdoc-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+.newdoc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  padding: 0 10px;
+}
+
+@media (max-width: 768px) {
+  .newdoc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.newdoc-card {
+  background: white;
+  border-radius: 21px;
+  padding: 22px 16px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid #e6e6e6;
+  transition: all 0.25s ease;
+}
+
+.newdoc-card:hover {
+  transform: translateY(-4px);
+  border-color: #0951a9;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.newdoc-card.active {
+  border-color: #0951a9;
+  box-shadow: 0 12px 30px rgba(9,81,169,0.15);
+}
+
+.newdoc-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.newdoc-panel {
+  display: none;
+  animation: fadeSlide 0.25s ease;
+}
+
+.newdoc-panel.active {
+  display: block;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== book library selection ===== */
+
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    min-height: 220px;
+    background: rgba(255, 255, 255, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+    visibility: visible;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 5px solid #e0e0e0;
+    border-top: 6px solid #6366f1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+.loading-text {
+    margin-top: 1.2rem;
+    color: #4b5563;
+    font-size: 1.05rem;
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.search-input {
+  max-width: 420px;
+  height: 46px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  padding: 0 1.5rem;
+  }
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 150px;           /* ← your preferred max card width */
+  margin: 0 auto;
+  padding-top: 1em;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;   /* better touch behavior */
+  /* Fixed height so prev/next/select buttons don't move when title/author length varies */
+  height: 365px;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  will-change: transform;
+  user-select: none;
+  transform: translateX(0%);
+}
+
+.epub-card {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.epub-card img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #f8f9fa;
+  flex-shrink: 0;
+}
+
+/* Fixed-height text block so long title/author don't push buttons down */
+.epub-card .card-title,
+.epub-card .epub-title {
+  flex-shrink: 0;
+  height: 5.2em;               /* 4 lines so long titles are visible */
+  margin: 0.4rem 0 0 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  line-height: 1.3;
+}
+
+.epub-card h5.text-muted,
+.epub-card .epub-author {
+  flex-shrink: 0;
+  height: 1.5em;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.carousel-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #0951a9;
+  border: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-btn:hover {
+  background: #0b63cc;
+  transform: scale(1.12);
+}
+
+.carousel-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Optional: nicer arrows using only text (remove pseudo-elements if you prefer) */
+.carousel-btn.prev::before,
+.carousel-btn.next::before {
+    content: none;   /* ← disable fancy arrows if you want simple ← → */
+}
+
+/* Controls wrapper */
+.carousel-controls {
+    margin-top: 1.5rem;        /* space between carousel and buttons */
+}
+
+.carousel-btn.select-btn {
+  width: auto;                    /* not fixed width like arrows */
+  min-width: 160px;               /* comfortable size */
+  padding: 0 1.5rem;
+  height: 40px;
+  border-radius: 30px;            /* pill shape – nicer than circle here */
+  background: green;            /* green = positive action (add) */
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.3);
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-btn.select-btn:hover {
+  background: #218838;
+  transform: scale(1.08);
+  box-shadow: 0 10px 24px rgba(40, 167, 69, 0.45);
+}
+
+.carousel-btn.select-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  background: #6c757d;
+}
+
+/* Optional: smaller on mobile */
+@media (max-width: 576px) {
+    .carousel-btn.select-btn {
+        min-width: 140px;
+        font-size: 1rem;
+        padding: 0 1.2rem;
+        height: 54px;
+    }
+    .carousel-controls {
+        gap: 2.5rem !important;
+    }
+}
+
+
+.card-title{
+  color:#0951a9; 
+  padding-top:1em;
+}
+
+#collectionDropdown{
+  color:#0951a9 !important;
+}
+
+#epub-search > input{
+    border: solid 2px #ff8080;
+    border-radius: 21px;
+    height: 40px;
+    width: 300px;
+    color:#444444;
+}
+
+#epub-search > input:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+
+@media (max-width: 768px) {
+.epub-card { flex: 0 0 220px; width: 220px; }
+}
+
+
+/* ===== Upload EPUB file ===== */
+
+.upload-zone {
+  display: block;
+  border: 2px dashed #d6d6d6;
+  border-radius: 21px;
+  padding: 40px 20px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.upload-zone:hover {
+  border-color: #0951a9;
+  background: #f4f8ff;
+}
+
+.upload-zone.dragover {
+  border-color: #0951a9;
+  background: #eaf2ff;
+  transform: scale(1.01);
+}
+
+.upload-inner {
+  pointer-events: none;
+}
+
+.upload-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.file-preview {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: white;
+  border: 1px solid #e6e6e6;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-preview span:first-child {
+  font-weight: 600;
+  color: #222;
+}
