@@ -854,6 +854,23 @@ button.smallinput {
   object-fit: cover;
   background: #f8f9fa;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, filter 0.2s ease;
+  cursor: pointer;
+}
+
+.avatar_profile:hover {
+  transform: scale(1.01);
+  filter: brightness(0.88);
+}
+
+#avatarmodal {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+#avatarmodal .modal-dialog {
+  background: transparent;
 }
 
 .cropper-view-box {
