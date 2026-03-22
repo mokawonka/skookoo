@@ -1043,3 +1043,188 @@ button.smallinput {
   padding:80px 20px;
   opacity: 0.5;
 }
+
+/* ═══════════════════════════════════════
+   Personal Details Card
+   ═══════════════════════════════════════ */
+
+.personal-details-card {
+  background: #f8fafd;
+  border: 1px solid #e8edf5;
+  border-radius: 18px;
+  padding: 24px 28px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pd-field {
+  padding: 20px 0;
+}
+
+.pd-divider {
+  height: 1px;
+  background: #edf0f5;
+}
+
+.pd-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #8a96a8;
+  margin-bottom: 14px;
+}
+
+.pd-label-icon {
+  font-size: 1rem;
+}
+
+.pd-dob-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pd-select-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 90px;
+}
+
+.pd-select-wrap--year {
+  flex: 1.4;
+}
+
+.pd-select-wrap::after {
+  content: "▾";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: #0951a9;
+  pointer-events: none;
+}
+
+.pd-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: white;
+  border: 1.5px solid #e3e6ea;
+  border-radius: 10px;
+  padding: 9px 32px 9px 13px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pd-select:focus {
+  outline: none;
+  border-color: #0951a9;
+  box-shadow: 0 0 0 3px rgba(9, 81, 169, 0.1);
+}
+
+.pd-select option[value=""] {
+  color: #aaa;
+}
+
+.pd-age-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 5px 14px;
+  background: linear-gradient(135deg, #e8f0fe, #ddeeff);
+  color: #0951a9;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 30px;
+  border: 1px solid rgba(9, 81, 169, 0.15);
+}
+
+.pd-gender-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pd-gender-radio {
+  display: none;
+}
+
+.pd-gender-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 12px 16px;
+  min-width: 90px;
+  background: white;
+  border: 1.5px solid #e3e6ea;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.pd-gender-chip:hover {
+  border-color: #0951a9;
+  background: #f0f6ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 81, 169, 0.12);
+}
+
+.pd-gender-chip--active {
+  border-color: #0951a9 !important;
+  background: linear-gradient(135deg, #eaf1ff, #ddeeff) !important;
+  box-shadow: 0 4px 16px rgba(9, 81, 169, 0.18) !important;
+}
+
+.pd-chip-emoji {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.pd-chip-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4a5568;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.pd-gender-chip--active .pd-chip-label {
+  color: #0951a9;
+}
+
+@media (max-width: 768px) {
+  .personal-details-card {
+    padding: 18px 16px;
+  }
+
+  .pd-dob-row {
+    gap: 8px;
+  }
+
+  .pd-select-wrap {
+    min-width: 80px;
+  }
+
+  .pd-gender-chip {
+    min-width: 76px;
+    padding: 10px 10px;
+  }
+
+  .pd-chip-emoji {
+    font-size: 1.3rem;
+  }
+}

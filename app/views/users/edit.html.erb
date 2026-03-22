@@ -101,6 +101,114 @@ My settings
 
             <hr>
           
+          <%# ── Birth date & Gender card ── %>
+          <p class='updater-title'>Personal details</p>
+
+          <%= form_with model: current_user, url: user_path(current_user), method: :patch, local: true do |form| %>
+
+            <div class="personal-details-card">
+
+              <%# ── Birth date ── %>
+              <div class="pd-field">
+                <label class="pd-label" for="user_birthdate">
+                  Date of birth
+                </label>
+
+                <div class="pd-dob-row">
+                  <%
+                    dob        = current_user.birthdate
+                    dob_day    = dob&.day
+                    dob_month  = dob&.month
+                    dob_year   = dob&.year
+                  %>
+
+                  <div class="pd-select-wrap">
+                    <select name="user[birthdate_day]" id="dob_day" class="pd-select">
+                      <option value="">Day</option>
+                      <% (1..31).each do |d| %>
+                        <option value="<%= d %>" <%= 'selected' if dob_day == d %>><%= d %></option>
+                      <% end %>
+                    </select>
+                  </div>
+
+                  <div class="pd-select-wrap">
+                    <select name="user[birthdate_month]" id="dob_month" class="pd-select">
+                      <option value="">Month</option>
+                      <% Date::MONTHNAMES.compact.each_with_index do |m, i| %>
+                        <option value="<%= i + 1 %>" <%= 'selected' if dob_month == i + 1 %>><%= m %></option>
+                      <% end %>
+                    </select>
+                  </div>
+
+                  <div class="pd-select-wrap pd-select-wrap--year">
+                    <select name="user[birthdate_year]" id="dob_year" class="pd-select">
+                      <option value="">Year</option>
+                      <% (Date.today.year - 100 .. Date.today.year - 5).to_a.reverse.each do |y| %>
+                        <option value="<%= y %>" <%= 'selected' if dob_year == y %>><%= y %></option>
+                      <% end %>
+                    </select>
+                  </div>
+                </div>
+
+                <% if current_user.birthdate %>
+                  <div class="pd-age-pill">
+                    🎉 <%= ((Date.today - current_user.birthdate) / 365.25).floor %> years old
+                  </div>
+                <% end %>
+              </div>
+
+              <div class="pd-divider"></div>
+
+              <%# ── Gender ── %>
+              <div class="pd-field">
+                <label class="pd-label">
+                  Gender
+                </label>
+
+                <%
+                  known_genders = %w[man woman prefer_not self_describe]
+                  is_custom = current_user.gender.present? && !known_genders.include?(current_user.gender)
+                  gender_options = [
+                    { value: 'man',           label: 'Man',               emoji: '👨' },
+                    { value: 'woman',         label: 'Woman',             emoji: '👩' },
+                    { value: 'prefer_not',    label: 'Prefer not to say', emoji: '🤐' },
+                    { value: 'self_describe', label: 'Self-describe',     emoji: '✏️' },
+                  ]
+                %>
+
+                <div class="pd-gender-grid">
+                  <% gender_options.each do |opt| %>
+                    <%
+                      is_active = (current_user.gender == opt[:value]) ||
+                                  (opt[:value] == 'self_describe' && is_custom)
+                    %>
+                    <label class="pd-gender-chip <%= 'pd-gender-chip--active' if is_active %>">
+                      <%= form.radio_button :gender, opt[:value],
+                            class: 'pd-gender-radio',
+                            id: "gender_#{opt[:value]}",
+                            checked: is_active %>
+                      <span class="pd-chip-emoji"><%= opt[:emoji] %></span>
+                      <span class="pd-chip-label"><%= opt[:label] %></span>
+                    </label>
+                  <% end %>
+                </div>
+
+                <div id="self-describe-wrapper" class="<%= is_custom ? '' : 'd-none' %> mt-3">
+                  <input type="text"
+                        id="gender_custom_input"
+                        placeholder="Describe your gender…"
+                        class="smallinput"
+                        value="<%= is_custom ? current_user.gender : '' %>">
+                </div>
+              </div>
+
+            </div>
+
+            <div class="actions mt-3">
+              <%= form.submit "Save details", class: 'smallinput' %>
+            </div>
+
+          <% end %>
 
           </div>
 
@@ -394,6 +502,41 @@ document.addEventListener("turbo:load", function () {
       );
     });
   });
+
+
+
+document.querySelectorAll('.pd-gender-radio').forEach(function (radio) {
+  radio.addEventListener('change', function () {
+    const wrapper  = document.getElementById('self-describe-wrapper');
+    const input    = document.getElementById('gender_custom_input');
+
+    if (this.value === 'self_describe') {
+      wrapper.classList.remove('d-none');
+      // Give the text input a name so IT submits as gender
+      input.name = 'user[gender]';
+      input.required = true;
+      input.focus();
+    } else {
+      wrapper.classList.add('d-none');
+      // Remove name so it doesn't submit at all
+      input.removeAttribute('name');
+      input.required = false;
+    }
+
+    document.querySelectorAll('.pd-gender-chip').forEach(function (chip) {
+      chip.classList.remove('pd-gender-chip--active');
+    });
+    this.closest('.pd-gender-chip').classList.add('pd-gender-chip--active');
+  });
+});
+
+(function () {
+  const wrapper = document.getElementById('self-describe-wrapper');
+  const input   = document.getElementById('gender_custom_input');
+  if (wrapper && input && !wrapper.classList.contains('d-none')) {
+    input.name = 'user[gender]';
+  }
+})();
 
 });
 

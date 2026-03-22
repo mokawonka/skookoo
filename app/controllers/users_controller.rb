@@ -107,6 +107,13 @@ class UsersController < ApplicationController
     def update
         @user = User.find(params[:id])
 
+        d = params[:user].delete(:birthdate_day).presence
+        m = params[:user].delete(:birthdate_month).presence
+        y = params[:user].delete(:birthdate_year).presence
+        if d && m && y
+            @user.birthdate = Date.new(y.to_i, m.to_i, d.to_i) rescue nil
+        end
+
         if @user.update(user_params)
             if request.xhr?
                 render json: { status: :ok }
@@ -525,7 +532,7 @@ class UsersController < ApplicationController
             params.require(:user).permit(:email, :name, :username, :password, :password_confirmation, 
                                          :avatar, :background, :mana, :votes, :darkmode, :font, 
                                          :allownotifications, :emailnotifications, :private_profile,
-                                         :hooked, :following, :followers, :bio, :location)
+                                         :hooked, :following, :followers, :bio, :location, :birthdate, :gender)
         end
 
 end
