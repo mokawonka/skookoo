@@ -1,7 +1,7 @@
 
 <% replies.order('created_at DESC').each do |rep| %>
 
-    <%= render "shared/onereply", reply: rep, type: type %>
+    <%= render "replies/onereply", reply: rep, type: type %>
 
 
     <% subreplies = rep.getsubreplies %>
@@ -9,7 +9,7 @@
         <% offset = type == "parent" ? "47px" : "27px" %>
 
         <div id="children-<%=rep.id%>" style="margin-left: <%=offset%>">
-            <%= render 'shared/highlightreplies', replies: subreplies, type: "child" %>
+            <%= render 'replies/highlightreplies', replies: subreplies, type: "child" %>
         </div>
     <% end %>
 

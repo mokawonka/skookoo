@@ -141,7 +141,7 @@ document.addEventListener("turbo:load", function () {
                   </div>
                   <div class="modal-body">
 
-                        <%= render "shared/createhighlight" %>
+                        <%= render "highlights/createhighlight" %>
 
                   </div>
                 </div>
@@ -955,10 +955,10 @@ document.addEventListener("turbo:load", function () {
                       rendition.annotations.add("highlight", highlightCfi, {}, 
                         (e) => {
                           var content = "<div>" +
-                            "<%= escape_javascript render('shared/onehighlight', highlight: @target_highlight, document: @document, from: 'document') %> <br>" +
-                            "<%= escape_javascript render('shared/createreply', reply: Reply.new, highlight_id: @target_highlight.id, recipient_id: '', formwhatfor: 'creation') %> <br>" +
+                            "<%= escape_javascript render('highlights/onehighlight', highlight: @target_highlight, document: @document, from: 'document') %> <br>" +
+                            "<%= escape_javascript render('replies/createreply', reply: Reply.new, highlight_id: @target_highlight.id, recipient_id: '', formwhatfor: 'creation') %> <br>" +
                             "<div id=allreplies>" +
-                            "<%= escape_javascript render('shared/highlightreplies', replies: Reply.where(highlightid: @target_highlight.id).where(deleted: false).where(recipientid: nil), highlight: @target_highlight, type: 'parent') %>" +
+                            "<%= escape_javascript render('replies/highlightreplies', replies: Reply.where(highlightid: @target_highlight.id).where(deleted: false).where(recipientid: nil), highlight: @target_highlight, type: 'parent') %>" +
                             "</div></div>";
 
                           $('#conversationmodalcontent').html(content);
@@ -1207,9 +1207,9 @@ document.addEventListener("turbo:load", function () {
           <% @highlights.each do |berry| %>          
             rendition.annotations.add("highlight", "<%=berry.cfi%>", {}, (e) => {
                                           var content = "<div>" + 
-                                                        "<%=escape_javascript render 'shared/onehighlight' , highlight: berry, document: @document, from: 'document' %> <br>" +
-                                                        "<%=escape_javascript render 'shared/createreply', reply: Reply.new, highlight_id: berry.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
-                                                        "<div id=allreplies>" + "<%=escape_javascript render 'shared/highlightreplies', replies: Reply.where(:highlightid => berry.id).where(:deleted => false).where(:recipientid => nil), highlight: berry, type: "parent" %>" + "</div></div>";
+                                                        "<%=escape_javascript render 'highlights/onehighlight' , highlight: berry, document: @document, from: 'document' %> <br>" +
+                                                        "<%=escape_javascript render 'replies/createreply', reply: Reply.new, highlight_id: berry.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
+                                                        "<div id=allreplies>" + "<%=escape_javascript render 'replies/highlightreplies', replies: Reply.where(:highlightid => berry.id).where(:deleted => false).where(:recipientid => nil), highlight: berry, type: "parent" %>" + "</div></div>";
 
                                           $('#conversationmodalcontent').html(content);
                                           $('#conversationmodal').modal('show');

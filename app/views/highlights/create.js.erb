@@ -6,9 +6,9 @@
 
     rendition.annotations.add("highlight", '<%= @highlight.cfi %>', {}, (e) => {
         var content = "<div>" + 
-        "<%= escape_javascript render 'shared/onehighlight', highlight: @highlight, document: Document.find_by_id(@highlight.docid), from: 'document' %> <br>" +
-        "<%= escape_javascript render 'shared/createreply', reply: Reply.new, highlight_id: @highlight.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
-        "<div id=allreplies>" + "<%= escape_javascript render 'shared/highlightreplies', replies: Reply.where(:highlightid => @highlight.id), highlight: @highlight %>" + "</div></div>";
+        "<%= escape_javascript render 'highlights/onehighlight', highlight: @highlight, document: Document.find_by_id(@highlight.docid), from: 'document' %> <br>" +
+        "<%= escape_javascript render 'replies/createreply', reply: Reply.new, highlight_id: @highlight.id, recipient_id:'', formwhatfor: 'creation' %> <br>" +
+        "<div id=allreplies>" + "<%= escape_javascript render 'replies/highlightreplies', replies: Reply.where(:highlightid => @highlight.id), highlight: @highlight %>" + "</div></div>";
 
         $('#conversationmodalcontent').html(content);
         $('#conversationmodal').modal('show');

@@ -2,17 +2,17 @@
 <div class="container pt-5">
 
     <div class=pb-5>
-        <%= render "shared/onehighlight" , highlight: @highlight , document: @document, from: 'highlight' %>
+        <%= render "highlights/onehighlight" , highlight: @highlight , document: @document, from: 'highlight' %>
     </div>
 
 
     <div class=pb-5>
-        <%= render 'shared/createreply', reply: @reply, highlight_id: @highlight.id, recipient_id:'', formwhatfor: "creation" %>
+        <%= render 'replies/createreply', reply: @reply, highlight_id: @highlight.id, recipient_id:'', formwhatfor: "creation" %>
     </div>
 
 
     <div id=allreplies>
-        <%= render 'shared/highlightreplies', replies: @replies, type: "parent" %>
+        <%= render 'replies/highlightreplies', replies: @replies, type: "parent" %>
     </div>
 
 </div>

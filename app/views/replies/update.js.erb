@@ -3,8 +3,8 @@ var toupdate = document.getElementById("<%=@reply.id%>");
 var ischild = $(toupdate).find('.child-onereply').length != 0
 
 if(ischild){
-    $(toupdate).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'child') %>");
+    $(toupdate).html("<%=escape_javascript render('replies/onereply', reply: @reply, type:'child') %>");
 }
 else{
-    $(toupdate).html("<%=escape_javascript render('shared/onereply', reply: @reply, type:'parent') %>");
+    $(toupdate).html("<%=escape_javascript render('replies/onereply', reply: @reply, type:'parent') %>");
 }

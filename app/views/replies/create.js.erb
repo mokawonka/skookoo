@@ -6,14 +6,14 @@
     {
        $('#creation').text('');
         var thereplies = document.getElementById('allreplies');
-        $(thereplies).prepend("<%=escape_javascript render('shared/onereply', reply: @reply, type: 'parent')%>");
+        $(thereplies).prepend("<%=escape_javascript render('replies/onereply', reply: @reply, type: 'parent')%>");
     }
     else if ("<%=@replytype%>" == "child")
     {
         $('#replying').text('');
         var thereply = document.getElementById('<%=@reply.recipientid%>');
         $(thereply).find('.replytobox').addClass('d-none');
-        $(thereply).append("<div style='margin-left:47px'><%=escape_javascript render('shared/onereply', reply: @reply, type: 'child')%></div>");
+        $(thereply).append("<div style='margin-left:47px'><%=escape_javascript render('replies/onereply', reply: @reply, type: 'child')%></div>");
     }
 
 <% end %>
