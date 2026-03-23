@@ -12,6 +12,7 @@ class CreateNoticedTables < ActiveRecord::Migration[6.1]
       end
 
       t.timestamps
+      t.integer :notifications_count
     end
 
     create_table :noticed_notifications, id: primary_key_type do |t|

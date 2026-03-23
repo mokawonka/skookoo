@@ -8,6 +8,12 @@ class CreateAgents < ActiveRecord::Migration[7.2]
       t.string :verification_code
       t.string :status
 
+      t.uuid :userid
+
+      t.index :api_key, unique: true
+      t.index :claim_token, unique: true
+      t.index :userid, name: "index_agents_on_userid"
+
       t.timestamps
     end
   end

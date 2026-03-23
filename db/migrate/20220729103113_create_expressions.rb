@@ -7,6 +7,9 @@ class CreateExpressions < ActiveRecord::Migration[6.1]
       t.string  :cfi
       t.string  :content
 
+      t.string :definition, limit: 1000
+      t.string :origin
+
       t.timestamps
     end
   end

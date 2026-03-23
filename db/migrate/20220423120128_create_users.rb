@@ -24,6 +24,16 @@ class CreateUsers < ActiveRecord::Migration[6.1]
       t.text :following
       t.text :followers
 
+      t.boolean :emailnotifications
+      t.boolean :private_profile, default: false, null: false
+      t.text :pending_follow_requests, default: "[]"
+
+      t.string :reset_password_token
+      t.datetime :reset_password_sent_at
+
+      t.date :birthdate
+      t.string :gender
+
       t.timestamps
     end
 

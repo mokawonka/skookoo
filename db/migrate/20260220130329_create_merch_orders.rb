@@ -7,6 +7,9 @@ class CreateMerchOrders < ActiveRecord::Migration[7.2]
       t.text :design_text
       t.string :status
 
+      t.string :color
+      t.integer :quantity
+
       t.timestamps
     end
   end
