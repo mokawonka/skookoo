@@ -8,7 +8,7 @@ class CreateDocuments < ActiveRecord::Migration[6.1]
       t.string :title
       t.string :authors
 
-      t.boolean :ispublic # ignored at this moment
+      t.boolean :ispublic
       t.decimal :progress
       t.integer :opened
 
@@ -24,7 +24,6 @@ class CreateDocuments < ActiveRecord::Migration[6.1]
 
       t.boolean :user_created, default: false, null: false
 
-      # Formerly `type` (renamed to `nature`)
       t.string :nature, default: "book"
 
       t.index :last_accessed_at, name: "index_documents_on_last_accessed_at"
