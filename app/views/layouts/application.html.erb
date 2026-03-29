@@ -219,24 +219,11 @@
 
 
   <% unless controller.controller_name == "documents" && %w[new show].include?(controller.action_name) %>
-      <footer id="footer" class="text-center border-top text-muted fixed-bottom">
-          <span id="copyright"></span> - <%= link_to 'About', about_path %> 
-          -
-          <a href="#" data-bs-toggle="modal" data-bs-target="#featureRequestModal">Feature request</a> 
-      </footer>
-  
-
-      <script>
-
-      (function() {
-
-        const para = ` <small> &copy; Skookoo ${new Date().getFullYear()} </small> `;
-        document.getElementById('copyright').innerHTML = para;
-
-      })();
-
-      </script>
-
+      	<footer id="footer" class="text-center border-top text-muted fixed-bottom">
+	  <small>&copy; Skookoo <%= Time.current.year %></small>
+	  - <%= link_to 'About', about_path %>
+	  - <a href="#" data-bs-toggle="modal" data-bs-target="#featureRequestModal">Feature request</a>
+	</footer>
   <% end %>
 
   <script>
