@@ -1,12 +1,12 @@
 require "active_support/core_ext/integer/time"
 
-Rails.application.routes.default_url_options[:host] = 'mokawonka.space'
+Rails.application.routes.default_url_options[:host] = 'skookoo.com'
 Rails.application.routes.default_url_options[:protocol] = 'https'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
-  config.hosts << "mokawonka.space"
+  config.hosts << "skookoo.com"
   config.hosts << "0.0.0.0"
   config.hosts << "127.0.0.1"
   config.hosts << "localhost"
@@ -75,6 +75,21 @@ Rails.application.configure do
   # config.active_job.queue_name_prefix = "assembly_production"
 
   config.action_mailer.perform_caching = false
+
+  config.action_mailer.default_url_options = { host: "skookoo.com" }
+
+  config.action_mailer.delivery_method = :smtp
+
+  config.action_mailer.smtp_settings = {
+    address: "smtp.gmail.com",
+    port: 587,
+    domain: "skookoo.com",
+    user_name: ENV["GMAIL_USERNAME"],
+    password: ENV["GMAIL_APP_PASSWORD"],
+    authentication: "plain",
+    enable_starttls_auto: true
+  }
+
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
